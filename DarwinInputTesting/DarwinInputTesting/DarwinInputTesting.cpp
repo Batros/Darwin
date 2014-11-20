@@ -228,7 +228,7 @@ int main(int argc, char **argv) {
 	glutMotionFunc(onMouseDrag);
 	glutMouseFunc(onMouseClick);
 	glutSetCursor(GLUT_CURSOR_NONE);
-	//glutFullScreen();
+	glutFullScreen();
 
 	glutMainLoop();
 	return 0;

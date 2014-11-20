@@ -145,11 +145,11 @@ void Camera::updateAngle(Input* input) {
 		return;
 	}
 
-	//cout << "rotating: " << diffX << ", " << diffY  << endl;
+	
 	float xAngle = sens*diffX;
 	float yAngle = sens*diffY;
 
-	
+	/*
 	if (diffX > 0) {
 		xAngle = 1;
 	}
@@ -159,22 +159,25 @@ void Camera::updateAngle(Input* input) {
 	else {
 		xAngle = 0;
 	}
-
+	
 	if (diffY > 0) {
-		yAngle = 1;
+		yAngle = 20;
 	}
 	else if (diffY < 0) {
-		yAngle = -1;
+		yAngle = -20;
 	}
 	else {
 		yAngle = 0;
 	}
+	*/
 	
-	glm::mat4 yRotation = glm::rotate(yAngle, glm::vec3(rightVector));
 	glm::mat4 xRotation = glm::rotate(xAngle, glm::vec3(upVector));
 
-	lookVector = xRotation * yRotation * lookVector;
+	lookVector = xRotation * lookVector;
 	rightVector = xRotation * rightVector;
+
+	glm::mat4 yRotation = glm::rotate(yAngle, glm::vec3(rightVector));
+	lookVector = yRotation * lookVector;
 	upVector = yRotation * upVector;
 
 	//cout << lookVector[0] << ", " << lookVector[1] << ", " << lookVector[2] << ", " << lookVector[3] << endl;
