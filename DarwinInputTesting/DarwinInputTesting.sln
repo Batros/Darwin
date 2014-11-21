@@ -4,6 +4,10 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DarwinInputTesting", "DarwinInputTesting\DarwinInputTesting.vcxproj", "{60C2E382-81F3-4D93-AB27-628D7C13789E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3A7ADA73-F6E4-43DB-B813-C2DD8D42ABD9}"
+	ProjectSection(SolutionItems) = preProject
+		DarwinInputTesting\Agent.cpp = DarwinInputTesting\Agent.cpp
+		DarwinInputTesting\Agent.h = DarwinInputTesting\Agent.h
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "Input.h"
 #include "Camera.h"
+#include "Agent.h"
 
 using namespace std;
 
@@ -24,6 +25,7 @@ vector<vector<float>> colours;
 
 Input* input;
 Camera* camera;
+vector<Agent> agents;
 
 /*
 The keyboard and mouse movement functions just forward on to the input class,
@@ -185,6 +187,18 @@ void display(void) {
 		camera->positionCamera(input);
 	}
 	
+	float r = 0.25;
+	float g = 0.45;
+	float b = 1.0;
+
+	for(int i = 0; i < agents.size(); i++) {
+		glColor3f(r, g, b);
+		glPushMatrix();
+			glTranslated(agents[i].getX(), agents[i].getY(), agents[i].getZ());
+			glutSolidCube(0.8f);
+		glPopMatrix();
+	}
+
 	renderEnvironment();
 	glutSwapBuffers();
 }
@@ -201,6 +215,13 @@ void reshape(int width, int height) {
 }
 
 int main(int argc, char **argv) {
+	for (int i=0; i<50; i++) {
+		int ranX = rand() % 78 - 39, ranY = rand() % 78 - 39;
+		cout << ranX << ", " << ranY << endl;
+		Agent agt (ranX, 0, ranY);
+		agents.push_back(agt);
+	}
+
 	glutInit(&argc, argv);
 	screenWidth = glutGet(GLUT_SCREEN_WIDTH);
 	screenHeight = glutGet(GLUT_SCREEN_HEIGHT);

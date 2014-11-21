@@ -81,6 +81,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Agent.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="mymaths.h" />
@@ -88,6 +89,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Agent.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="DarwinInputTesting.cpp" />
     <ClCompile Include="Input.cpp" />
