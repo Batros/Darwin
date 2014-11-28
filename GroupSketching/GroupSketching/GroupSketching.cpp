@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "Input.h"
 #include "Camera.h"
+#include "SketchHandler.h"
+#include "Formation.h"
+#include "CrowdModel.h"
 
 using namespace std;
 
@@ -11,11 +14,13 @@ bool drawMode;
 bool dragging;
 bool cubeDrawn;
 int strokeNumber;
-vector<vector<vector<GLdouble>>> strokes;
+vector<vector<glm::vec3>> strokes;
 vector<vector<float>> colours;
 
 Input* input;
 Camera* camera;
+CrowdModel* crowdModel;
+SketchHandler* sketchHandler;
 
 /*
 The keyboard and mouse movement functions just forward on to the input class,
@@ -47,10 +52,18 @@ void onMouseDrag(int x, int y) {
 	}
 }
 
+void processInput() {
+	if (sizeof(strokes)==3) {
+		Formation* f1 = sketchHandler->processFormation(strokes[0]);
+		Formation* f2 = sketchHandler->processFormation(strokes[1]);
+		Path path = sketchHandler->processPath(strokes[2]);
+	}
+}
+
 void onMouseClick(int button, int state, int x, int y) {
 	if(button == GLUT_LEFT_BUTTON) {
 		if (state == GLUT_DOWN) {
-			vector<vector<GLdouble>> newStroke;
+			vector<glm::vec3> newStroke;
 			strokes.push_back(newStroke);
 
 			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -110,14 +123,14 @@ void drawFloor(float size, int polys) {
 void renderEnvironment(void) {
 	drawFloor(40.0f, 300);
 	if (cubeDrawn) {
-		for(std::vector<vector<GLdouble>>::size_type i = 0; i != strokes.size(); i++) {
+		for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
 			glColor3f(colours[i][0], colours[i][1], colours[i][2]);
-			for(std::vector<GLdouble>::size_type j = 0; j != strokes[i].size(); j++) {
-				glPushMatrix();
-					glTranslated(strokes[i][j][0], strokes[i][j][1], strokes[i][j][2]);
-					glutSolidCube(0.2f);
-				glPopMatrix();
+			glLineWidth(20.0f);
+			glBegin(GL_LINE_STRIP);
+			for(glm::vec3::size_type j = 0; j != strokes[i].size(); j++) {
+				glVertex3d(strokes[i][j].x, strokes[i][j].y+0.01, strokes[i][j].z);
 			}
+			glEnd();
 		}
 	}
 }
@@ -141,13 +154,14 @@ void display(void) {
 		camera->positionCamera(input);
 	}
 
+	if (input->isKeyPressed(VK_RETURN)) {
+		processInput();
+	}
+
 	renderEnvironment();
 	glutSwapBuffers();
 }
 
-/*
-reshape deals with the window being reshaped. It's just a standard reshape function
-*/
 void reshape(int width, int height) {
 	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 	glMatrixMode(GL_PROJECTION);

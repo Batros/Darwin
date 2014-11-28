@@ -37,7 +37,7 @@ public:
 	// This function is called each time the mouse is moved on the screen
 	void onMouseMove(int x, int y);
 
-	std::vector<GLdouble> onMouseClick(int x, int y);
+	glm::vec3 onMouseClick(int x, int y);
 
 	/*
 	getDiffX and getDiffY return the difference in mouse coordinates for the x and y axes.

@@ -37,7 +37,7 @@ void Input::init() {
 	}
 }
 
-std::vector<GLdouble> Input::onMouseClick(int x, int y) {
+glm::vec3 Input::onMouseClick(int x, int y) {
     GLint viewport[4];
     GLdouble modelview[16];
     GLdouble projection[16];
@@ -54,9 +54,7 @@ std::vector<GLdouble> Input::onMouseClick(int x, int y) {
  
     gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
  
-	GLdouble posArr[3] = {posX, posY, posZ};
-	vector<GLdouble> posVec(3);
-	posVec.insert (posVec.begin(), posArr, posArr+3);
+	glm::vec3 posVec = glm::vec3(posX, posY, posZ);
 	
 	return posVec;
 }

@@ -2,11 +2,11 @@
 #include "Formation.h"
 #include "Path.h"
 
-class InputHandler
+class SketchHandler
 {
 public:
-	InputHandler(void);
-	~InputHandler(void);
+	SketchHandler(void);
+	~SketchHandler(void);
 
 	Formation* processFormation(vector<glm::vec3>);
 	Path processPath(vector<glm::vec3>);
