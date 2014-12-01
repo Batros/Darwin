@@ -13,6 +13,7 @@ int screenHeight;
 bool drawMode;
 bool dragging;
 bool cubeDrawn;
+bool running;
 int strokeNumber;
 vector<vector<glm::vec3>> strokes;
 vector<vector<float>> colours;
@@ -57,6 +58,10 @@ void processInput() {
 		Formation* f1 = sketchHandler->processFormation(strokes[0]);
 		Formation* f2 = sketchHandler->processFormation(strokes[1]);
 		Path path = sketchHandler->processPath(strokes[2]);
+
+		crowdModel->createCrowd(f1, f2, path);
+		running = true;
+		strokes.empty();
 	}
 }
 
@@ -156,6 +161,10 @@ void display(void) {
 
 	if (input->isKeyPressed(VK_RETURN)) {
 		processInput();
+	}
+
+	if (running) {
+		running = !(crowdModel->update());
 	}
 
 	renderEnvironment();

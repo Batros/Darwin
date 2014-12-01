@@ -10,6 +10,7 @@ public:
 	CrowdModel(void);
 	~CrowdModel(void);
 	void createCrowd(Formation* f1, Formation* f2, Path path);
+	bool update();
 
 private:
 	vector<Crowd*> crowds;
