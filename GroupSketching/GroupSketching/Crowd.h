@@ -12,7 +12,7 @@ public:
 	~Crowd(void);
 	
 	vector<glm::vec3> getAgentCoords();
-	void update(vector<glm::vec3>);
+	void update(vector<glm::vec3> neighbours);
 	bool isFinished();
 
 private:

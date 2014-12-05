@@ -163,6 +163,7 @@ void display(void) {
 		processInput();
 	}
 
+	running = true;
 	if (running) {
 		running = !(crowdModel->update());
 	}

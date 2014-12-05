@@ -4,21 +4,28 @@
 using namespace std;
 
 
-Agent::Agent(int xCoord, int yCoord, int zCoord) {
-	x = xCoord;
-	y = yCoord;
-	z = zCoord;
+Agent::Agent(glm::vec3 position) {
+	this->position = position;
 }
 
+glm::vec3 Agent::getPosition()
+{
+	return position;
+}
+
+void Agent::setPosition(glm::vec3 newPosition)
+{
+	position = newPosition;
+}
 
 Agent::~Agent(void)
 {
 }
 
-void Agent::printX () {cout << x << endl;}
-void Agent::printY () {cout << y << endl;}
-void Agent::printZ () {cout << z << endl;}
 
-double Agent::getX () {return x;}
-double Agent::getY () {return y;}
-double Agent::getZ () {return z;}
+void Agent::update(vector<Agent*> neighbours, glm::vec3 endPoint)
+{
+	//Basic: Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
+	setPosition(glm::vec3(position.x+(endPoint.x/200), position.y+(endPoint.y/200), position.z+(endPoint.z/200)));
+	cout << min(4, 5);
+}

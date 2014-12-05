@@ -1,18 +1,16 @@
 #pragma once
 class Agent
 {
-	int x, y, z;
-	public:
-		Agent(int, int, int);
-		void printX();
-		void printY();
-		void printZ();
-		double getX(void);
-		double getY(void);
-		double getZ(void);
+public:
+	Agent(glm::vec3);
+	glm::vec3 getPosition();
+	void setPosition(glm::vec3 newPosition);
+	void update(vector<Agent*> neighbours, glm::vec3 endPoint);
+	~Agent(void);
 
-		void update(vector<Agent*>, glm::vec3);
-
-		~Agent(void);
+private:
+	glm::vec3 position;
+	int minSpd;
+	int maxSpd;
 };
 
