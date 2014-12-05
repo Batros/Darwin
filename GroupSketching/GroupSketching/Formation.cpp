@@ -94,22 +94,101 @@ void Formation::populate(int n)
 	vector<glm::vec3> q;
 	// Vector of checked points.
 	vector<glm::vec3> c;
-	// Vector of filled points, initialise with the resampled boundary points.
-	vector<glm::vec3> fPoints = resampledBoundaryCoords;
+	// Vector of filled points
+	vector<glm::vec3> fPoints;
+
+	// Initialize q with the centre point
+	q.push_back(this->centre);
+	// TODO: if the centre is not in the bounds for some reason, find a different point.
 
 	while (!q.empty()) {
 		// Select the point to check as the first point in the queue.
-		glm::vec3 checkPoint = q.front();
-		// Add the point to the list of checked points.
-		c.push_back(checkPoint);
-		glm::vec3 left = glm::vec3(checkPoint.x-samplingRate, checkPoint.y, checkPoint.z);
+		glm::vec3 checkPoint = q.back();
+		// Delete the point from the queue.
+		q.pop_back();
+		// Set left and right as the left and right neighbours of checkPoint.
+		glm::vec3 left = glm::vec3(checkPoint.x, checkPoint.y, checkPoint.z);
 		glm::vec3 right = glm::vec3(checkPoint.x+samplingRate, checkPoint.y, checkPoint.z);
-		// while left is in the bounds and hasn't checked.
-		while (this->pointInBoundary(left) && !(std::find(c.begin(), c.end(), left) != c.end())) {
-		
+		// Move along the points to the left.
+		while(pointInBoundary(left) && !(std::find(c.begin(), c.end(), left) != c.end())) {
+			// Add left to fPoints.
+			fPoints.push_back(left);
+			// Set the top and bottom points.
+			glm::vec3 top = glm::vec3(left.x, left.y+samplingRate, left.z);
+			glm::vec3 bottom = glm::vec3(left.x, left.y-samplingRate, left.z);
+			// If top/bottom are in the bounds and have not been checked, add them to the queue and fPoints.
+			while(pointInBoundary(top) && !(std::find(c.begin(), c.end(), top) != c.end())) {
+				fPoints.push_back(top);
+				q.push_back(top);
+				c.push_back(top);
+			}
+			while(pointInBoundary(bottom) && !(std::find(c.begin(), c.end(), bottom) != c.end())) {
+				fPoints.push_back(bottom);
+				q.push_back(bottom);
+				c.push_back(bottom);
+			}
+			// Move left along
+			left = glm::vec3(left.x-samplingRate, left.y, left.z);
 		}
-			
-		// TODO: Finish floodfill.
+		// Repeat for right.
+		while(pointInBoundary(right) && !(std::find(c.begin(), c.end(), right) != c.end())) {
+			// Add left to fPoints.
+			fPoints.push_back(right);
+			// Set the top and bottom points.
+			glm::vec3 top = glm::vec3(right.x, right.y+samplingRate, right.z);
+			glm::vec3 bottom = glm::vec3(right.x, right.y-samplingRate, right.z);
+			// If top/bottom are in the bounds and have not been checked, add them to the queue and fPoints.
+			while(pointInBoundary(top) && !(std::find(c.begin(), c.end(), top) != c.end())) {
+				fPoints.push_back(top);
+				q.push_back(top);
+				c.push_back(top);
+			}
+			while(pointInBoundary(bottom) && !(std::find(c.begin(), c.end(), bottom) != c.end())) {
+				fPoints.push_back(bottom);
+				q.push_back(bottom);
+				c.push_back(bottom);
+			}
+			// Move right along.
+			right = glm::vec3(right.x+samplingRate, right.y, right.z);
+		}
+	}
+
+	// Choose the agents from the oversampled list
+	// Take away the number of boundary agents to figure out how many agents will be inside the boundary.
+	int insideN = n-resampledBoundaryCoords.size();
+
+
+	if (insideN > 0) {
+		// Add the resampled boundary as the agent coords.
+		for (std::vector<glm::vec3>::iterator bpoint = resampledBoundaryCoords.begin(); bpoint != resampledBoundaryCoords.end(); ++bpoint) {
+			// Convert to coordinates relative to centre.
+			this->agentCoords.push_back(glm::vec3((*bpoint).x-this->centre.x,(*bpoint).y-this->centre.y,(*bpoint).z-this->centre.z));
+		}
+		// Calculate a rate for agents inside.
+		int insideRate = fPoints.size()/insideN;
+		int leftover = fPoints.size()%insideN;
+
+		// Add the inside coordinates at a rate of insideRate.
+		for (int i = 0; i < fPoints.size(); i += insideRate) {
+			// Convert to coordinates relative to centre.
+			this->agentCoords.push_back(glm::vec3(fPoints[i].x-this->centre.x,fPoints[i].y-this->centre.y,fPoints[i].z-this->centre.z));
+		}
+		// Add coordinates to make up for integer division.
+		for (int i = 1; i < fPoints.size() && leftover > 0; i += insideRate) {
+			this->agentCoords.push_back(glm::vec3(fPoints[i].x-this->centre.x,fPoints[i].y-this->centre.y,fPoints[i].z-this->centre.z));
+			leftover -= 1;
+		}
+	}
+
+	else {
+		// Add the resampled boundary as the agent coords. Only take the first n coordinates.
+		for (std::vector<glm::vec3>::iterator bpoint = resampledBoundaryCoords.begin(); bpoint != resampledBoundaryCoords.end(); ++bpoint) {
+			// Convert to coordinates relative to centre.
+			this->agentCoords.push_back(glm::vec3((*bpoint).x-this->centre.x,(*bpoint).y-this->centre.y,(*bpoint).z-this->centre.z));
+			n -= 1;
+			if (n == 0)
+				break;
+		}
 	}
 }
 
@@ -122,6 +201,7 @@ void Formation::populate(Formation* formation)
 {
 	// Call populate(n) with input the number of agents in the input formation.
 	this->populate(formation->getAgentCoords().size());
+	// The two formations need to be lined up.
 }
 
 // Populate function with input set of real world agent coordinates.
@@ -213,13 +293,52 @@ void Formation::setCentre(glm::vec3 cen)
 // Check if a point is in the bounds. Using Ray casting algorithm.
 bool Formation::pointInBoundary(glm::vec3 point)
 {
-	//TODO
-	// Generate a line from the point going in an arbitrary direction.
-	// Check how many edges of the bounds polygon it intercepts.
-	// If even the point is outside, inside otherwise.
-	// NB: Points that lie on the boundary need to be checked separately.
+	// Ray casting algorithm
+	// Count how many times a constant ray from the point intercepts the polygon.
+	// If the number is odd, then the point is inside. Outside otherwise.
+	// NB: This algorithm only works for 2-D coordinates. Need angle sum algorithm for 3-D.
 
-	return true;
+	// Set count to 0.
+	int count = 0;
+
+	// Generate a constant point going up from the givent point (to calculate the ray).
+	glm::vec3 r = glm::vec3(point.x, point.y+1.0, point.z);
+
+	// Iterate over the sides of the boundary polygon.
+	for (int i = 1; i < this->boundaryCoords.size(); i++) {
+		glm::vec3 q = this->boundaryCoords[i-1];
+		glm::vec3 s = this->boundaryCoords[i];
+
+		double epsilon = 1>>16;
+		// Check if the lines are parallel
+		if (abs(((q.x - s.x)*(point.y - r.y)-(q.y - s.y)*(point.x - r.x))) <= epsilon) {
+			if (point.x == q.x)
+				count += 1;
+			continue;
+		}
+
+		// Calculate the (x,y) coordinates of the interception point.
+		double Px = ((q.x*s.y-s.x*q.y)*(point.x-r.x)-(q.x-s.x)*(point.x*r.y-point.y*r.x))/((q.x - s.x)*(point.y - r.y)-(q.y - s.y)*(point.x - r.x));
+		double Py = ((q.x*s.y-s.x*q.y)*(point.y-r.y)-(q.y-s.y)*(point.x*r.y-point.y*r.x))/((q.x - s.x)*(point.y - r.y)-(q.y - s.y)*(point.x - r.x));
+
+		// Check if the interception poin is inside the line by checking the crossproduct and comparing the dotproduct to the length of the line.
+		double crossProduct = (Py-q.y)*(s.x-q.x)-(Px-q.x)*(s.y-q.y);
+		if (abs(crossProduct) <= epsilon) {
+			double dotProduct = (Px-q.x)*(s.x-q.x)+(Py-q.y)*(s.y-q.y);
+			double lineSqLength = (s.x-q.x)*(s.x-q.x)+(s.y-q.y)*(s.y-q.y);
+			if (dotProduct > lineSqLength) {
+				count += 1;
+			}
+		}
+	}
+
+	// If count is odd the point is inside. Outside otherwise.
+	if (count % 2) {
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 Formation::~Formation(void)
