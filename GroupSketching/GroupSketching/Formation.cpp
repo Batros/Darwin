@@ -80,6 +80,11 @@ Formation::Formation(vector<glm::vec3> boundary)
 // Finds the oversampled space and fits the number of agents to it.
 void Formation::populate(int n)
 {
+	if (n==0) {
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		return;
+	}
+
 	// TODO: Change to flood-fill algorithm with dynamic sampling rate.
 
 

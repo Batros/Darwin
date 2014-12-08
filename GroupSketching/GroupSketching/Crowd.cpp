@@ -11,14 +11,11 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 	startFormation = f1;
 	endFormation = f2;
 	this->path = path;
-	//Default: 50 agents
-	//Extended: choose number of agents intelligently
-	f1->populate(50);
 	//Get agents from agent coordinates
 	vector<glm::vec3> agentCoords = f1->getAgentCoords();
 	for (int i=0; i<agentCoords.size(); i++) {
-		Agent agent (agentCoords[i]);
-		agents.push_back(&agent);
+		Agent* agent = new Agent(agentCoords[i]);
+		agents.push_back(agent);
 	}
 }
 

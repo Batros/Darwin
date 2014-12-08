@@ -4,7 +4,6 @@
 
 CrowdModel::CrowdModel(void)
 {
-	crowds = vector<Crowd*>();
 }
 
 
@@ -17,8 +16,9 @@ void CrowdModel::createCrowd(Formation* f1, Formation* f2, Path path) {
 	vector<Agent> agents;
 	//Basic: Use 50 agents
 	//Extended: Decide number of agents intelligently
-	f1->populate(50);
-	crowds.push_back(new Crowd(f1, f2, path));
+	f1->populate(0);
+	Crowd* newCrowd = new Crowd(f1, f2, path);
+	this->crowds.push_back(newCrowd);
 	//Need to remove any agents added here from freeAgents
 }
 

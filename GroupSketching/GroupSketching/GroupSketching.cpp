@@ -54,11 +54,17 @@ void onMouseDrag(int x, int y) {
 }
 
 void processInput() {
-	if (sizeof(strokes)==3) {
+	cout << strokes.size() << endl;
+	if (strokes.size()==3) {
+		/*
 		Formation* f1 = sketchHandler->processFormation(strokes[0]);
 		Formation* f2 = sketchHandler->processFormation(strokes[1]);
 		Path path = sketchHandler->processPath(strokes[2]);
+		*/
 
+		Formation* f1 = new Formation();
+		Formation* f2 = new Formation();
+		Path path = strokes[2];
 		crowdModel->createCrowd(f1, f2, path);
 		running = true;
 		strokes.empty();
@@ -159,11 +165,10 @@ void display(void) {
 		camera->positionCamera(input);
 	}
 
-	if (input->isKeyPressed(VK_RETURN)) {
+	if ((input->isKeyPressed(VK_RETURN)) && !(running)) {
 		processInput();
 	}
 
-	running = true;
 	if (running) {
 		running = !(crowdModel->update());
 	}
@@ -189,6 +194,7 @@ int main(int argc, char **argv) {
 	camera = new Camera();
 	drawMode = false;
 	cubeDrawn = false;
+	running = false;
 	strokeNumber = 0;
 	srand (static_cast <unsigned> (time(0)));
 

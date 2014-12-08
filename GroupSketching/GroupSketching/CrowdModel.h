@@ -6,6 +6,7 @@
 
 class CrowdModel
 {
+	vector<Crowd*> crowds;
 public:
 	CrowdModel(void);
 	~CrowdModel(void);
@@ -13,7 +14,7 @@ public:
 	bool update();
 
 private:
-	vector<Crowd*> crowds;
+	
 	vector<Agent*> freeAgents;
 };
 
