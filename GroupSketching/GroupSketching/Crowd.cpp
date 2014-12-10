@@ -13,8 +13,10 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 	this->path = path;
 	//Get agents from agent coordinates
 	vector<glm::vec3> agentCoords = f1->getAgentCoords();
+	f2->populate(0);
+	vector<glm::vec3> endCoords = f2->getAgentCoords();
 	for (int i=0; i<agentCoords.size(); i++) {
-		Agent* agent = new Agent(agentCoords[i]);
+		Agent* agent = new Agent(agentCoords[i], endCoords[i]);
 		agents.push_back(agent);
 	}
 }
@@ -30,12 +32,11 @@ Crowd::~Crowd(void)
 {
 }
 
-void Crowd::update(vector<glm::vec3> endPoints)
+void Crowd::update(vector<glm::vec3> neighbours)
 {
 	//Default: Just update each agent individually, don't work out neighbours
 	//Extended: Work out who the neighbours are, pass them to the agents
 	for (int i=0; i<agents.size(); i++) {
-		vector<Agent*> neighbours;
-		agents[i]->update(neighbours, endPoints[i]);
+		agents[i]->update(neighbours);
 	}
 }

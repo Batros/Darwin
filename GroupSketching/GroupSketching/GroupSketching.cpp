@@ -56,6 +56,7 @@ void onMouseDrag(int x, int y) {
 void processInput() {
 	cout << strokes.size() << endl;
 	if (strokes.size()==3) {
+		cout << "Processing" << endl;
 		/*
 		Formation* f1 = sketchHandler->processFormation(strokes[0]);
 		Formation* f2 = sketchHandler->processFormation(strokes[1]);
@@ -190,6 +191,8 @@ int main(int argc, char **argv) {
 	screenWidth = glutGet(GLUT_SCREEN_WIDTH);
 	screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
 
+	sketchHandler = new SketchHandler();
+	crowdModel = new CrowdModel();
 	input = new Input(screenHeight, screenWidth);
 	camera = new Camera();
 	drawMode = false;

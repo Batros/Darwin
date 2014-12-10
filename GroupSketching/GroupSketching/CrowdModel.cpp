@@ -18,7 +18,7 @@ void CrowdModel::createCrowd(Formation* f1, Formation* f2, Path path) {
 	//Extended: Decide number of agents intelligently
 	f1->populate(0);
 	Crowd* newCrowd = new Crowd(f1, f2, path);
-	this->crowds.push_back(newCrowd);
+	crowds.push_back(newCrowd);
 	//Need to remove any agents added here from freeAgents
 }
 
@@ -28,8 +28,8 @@ bool CrowdModel::update() {
 	//Extended: Calculate radius around each crowd, if any of these overlap there is the potential for collisions.
 	//So, send other crowd for possible separation calculation.
 	//Extended: Continue updating until they don't need to move any more, stop at that point.
-	cout << crowds.size();
-	cout << "here";
+	//cout << crowds.size();
+	//cout << "here";
 	for (int i=0; i<crowds.size(); i++) {
 		//Basic: No neighbouring crowds.
 		//Extended: Check all other crowds, see if there are any in the radius. If so, pass these.
