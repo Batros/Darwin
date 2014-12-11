@@ -18,11 +18,6 @@ Input::Input(int height, int width) {
 	// Initialise the arrays/variables to false/0
 	bool keyStates[256] = {false};
 	bool keySpecialStates[256] = {false};
-	mouseCoords[0] = 0;
-	mouseCoords[1] = 0;
-	mouseCoords[2] = 0;
-	mouseCoords[3] = 0;
-	mouseCoords[4] = 0;
 
 	// Store the height and width of the screen
 	screenHeight = height;
@@ -35,6 +30,18 @@ void Input::init() {
 		keyStates[i] = false;
 		keySpecialStates[i] = false;
 	}
+	int screenWMiddle = screenWidth>>1;
+	int screenHMiddle = screenHeight>>1;
+		
+	// Set the new mouse coordinates to the middle of the screen and set the update value to 0
+	mouseCoords[0] = screenWMiddle;
+	mouseCoords[1] = screenWMiddle;
+	mouseCoords[2] = screenHMiddle;
+	mouseCoords[3] = screenHMiddle;
+	mouseCoords[4] = 0;
+
+	// Move the cursor to the middle of the screen
+	glutWarpPointer(screenWMiddle, screenHMiddle);
 }
 
 glm::vec3 Input::onMouseClick(int x, int y) {
@@ -76,6 +83,7 @@ void Input::keySpecialUp(int key, int x, int y) {
 }
 
 void Input::onMouseMove(int x, int y) {
+	
 	// If the mouse is near the edge of the screen
 	if ((x > (screenWidth - 20)) || (x < 20) || (y > (screenHeight - 20)) || (y < 20)) {
 		// Calculate the middle of the screen

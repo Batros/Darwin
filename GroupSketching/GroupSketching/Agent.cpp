@@ -35,8 +35,8 @@ Agent::~Agent(void)
 void Agent::update(vector<glm::vec3> neighbours)
 {
 	//Basic: Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
-	setPosition(glm::vec3(position.x+(endPoint.x/200), position.y+(endPoint.y/200), position.z+(endPoint.z/200)));
-	cout << position.x << position.y << position.z << endl;
+	glm::vec3 newPos = position+glm::vec3((endPoint.x-position.x)/200, (endPoint.y-position.y)/200, (endPoint.z-position.z)/200);
+	setPosition(newPos);
 	glPushMatrix();
 		glTranslated(position.x, position.y, position.z);
 		glutSolidSphere(1.0f, 20, 20);

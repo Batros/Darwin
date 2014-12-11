@@ -5,24 +5,7 @@
 //Construct Formation with square shape and centre in the middle. This is the default case.
 Formation::Formation(void)
 {
-	vector<glm::vec3> squareShape;
-	//Left side of the square
-	for (double i = -5.0; i <= 5.0; i += 0.25) {		
-		squareShape.push_back(glm::vec3(i,-5.0,0.0));
-	}
-	//Bottom and top of the square
-	for (double i = -5.0; i <= 5.0; i += 0.25) {		
-		squareShape.push_back(glm::vec3(-5.0,i,0.0));
-		squareShape.push_back(glm::vec3(+5.0,i,0.0));
-	}
-	//Right side of the square
-	for (double i = -5.0; i <= 5.0; i += 0.25) {		
-		squareShape.push_back(glm::vec3(i,5.0,0.0));
-	}
-	//Set the formation boundary as the square shape
-	this->setBoundary(squareShape);
-	//Set chosen point as the formation centre
-	this->setCentre(glm::vec3(20.0,20.0,0.0));
+	Formation(glm::vec3(0.0, 0.0, 0.0));
 }
 
 //Construct formation with square shape and centre the parameter single point.
@@ -30,19 +13,21 @@ Formation::Formation(void)
 Formation::Formation(glm::vec3 cen)
 {
 	vector<glm::vec3> squareShape;
-	//Left side of the square
-	for (double i = -5.0; i <= 5.0; i += 0.25) {		
-		squareShape.push_back(glm::vec3(i,-5.0,0.0));
-	}
-	//Bottom and top of the square
-	for (double i = -5.0; i <= 5.0; i += 0.25) {		
-		squareShape.push_back(glm::vec3(-5.0,i,0.0));
-		squareShape.push_back(glm::vec3(+5.0,i,0.0));
-
+	//Bottom of the square
+	for (double i = cen.x-5.0; i <= cen.x+5.0; i += 0.25) {		
+		squareShape.push_back(glm::vec3(i,0.0,cen.z-5.0));
 	}
 	//Right side of the square
-	for (double i = -5.0; i <= 5.0; i += 0.25) {		
-		squareShape.push_back(glm::vec3(i,5.0,0.0));
+	for (double i = cen.z-5.0; i <= cen.z+5.0; i += 0.25) {		
+		squareShape.push_back(glm::vec3(cen.x+5.0,0.0,i));
+	}
+	//Top of the square
+	for (double i = cen.x+5.0; i >= cen.x-5.0; i -= 0.25) {		
+		squareShape.push_back(glm::vec3(i,0.0,cen.z+5.0));
+	}
+	//Left side of the square
+	for (double i = cen.z+5.0; i >= cen.z-5.0; i -= 0.25) {	
+		squareShape.push_back(glm::vec3(cen.x-5.0,0.0,i));
 	}
 	//Set the formation boundary as the square shape
 	this->setBoundary(squareShape);
@@ -82,6 +67,20 @@ void Formation::populate(int n)
 {
 	if (n==0) {
 		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		return;
+	}
+	if (n==1) {
+		this->agentCoords.push_back(glm::vec3(-20, 0, 50));
+		this->agentCoords.push_back(glm::vec3(-20, 0, -50));
+		this->agentCoords.push_back(glm::vec3(20, 0, 30));
+		this->agentCoords.push_back(glm::vec3(-20, 0, 30));
+		this->agentCoords.push_back(glm::vec3(20, 0, 10));
+		this->agentCoords.push_back(glm::vec3(-20, 0, 10));
 		return;
 	}
 

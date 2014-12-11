@@ -13,10 +13,11 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 	this->path = path;
 	//Get agents from agent coordinates
 	vector<glm::vec3> agentCoords = f1->getAgentCoords();
-	f2->populate(0);
+	f2->populate(10);
 	vector<glm::vec3> endCoords = f2->getAgentCoords();
 	for (int i=0; i<agentCoords.size(); i++) {
 		Agent* agent = new Agent(agentCoords[i], endCoords[i]);
+		cout << agentCoords[i].x << agentCoords[i].y << agentCoords[i].z << endl;
 		agents.push_back(agent);
 	}
 }

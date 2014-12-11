@@ -15,6 +15,8 @@ bool dragging;
 bool cubeDrawn;
 bool running;
 int strokeNumber;
+glm::vec3 sq1 = glm::vec3(20.0, 0.0, 30.0);
+glm::vec3 sq2 = glm::vec3(-20.0, 0.0, -10.0);
 vector<vector<glm::vec3>> strokes;
 vector<vector<float>> colours;
 
@@ -55,17 +57,16 @@ void onMouseDrag(int x, int y) {
 
 void processInput() {
 	cout << strokes.size() << endl;
-	if (strokes.size()==3) {
-		cout << "Processing" << endl;
+	if (strokes.size()==0) {
 		/*
 		Formation* f1 = sketchHandler->processFormation(strokes[0]);
 		Formation* f2 = sketchHandler->processFormation(strokes[1]);
 		Path path = sketchHandler->processPath(strokes[2]);
 		*/
 
-		Formation* f1 = new Formation();
-		Formation* f2 = new Formation();
-		Path path = strokes[2];
+		Formation* f1 = new Formation(sq1);
+		Formation* f2 = new Formation(sq2);
+		Path path;
 		crowdModel->createCrowd(f1, f2, path);
 		running = true;
 		strokes.empty();
@@ -145,6 +146,24 @@ void renderEnvironment(void) {
 			glEnd();
 		}
 	}
+
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glLineWidth(20.0f);
+	glBegin(GL_LINE_STRIP);
+	glVertex3d(sq1.x-5.0, sq1.y, sq1.z-5.0);
+	glVertex3d(sq1.x-5.0, sq1.y, sq1.z+5.0);
+	glVertex3d(sq1.x+5.0, sq1.y, sq1.z+5.0);
+	glVertex3d(sq1.x+5.0, sq1.y, sq1.z-5.0);
+	glVertex3d(sq1.x-5.0, sq1.y, sq1.z-5.0);
+	glEnd();
+
+	glBegin(GL_LINE_STRIP);
+	glVertex3d(sq2.x-5.0, sq2.y, sq2.z-5.0);
+	glVertex3d(sq2.x-5.0, sq2.y, sq2.z+5.0);
+	glVertex3d(sq2.x+5.0, sq2.y, sq2.z+5.0);
+	glVertex3d(sq2.x+5.0, sq2.y, sq2.z-5.0);
+	glVertex3d(sq2.x-5.0, sq2.y, sq2.z-5.0);
+	glEnd();
 }
 
 void display(void) {
@@ -201,7 +220,6 @@ int main(int argc, char **argv) {
 	strokeNumber = 0;
 	srand (static_cast <unsigned> (time(0)));
 
-	input->init();
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize (screenWidth, screenHeight);
 	glutInitWindowPosition (0, 0);
@@ -219,6 +237,7 @@ int main(int argc, char **argv) {
 	glutSetCursor(GLUT_CURSOR_NONE);
 	glutFullScreen();
 
+	input->init();
 	glutMainLoop();
 	return 0;
 }

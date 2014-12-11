@@ -50,10 +50,10 @@ Camera::Camera(void) {
 	sens = 0.1;
 	stepSize = 0.5;
 
-	posVector = glm::vec4(0.0, 0.0, 0.0, 1.0);
-	lookVector = glm::vec4(0.0, 0.0, 1.0, 0.0);
+	posVector = glm::vec4(0.0, 20.0, 0.0, 1.0);
+	lookVector = glm::vec4(0.0, -1.0, 0.0, 0.0);
 	rightVector = glm::vec4(-1.0, 0.0, 0.0, 0.0);
-	upVector = glm::vec4(0.0, 1.0, 0.0, 0.0);
+	upVector = glm::vec4(0.0, 0.0, 1.0, 0.0);
 }
 
 void Camera::updateAngle(Input* input) {
