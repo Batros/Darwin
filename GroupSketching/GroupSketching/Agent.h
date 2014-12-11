@@ -15,5 +15,8 @@ private:
 	glm::vec3 endPoint;
 	int minSpd;
 	int maxSpd;
+	glm::vec3 separation(vector<glm::vec3>);
+	glm::vec3 cohesion(vector<glm::vec3>);
+	glm::vec3 pathfind(glm::vec3);
 };
 
