@@ -34,9 +34,13 @@ Crowd::~Crowd(void)
 
 void Crowd::update(vector<glm::vec3> neighbours)
 {
-	//Default: Just update each agent individually, don't work out neighbours
-	//Extended: Work out who the neighbours are, pass them to the agents
+	//v1 (done): Just update each agent individually, don't work out neighbours
+	//v2 (in-dev): All agents in the crowd are neighbours, none outside are
+	//v3 (future): Neighbours are all agents in current crowd within a threshold
+	//v4 (future): Neighbours are all agents in current and nearby crowds within a threshold
+	//v5 (future, potentially slower and less useful): Neighbours are all agents within a number of 5x5 blocks around the current agent
 	for (int i=0; i<agents.size(); i++) {
-		agents[i]->update(neighbours);
+		otherAgents = agents.
+		agents[i]->update();
 	}
 }
