@@ -17,6 +17,7 @@ bool running;
 int strokeNumber;
 glm::vec3 sq1 = glm::vec3(20.0, 0.0, 30.0);
 glm::vec3 sq2 = glm::vec3(-20.0, 0.0, -10.0);
+vector<vector<glm::vec3>> formations;
 vector<vector<glm::vec3>> strokes;
 vector<vector<float>> colours;
 
@@ -56,7 +57,6 @@ void onMouseDrag(int x, int y) {
 }
 
 void processInput() {
-	cout << strokes.size() << endl;
 	if (strokes.size()==0) {
 		/*
 		Formation* f1 = sketchHandler->processFormation(strokes[0]);
@@ -69,7 +69,16 @@ void processInput() {
 		Path path;
 		crowdModel->createCrowd(f1, f2, path);
 		running = true;
-		strokes.empty();
+	}
+	else {
+		for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
+			if (strokes[i].size() > 0) {
+				Formation* f = sketchHandler->processFormation(strokes[i]);
+				formations.push_back(f->getBoundary());
+			}
+		}
+		strokes.clear();
+		strokeNumber = 0;
 	}
 }
 
@@ -135,16 +144,25 @@ void drawFloor(float size, int polys) {
 
 void renderEnvironment(void) {
 	drawFloor(40.0f, 300);
-	if (cubeDrawn) {
-		for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
-			glColor3f(colours[i][0], colours[i][1], colours[i][2]);
-			glLineWidth(20.0f);
-			glBegin(GL_LINE_STRIP);
-			for(glm::vec3::size_type j = 0; j != strokes[i].size(); j++) {
-				glVertex3d(strokes[i][j].x, strokes[i][j].y+0.01, strokes[i][j].z);
-			}
-			glEnd();
+	for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
+		glColor3f(1.0, 1.0, 1.0);
+		glLineWidth(20.0f);
+		glBegin(GL_LINE_STRIP);
+		for(glm::vec3::size_type j = 0; j != strokes[i].size(); j++) {
+			glVertex3d(strokes[i][j].x, strokes[i][j].y+0.01, strokes[i][j].z);
 		}
+		glEnd();
+	}
+
+	for(vector<glm::vec3>::size_type i = 0; i != formations.size(); i++) {
+		glColor3f(0.0, 0.0, 0.0);
+		glLineWidth(20.0f);
+		glBegin(GL_LINE_STRIP);
+		for(glm::vec3::size_type j = 0; j != formations[i].size(); j++) {
+			glVertex3d(formations[i][j].x, formations[i][j].y+0.01, formations[i][j].z);
+		}
+		glVertex3d(formations[i][0].x, formations[i][0].y+0.01, formations[i][0].z);
+		glEnd();
 	}
 
 	glColor3f(1.0f, 1.0f, 1.0f);

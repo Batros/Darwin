@@ -12,7 +12,18 @@ SketchHandler::~SketchHandler(void) {
 }
 
 Formation* SketchHandler::processFormation(vector<glm::vec3> stroke) {
-	Formation* formation = new Formation(stroke);
+	int resample = 3;
+	vector<glm::vec3> newStroke;
+	for(vector<glm::vec3>::size_type i = 0; i != stroke.size(); i++) {
+		if (resample==3) {
+			resample = 0;
+			newStroke.push_back(stroke[i]);
+		}
+		else {
+			resample++;
+		}
+	}
+	Formation* formation = new Formation(newStroke);
 	return formation;
 }
 
