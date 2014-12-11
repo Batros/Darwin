@@ -7,3 +7,5 @@
 *.pdb
 *.exe
 *.ilk
+*.suo
+*.sln
