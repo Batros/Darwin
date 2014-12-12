@@ -13,22 +13,22 @@ Formation::Formation(glm::vec3 cen)
 {
 	vector<glm::vec3> squareShape;
 	//Left side of the square
-	for (double i = -5.0; i < 5.0; i += 0.25) {
+	for (double i = -5.0; i < 5.0; i += 2.5) {
 		squareShape.push_back(glm::vec3(-5.0, 0.0, i));
 	}
 
 	//Top of the square
-	for (double i = -5.0; i < 5.0; i += 0.25) {
+	for (double i = -5.0; i < 5.0; i += 2.5) {
 		squareShape.push_back(glm::vec3(i, 0.0, 5.0));
 	}
 
 	//Right side of the square
-	for (double i = 5.0; i > -5.0; i -= 0.25) {
+	for (double i = 5.0; i > -5.0; i -= 2.5) {
 		squareShape.push_back(glm::vec3(5.0, 0.0, i));
 	}
 
 	//Bottom of the square
-	for (double i = 5.0; i > -5.0; i -= 0.25) {
+	for (double i = 5.0; i > -5.0; i -= 2.5) {
 		squareShape.push_back(glm::vec3(i, 0.0, -5.0));
 	}
 
@@ -98,12 +98,17 @@ void Formation::populate(int n)
 	vector<glm::vec3> resampledBoundaryCoords = this->boundaryCoords;
 
 	// Basic sampling rate - distance between two points on the boundary.
-	double samplingRate = sqrt((this->boundaryCoords[0].x - this->boundaryCoords[1].x)*(this->boundaryCoords[0].x - this->boundaryCoords[1].x) + (this->boundaryCoords[0].y - this->boundaryCoords[1].y)*(this->boundaryCoords[0].y - this->boundaryCoords[1].y));
-
+	double samplingRate = 0.0;
+	for (int i = 0; i < this->boundaryCoords.size() - 1; i++) {
+		samplingRate += sqrt((this->boundaryCoords[i].x - this->boundaryCoords[i+1].x)*(this->boundaryCoords[i].x - this->boundaryCoords[i+1].x) + (this->boundaryCoords[i].y - this->boundaryCoords[i+1].y)*(this->boundaryCoords[i].y - this->boundaryCoords[i+1].y));
+	}
+	
+	samplingRate = samplingRate / this->boundaryCoords.size();
 	double sampleX = samplingRate;
 	double sampleY = samplingRate;
 	double sampleZ = samplingRate;
 
+	//cout << sampleX << " " << sampleY << " " << sampleZ << endl;
 	// Flood-fill algorithm.
 	// Queue of points to check.
 	vector<glm::vec3> q;
@@ -119,6 +124,7 @@ void Formation::populate(int n)
 	while (!q.empty()) {
 		// Select the point to check as the first point in the queue.
 		glm::vec3 checkPoint = q.back();
+		c.push_back(checkPoint);
 		// Delete the point from the queue.
 		q.pop_back();
 		// Set left and right as the left and right neighbours of checkPoint.
@@ -128,19 +134,20 @@ void Formation::populate(int n)
 		while (pointInBoundary(left) && !(std::find(c.begin(), c.end(), left) != c.end())) {
 			// Add left to fPoints.
 			fPoints.push_back(left);
+			//c.push_back(left);
 			// Set the top and bottom points.
 			glm::vec3 top = glm::vec3(left.x, left.y, left.z + sampleZ);
-			glm::vec3 bottom = glm::vec3(left.x, left.y, left.z + sampleZ);
+			glm::vec3 bottom = glm::vec3(left.x, left.y, left.z - sampleZ);
 			// If top/bottom are in the bounds and have not been checked, add them to the queue and fPoints.
-			while (pointInBoundary(top) && !(std::find(c.begin(), c.end(), top) != c.end())) {
-				fPoints.push_back(top);
+			if (pointInBoundary(top) && !(std::find(c.begin(), c.end(), top) != c.end())) {
+				//fPoints.push_back(top);
 				q.push_back(top);
-				c.push_back(top);
+				//c.push_back(top);
 			}
-			while (pointInBoundary(bottom) && !(std::find(c.begin(), c.end(), bottom) != c.end())) {
-				fPoints.push_back(bottom);
+			if (pointInBoundary(bottom) && !(std::find(c.begin(), c.end(), bottom) != c.end())) {
+				//fPoints.push_back(bottom);
 				q.push_back(bottom);
-				c.push_back(bottom);
+				//c.push_back(bottom);
 			}
 			// Move left along
 			left = glm::vec3(left.x - sampleX, left.y, left.z);
@@ -149,19 +156,20 @@ void Formation::populate(int n)
 		while (pointInBoundary(right) && !(std::find(c.begin(), c.end(), right) != c.end())) {
 			// Add left to fPoints.
 			fPoints.push_back(right);
+			//c.push_back(right);
 			// Set the top and bottom points.
 			glm::vec3 top = glm::vec3(right.x, right.y, right.z + sampleZ);
-			glm::vec3 bottom = glm::vec3(right.x, right.y, right.z + sampleZ);
+			glm::vec3 bottom = glm::vec3(right.x, right.y, right.z - sampleZ);
 			// If top/bottom are in the bounds and have not been checked, add them to the queue and fPoints.
-			while (pointInBoundary(top) && !(std::find(c.begin(), c.end(), top) != c.end())) {
-				fPoints.push_back(top);
+			if (pointInBoundary(top) && !(std::find(c.begin(), c.end(), top) != c.end())) {
+				//fPoints.push_back(top);
 				q.push_back(top);
-				c.push_back(top);
+				//c.push_back(top);
 			}
-			while (pointInBoundary(bottom) && !(std::find(c.begin(), c.end(), bottom) != c.end())) {
-				fPoints.push_back(bottom);
+			if (pointInBoundary(bottom) && !(std::find(c.begin(), c.end(), bottom) != c.end())) {
+				//fPoints.push_back(bottom);
 				q.push_back(bottom);
-				c.push_back(bottom);
+				//c.push_back(bottom);
 			}
 			// Move right along.
 			right = glm::vec3(right.x + sampleX, right.y, right.z);
@@ -171,22 +179,26 @@ void Formation::populate(int n)
 	// Choose the agents from the oversampled list
 	// Take away the number of boundary agents to figure out how many agents will be inside the boundary.
 	int insideN = n - resampledBoundaryCoords.size();
-
-
+	this->agentCoords = fPoints;
+	/*
+	cout << insideN << endl;
 	if (insideN > 0) {
+		cout << "Inside" << endl;
+		cout << fPoints.size() << endl;
 		// Add the resampled boundary as the agent coords.
 		for (std::vector<glm::vec3>::iterator bpoint = resampledBoundaryCoords.begin(); bpoint != resampledBoundaryCoords.end(); ++bpoint) {
 			// Convert to coordinates relative to centre.
 			this->agentCoords.push_back((*bpoint));
 		}
+		
 		// Calculate a rate for agents inside.
 		int insideRate = fPoints.size() / insideN;
 		int leftover = fPoints.size() % insideN;
-
-		// Add the inside coordinates at a rate of insideRate.
-		for (int i = 0; i < fPoints.size(); i += insideRate) {
-			// Convert to coordinates relative to centre.
-			this->agentCoords.push_back(fPoints[i]);
+		if (insideRate != 0) {
+			// Add the inside coordinates at a rate of insideRate.
+			for (int i = 0; i < fPoints.size(); i += insideRate) {
+				this->agentCoords.push_back(fPoints[i]);
+			}
 		}
 		// Add coordinates to make up for integer division.
 		for (int i = 1; i < fPoints.size() && leftover > 0; i += insideRate) {
@@ -197,6 +209,7 @@ void Formation::populate(int n)
 
 	else {
 		// Add the resampled boundary as the agent coords. Only take the first n coordinates.
+		//cout << "Outside" << endl;
 		for (std::vector<glm::vec3>::iterator bpoint = resampledBoundaryCoords.begin(); bpoint != resampledBoundaryCoords.end(); ++bpoint) {
 			// Convert to coordinates relative to centre.
 			this->agentCoords.push_back((*bpoint));
@@ -205,6 +218,7 @@ void Formation::populate(int n)
 				break;
 		}
 	}
+	*/
 }
 
 // Populate function with input another formation.
@@ -307,7 +321,7 @@ void Formation::setCentre(glm::vec3 cen)
 // Check if a point is in the bounds. Using Ray casting algorithm.
 bool Formation::pointInBoundary(glm::vec3 point)
 {
-
+	
 	// Sum of angles algorithm
 	// If a point is inside, then the angles it forms with all the lines on the boundary sum up to a multiple of 360.
 	double sumAngle = 0.0;
@@ -323,10 +337,10 @@ bool Formation::pointInBoundary(glm::vec3 point)
 		glm::vec3 bc = c - b;
 
 		// Find the length of vectors AB and BC
-		double lenab = sqrt(ab.x*ab.x + ab.y*ab.y);
-		double lenbc = sqrt(bc.x*bc.x + bc.y*bc.y);
+		double lenab = sqrt(ab.x*ab.x + ab.z*ab.z);
+		double lenbc = sqrt(bc.x*bc.x + bc.z*bc.z);
 		// Find the dot product of vectors AB and BC
-		double dotabbc = ab.x*bc.x + ab.y*bc.y;
+		double dotabbc = ab.x*bc.x + ab.z*bc.z;
 		// Find angle theta between AB and BC using arc cos.
 		double theta = acos(dotabbc / (lenab*lenbc));
 		// Conver theta to degrees.
@@ -335,17 +349,42 @@ bool Formation::pointInBoundary(glm::vec3 point)
 		sumAngle += theta;
 	}
 
-	// Check if angle sum is divisible by 180
-	if ((int)sumAngle % 180 == 0) {
+	// Repeat for the last line
+	glm::vec3 a = this->boundaryCoords[this->boundaryCoords.size()-1];
+	glm::vec3 c = this->boundaryCoords[0];
+
+	glm::vec3 ab = b - a;
+	glm::vec3 bc = c - b;
+
+	// Find the length of vectors AB and BC
+	double lenab = sqrt(ab.x*ab.x + ab.z*ab.z);
+	double lenbc = sqrt(bc.x*bc.x + bc.z*bc.z);
+	// Find the dot product of vectors AB and BC
+	double dotabbc = ab.x*bc.x + ab.z*bc.z;
+	// Find angle theta between AB and BC using arc cos.
+	double theta = acos(dotabbc / (lenab*lenbc));
+	// Conver theta to degrees.
+	theta = theta * 180 / M_PI;
+	// Add theta to the sum
+	sumAngle += theta;
+
+
+	// Check if angle sum is divisible by 360
+	//cout << b.x << " " << b.y << " " << b.z << endl;
+	//cout << sumAngle << endl;
+	if ((int)sumAngle % 360 == 0) {
+		//cout << "Inside";
 		return true;
 	}
 	else return false;
+	
 
 	/*
 	// Ray casting algorithm
 	// Count how many times a constant ray from the point intercepts the polygon.
 	// If the number is odd, then the point is inside. Outside otherwise.
 	// NB: This algorithm only works for 2-D coordinates. Need angle sum algorithm for 3-D.
+
 
 	// Set count to 0.
 	int count = 0;
