@@ -70,6 +70,17 @@ void processInput() {
 		crowdModel->createCrowd(f1, f2, path);
 		running = true;
 	}
+	else if (strokes.size()==2) {
+		Formation* f1 = sketchHandler->processFormation(strokes[0]);
+		formations.push_back(f1->getBoundary());
+		Formation* f2 = sketchHandler->processFormation(strokes[1]);
+		formations.push_back(f2->getBoundary());
+		Path path;
+		strokes.clear();
+		strokeNumber = 0;
+		crowdModel->createCrowd(f1, f2, path);
+		running = true;
+	}
 	else {
 		for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
 			if (strokes[i].size() > 0) {
