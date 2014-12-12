@@ -42,13 +42,12 @@ void Agent::update(vector<glm::vec3> neighbours)
 	glm::vec3 sepVec = separation(neighbours);
 	glm::vec3 cohVec = cohesion(neighbours);
 	glm::vec3 endVec = pathfind(endPoint);
-	glm::vec3 newPos = position+sepVec+cohVec+endVec;
+	glm::vec3 newPos = position+endVec;
 	setPosition(newPos);
 	glPushMatrix();
 		glTranslated(position.x, position.y, position.z);
 		glutSolidSphere(1.0f, 20, 20);
 	glPopMatrix();
-	//cout << min(4, 5);
 }
 
 glm::vec3 Agent::separation(vector<glm::vec3> neighbours)
@@ -58,7 +57,7 @@ glm::vec3 Agent::separation(vector<glm::vec3> neighbours)
 	for (glm::vec3 neighbour : neighbours) {
 		out += glm::vec3(pow(position.x-neighbour.x, 2.0f), pow(position.y-neighbour.y, 2.0f), pow(position.z-neighbour.z, 2.0f));
 	}
-	return out*10.0f;
+	return out*1.0f;
 }
 
 glm::vec3 Agent::cohesion(vector<glm::vec3> neighbours)
@@ -74,5 +73,5 @@ glm::vec3 Agent::cohesion(vector<glm::vec3> neighbours)
 glm::vec3 Agent::pathfind(glm::vec3 endPoint)
 {
 	//Return a value that points towards the end, but with a length of 0.2.
-	return glm::normalize(endPoint-position)*0.2f;
+	return glm::length(endPoint-position)==0 ? glm::vec3(0, 0, 0) : glm::normalize(endPoint-position)*0.2f;
 }
