@@ -120,7 +120,6 @@ void Formation::populate(int n)
 	// Initialize q with the boundary.
 	q = resampledBoundaryCoords;
 	// TODO: if the centre is not in the bounds for some reason, find a different point.
-
 	while (!q.empty()) {
 		// Select the point to check as the first point in the queue.
 		glm::vec3 checkPoint = q.back();
@@ -179,12 +178,10 @@ void Formation::populate(int n)
 	// Choose the agents from the oversampled list
 	// Take away the number of boundary agents to figure out how many agents will be inside the boundary.
 	int insideN = n - resampledBoundaryCoords.size();
-	this->agentCoords = fPoints;
-	/*
-	cout << insideN << endl;
+	//this->agentCoords = fPoints;
+	
+	//cout << insideN << endl;
 	if (insideN > 0) {
-		cout << "Inside" << endl;
-		cout << fPoints.size() << endl;
 		// Add the resampled boundary as the agent coords.
 		for (std::vector<glm::vec3>::iterator bpoint = resampledBoundaryCoords.begin(); bpoint != resampledBoundaryCoords.end(); ++bpoint) {
 			// Convert to coordinates relative to centre.
@@ -218,7 +215,7 @@ void Formation::populate(int n)
 				break;
 		}
 	}
-	*/
+	
 }
 
 // Populate function with input another formation.
@@ -321,7 +318,34 @@ void Formation::setCentre(glm::vec3 cen)
 // Check if a point is in the bounds. Using Ray casting algorithm.
 bool Formation::pointInBoundary(glm::vec3 point)
 {
-	
+	// Ray casting algorithm
+	// Count how many times a constant ray from the point intercepts the polygon.
+	// If the number is odd, then the point is inside. Outside otherwise.
+	// NB: This algorithm only works for 2-D coordinates. Need angle sum algorithm for 3-D.
+	int polySides = this->boundaryCoords.size();
+	float polyX[1024];
+	float polyY[1024];
+	for (int k = 0; k < this->boundaryCoords.size(); k++) {
+		polyX[k] = this->boundaryCoords[k].x;
+		polyY[k] = this->boundaryCoords[k].z;
+	}
+	int   i, j = polySides - 1;
+	bool  oddNodes = false;
+
+	float x = point.x;
+	float y = point.z;
+
+	for (i = 0; i<polySides; i++) {
+		if (polyY[i]<y && polyY[j] >= y
+			|| polyY[j]<y && polyY[i] >= y) {
+			if (polyX[i] + (y - polyY[i]) / (polyY[j] - polyY[i])*(polyX[j] - polyX[i])<x) {
+				oddNodes = !oddNodes;
+			}
+		}
+		j = i;
+	}
+	return oddNodes;
+	/*
 	// Sum of angles algorithm
 	// If a point is inside, then the angles it forms with all the lines on the boundary sum up to a multiple of 360.
 	double sumAngle = 0.0;
@@ -378,55 +402,6 @@ bool Formation::pointInBoundary(glm::vec3 point)
 	}
 	else return false;
 	
-
-	/*
-	// Ray casting algorithm
-	// Count how many times a constant ray from the point intercepts the polygon.
-	// If the number is odd, then the point is inside. Outside otherwise.
-	// NB: This algorithm only works for 2-D coordinates. Need angle sum algorithm for 3-D.
-
-
-	// Set count to 0.
-	int count = 0;
-
-	// Generate a constant point going up from the givent point (to calculate the ray).
-	glm::vec3 r = glm::vec3(point.x, point.y+1.0, point.z);
-
-	// Iterate over the sides of the boundary polygon.
-	for (int i = 1; i < this->boundaryCoords.size(); i++) {
-	glm::vec3 q = this->boundaryCoords[i-1];
-	glm::vec3 s = this->boundaryCoords[i];
-
-	double epsilon = 1>>16;
-	// Check if the lines are parallel
-	if (abs(((q.x - s.x)*(point.y - r.y)-(q.y - s.y)*(point.x - r.x))) <= epsilon) {
-	if (point.x == q.x)
-	count += 1;
-	continue;
-	}
-
-	// Calculate the (x,y) coordinates of the interception point.
-	double Px = ((q.x*s.y-s.x*q.y)*(point.x-r.x)-(q.x-s.x)*(point.x*r.y-point.y*r.x))/((q.x - s.x)*(point.y - r.y)-(q.y - s.y)*(point.x - r.x));
-	double Py = ((q.x*s.y-s.x*q.y)*(point.y-r.y)-(q.y-s.y)*(point.x*r.y-point.y*r.x))/((q.x - s.x)*(point.y - r.y)-(q.y - s.y)*(point.x - r.x));
-
-	// Check if the interception poin is inside the line by checking the crossproduct and comparing the dotproduct to the length of the line.
-	double crossProduct = (Py-q.y)*(s.x-q.x)-(Px-q.x)*(s.y-q.y);
-	if (abs(crossProduct) <= epsilon) {
-	double dotProduct = (Px-q.x)*(s.x-q.x)+(Py-q.y)*(s.y-q.y);
-	double lineSqLength = (s.x-q.x)*(s.x-q.x)+(s.y-q.y)*(s.y-q.y);
-	if (dotProduct > lineSqLength) {
-	count += 1;
-	}
-	}
-	}
-
-	// If count is odd the point is inside. Outside otherwise.
-	if (count % 2) {
-	return true;
-	}
-	else {
-	return false;
-	}
 	*/
 }
 
