@@ -188,31 +188,34 @@ void Formation::populate(int n)
 			this->agentCoords.push_back((*bpoint));
 		}
 		
-		// Calculate a rate for agents inside.
-		int insideRate = fPoints.size() / insideN;
-		int leftover = fPoints.size() % insideN;
-		if (insideRate != 0) {
-			// Add the inside coordinates at a rate of insideRate.
-			for (int i = 0; i < fPoints.size(); i += insideRate) {
-				this->agentCoords.push_back(fPoints[i]);
+		// Select random coordinates
+		vector<int> t;
+		int cnt = insideN;
+
+		while (cnt > 0) {
+			int ran = rand() % fPoints.size();
+			if (!(std::find(t.begin(), t.end(), ran) != t.end())) {
+				this->agentCoords.push_back(fPoints[ran]);
+				t.push_back(ran);
 			}
-		}
-		// Add coordinates to make up for integer division.
-		for (int i = 1; i < fPoints.size() && leftover > 0; i += insideRate) {
-			this->agentCoords.push_back(fPoints[i]);
-			leftover -= 1;
+			cnt--;
 		}
 	}
 
 	else {
-		// Add the resampled boundary as the agent coords. Only take the first n coordinates.
+		// Add the resampled boundary as the agent coords.
 		//cout << "Outside" << endl;
-		for (std::vector<glm::vec3>::iterator bpoint = resampledBoundaryCoords.begin(); bpoint != resampledBoundaryCoords.end(); ++bpoint) {
-			// Convert to coordinates relative to centre.
-			this->agentCoords.push_back((*bpoint));
-			n -= 1;
-			if (n == 0)
-				break;
+		// Select random coordinates
+		vector<int> t;
+		int cnt = n;
+
+		while (cnt > 0) {
+			int ran = rand() % resampledBoundaryCoords.size();
+			if (!(std::find(t.begin(), t.end(), ran) != t.end())) {
+				this->agentCoords.push_back(resampledBoundaryCoords[ran]);
+				t.push_back(ran);
+			}
+			cnt--;
 		}
 	}
 	
