@@ -11,7 +11,8 @@ public:
 	Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents);
 	~Crowd(void);
 	
-	vector<glm::vec3> getAgentCoords();
+	vector<glm::vec3> getRelativeAgentCoords();
+	vector<glm::vec3> getAbsoluteAgentCoords();
 	void update(vector<glm::vec3> neighbours);
 	bool isFinished();
 

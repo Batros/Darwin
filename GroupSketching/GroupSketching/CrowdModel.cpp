@@ -25,17 +25,16 @@ void CrowdModel::createCrowd(Formation* f1, Formation* f2, Path path) {
 
 
 bool CrowdModel::update() {
-	//Basic: Take a list of crowds at their current state, update them all
-	//Extended: Calculate radius around each crowd, if any of these overlap there is the potential for collisions.
+	//v1 (done): Take a list of crowds at their current state, update them all
+	//v2 (in-dev): Calculate radius around each crowd, if any of these overlap there is the potential for collisions so check with that crowd.
 	//So, send other crowd for possible separation calculation.
 	//Extended: Continue updating until they don't need to move any more, stop at that point.
-	//cout << crowds.size();
-	//cout << "here";
 	for (int i=0; i<crowds.size(); i++) {
-		//Basic: No neighbouring crowds.
-		//Extended: Check all other crowds, see if there are any in the radius. If so, pass these.
-		vector <glm::vec3> neighbours;
-		crowds[i]->update(neighbours);
+		//v1 (done): No neighbouring crowds.
+		//v2 (in-dev): Check all other crowds, see if there are any in the radius. If so, pass these.
+		//v3 (future): Convert neighbouring crowds coordinates into this crowd's coordinate system and pass those
+		vector <glm::vec3> neighbouringCrowds;
+		crowds[i]->update(neighbouringCrowds);
 	}
 	return false;
 }

@@ -34,14 +34,16 @@ Agent::~Agent(void)
 
 void Agent::update(vector<glm::vec3> neighbours)
 {
-	//Basic: Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
-	//Extended: Calculate inverse-square separation of neighbours, and cohesion vector towards them.
-	//glm::vec3 sepVec = separation(neighbours);
-	//glm::vec3 cohVec = cohesion(neighbours);
-	//glm::vec3 endVec = pathfind(endPoint);
-	//glm::vec3 newPos = position+sepVec+cohVec+endVec;
-	//glm::vec3 newPos = position+glm::vec3((endPoint.x-position.x)/200, (endPoint.y-position.y)/200, (endPoint.z-position.z)/200);
-	//setPosition(newPos);
+	//v1 (done): Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
+	//v2 (in-dev): Calculate inverse-square separation of neighbours, and cohesion vector towards them.
+	//v3 (future): Allow for an adjustable weighting to these vectors, and have a pointer to the crowd velocity so agents' velocities can be clamped.
+	//v4 (future): Take into account different attributes.
+	//v5 (future): Add some kind of rule that takes into account any other restrictions, e.g. the requirement that the agents walk in line with others.
+	glm::vec3 sepVec = separation(neighbours);
+	glm::vec3 cohVec = cohesion(neighbours);
+	glm::vec3 endVec = pathfind(endPoint);
+	glm::vec3 newPos = position+sepVec+cohVec+endVec;
+	setPosition(newPos);
 	glPushMatrix();
 		glTranslated(position.x, position.y, position.z);
 		glutSolidSphere(1.0f, 20, 20);
