@@ -9,26 +9,29 @@ Formation::Formation(void)
 }
 
 //Construct formation with square shape and centre the parameter single point.
-//TODO: MakeSquare function because the same code is in these 2 constructors.
 Formation::Formation(glm::vec3 cen)
 {
 	vector<glm::vec3> squareShape;
-	//Bottom of the square
-	for (double i = cen.x-5.0; i <= cen.x+5.0; i += 0.25) {		
-		squareShape.push_back(glm::vec3(i,0.0,cen.z-5.0));
-	}
-	//Right side of the square
-	for (double i = cen.z-5.0; i <= cen.z+5.0; i += 0.25) {		
-		squareShape.push_back(glm::vec3(cen.x+5.0,0.0,i));
-	}
-	//Top of the square
-	for (double i = cen.x+5.0; i >= cen.x-5.0; i -= 0.25) {		
-		squareShape.push_back(glm::vec3(i,0.0,cen.z+5.0));
-	}
 	//Left side of the square
-	for (double i = cen.z+5.0; i >= cen.z-5.0; i -= 0.25) {	
-		squareShape.push_back(glm::vec3(cen.x-5.0,0.0,i));
+	for (double i = - 5.0; i < 5.0; i += 0.25) {
+		squareShape.push_back(glm::vec3(- 5.0, i, 0.0));
 	}
+
+	//Top of the square
+	for (double i = - 5.0; i < 5.0; i += 0.25) {
+		squareShape.push_back(glm::vec3(i, 5.0, 0.0));
+	}
+
+	//Right side of the square
+	for (double i = 5.0; i > - 5.0; i -= 0.25) {
+		squareShape.push_back(glm::vec3(5.0, i, 0.0));
+	}
+
+	//Bottom of the square
+	for (double i = 5.0; i > - 5.0; i -= 0.25) {
+		squareShape.push_back(glm::vec3(i, - 5.0, 0.0));
+	}
+	
 	//Set the formation boundary as the square shape
 	this->setBoundary(squareShape);
 	//Set chosen point as the formation centre
@@ -101,8 +104,8 @@ void Formation::populate(int n)
 	// Vector of filled points
 	vector<glm::vec3> fPoints;
 
-	// Initialize q with the centre point
-	q.push_back(this->centre);
+	// Initialize q with the boundary.
+	q = resampledBoundaryCoords;
 	// TODO: if the centre is not in the bounds for some reason, find a different point.
 
 	while (!q.empty()) {
@@ -297,6 +300,41 @@ void Formation::setCentre(glm::vec3 cen)
 // Check if a point is in the bounds. Using Ray casting algorithm.
 bool Formation::pointInBoundary(glm::vec3 point)
 {
+
+	// Sum of angles algorithm
+	// If a point is inside, then the angles it forms with all the lines on the boundary sum up to a multiple of 360.
+	double sumAngle = 0.0;
+	// Set the point as point b (in our ABC triangle).
+	glm::vec3 b = point;
+	// Iterate over the sides of the boundary polygon.
+	for (int i = 0; i < this->boundaryCoords.size()-1; i++) {
+		// Set points A and C of the triangle to the line in the boundary.
+		glm::vec3 a = this->boundaryCoords[i];
+		glm::vec3 c = this->boundaryCoords[i + 1];
+		
+		glm::vec3 ab = b - a;
+		glm::vec3 bc = c - b;
+
+		// Find the length of vectors AB and BC
+		double lenab = sqrt(ab.x*ab.x + ab.y*ab.y);
+		double lenbc = sqrt(bc.x*bc.x + bc.y*bc.y);
+		// Find the dot product of vectors AB and BC
+		double dotabbc = ab.x*bc.x + ab.y*bc.y;
+		// Find angle theta between AB and BC using arc cos.
+		double theta = acos(dotabbc/(lenab*lenbc));
+		// Conver theta to degrees.
+		theta = theta * 180 / M_PI;
+		// Add theta to the sum
+		sumAngle += theta;
+	}
+
+	// Check if angle sum is divisible by 180
+	if ((int)sumAngle % 180 == 0) {
+		return true;
+	}
+	else return false;
+
+	/*
 	// Ray casting algorithm
 	// Count how many times a constant ray from the point intercepts the polygon.
 	// If the number is odd, then the point is inside. Outside otherwise.
@@ -343,6 +381,7 @@ bool Formation::pointInBoundary(glm::vec3 point)
 	else {
 		return false;
 	}
+	*/
 }
 
 Formation::~Formation(void)
