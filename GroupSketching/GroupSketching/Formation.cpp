@@ -177,7 +177,7 @@ void Formation::populate(int n)
 		// Add the resampled boundary as the agent coords.
 		for (std::vector<glm::vec3>::iterator bpoint = resampledBoundaryCoords.begin(); bpoint != resampledBoundaryCoords.end(); ++bpoint) {
 			// Convert to coordinates relative to centre.
-			this->agentCoords.push_back(glm::vec3((*bpoint).x - this->centre.x, (*bpoint).y - this->centre.y, (*bpoint).z - this->centre.z));
+			this->agentCoords.push_back((*bpoint));
 		}
 		// Calculate a rate for agents inside.
 		int insideRate = fPoints.size() / insideN;
@@ -186,11 +186,11 @@ void Formation::populate(int n)
 		// Add the inside coordinates at a rate of insideRate.
 		for (int i = 0; i < fPoints.size(); i += insideRate) {
 			// Convert to coordinates relative to centre.
-			this->agentCoords.push_back(glm::vec3(fPoints[i].x - this->centre.x, fPoints[i].y - this->centre.y, fPoints[i].z - this->centre.z));
+			this->agentCoords.push_back(fPoints[i]);
 		}
 		// Add coordinates to make up for integer division.
 		for (int i = 1; i < fPoints.size() && leftover > 0; i += insideRate) {
-			this->agentCoords.push_back(glm::vec3(fPoints[i].x - this->centre.x, fPoints[i].y - this->centre.y, fPoints[i].z - this->centre.z));
+			this->agentCoords.push_back(fPoints[i]);
 			leftover -= 1;
 		}
 	}
@@ -199,7 +199,7 @@ void Formation::populate(int n)
 		// Add the resampled boundary as the agent coords. Only take the first n coordinates.
 		for (std::vector<glm::vec3>::iterator bpoint = resampledBoundaryCoords.begin(); bpoint != resampledBoundaryCoords.end(); ++bpoint) {
 			// Convert to coordinates relative to centre.
-			this->agentCoords.push_back(glm::vec3((*bpoint).x - this->centre.x, (*bpoint).y - this->centre.y, (*bpoint).z - this->centre.z));
+			this->agentCoords.push_back((*bpoint));
 			n -= 1;
 			if (n == 0)
 				break;
@@ -255,9 +255,10 @@ vector<glm::vec3> Formation::getAgentCoords()
 	for (std::vector<glm::vec3>::iterator agent = this->agentCoords.begin(); agent != this->agentCoords.end(); ++agent) {
 		// For every agent calculate the real world coords (by adding the centre).
 		glm::vec3 realAgent;
-		realAgent.x = (*agent).x + this->centre.x;
-		realAgent.y = (*agent).y + this->centre.y;
-		realAgent.z = (*agent).z + this->centre.z;
+		realAgent = (*agent) + this->centre;
+		//cout << "Agent " << (*agent).x << " " << (*agent).y << " " << (*agent).z << endl;
+		//cout << "Centre " << this->centre.x << " " << this->centre.y << " " << this->centre.z << endl;
+		//cout << "Real Agent " << realAgent.x << " " << realAgent.y << " " << realAgent.z << endl;
 		realCoords.push_back(realAgent);
 	}
 	// Return the real world coords.
@@ -272,9 +273,7 @@ vector<glm::vec3> Formation::getBoundary()
 	for (std::vector<glm::vec3>::iterator bpoint = this->boundaryCoords.begin(); bpoint != this->boundaryCoords.end(); ++bpoint) {
 		// For every boundary point calculate the real world coords (by adding the centre).
 		glm::vec3 realBound;
-		realBound.x = (*bpoint).x + this->centre.x;
-		realBound.y = (*bpoint).y + this->centre.y;
-		realBound.z = (*bpoint).z + this->centre.z;
+		realBound = (*bpoint) + this->centre;
 		realCoords.push_back(realBound);
 	}
 	// Return the real world coords.
