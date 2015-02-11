@@ -9,3 +9,7 @@
 *.ilk
 *.suo
 *.sln
+*.dll
+*.ipch
+*.sdf
+*.opensdf
