@@ -9,7 +9,11 @@
 *.ilk
 *.suo
 *.sln
+<<<<<<< HEAD
 *.dll
 *.ipch
 *.sdf
 *.opensdf
+=======
+*.dll
+>>>>>>> 553ad2f0cf5c5bc394bb7712041db4652e25c61f
