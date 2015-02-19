@@ -130,7 +130,7 @@ void Formation::populate(int n)
 		glm::vec3 left = glm::vec3(checkPoint.x, checkPoint.y, checkPoint.z);
 		glm::vec3 right = glm::vec3(checkPoint.x + sampleX, checkPoint.y, checkPoint.z);
 		// Move along the points to the left.
-		while (pointInBoundary(left) && !(std::find(c.begin(), c.end(), left) != c.end())) {
+		while (pointInBoundary(left) && (std::find(c.begin(), c.end(), left) == c.end())) {
 			// Add left to fPoints.
 			fPoints.push_back(left);
 			//c.push_back(left);
@@ -138,12 +138,12 @@ void Formation::populate(int n)
 			glm::vec3 top = glm::vec3(left.x, left.y, left.z + sampleZ);
 			glm::vec3 bottom = glm::vec3(left.x, left.y, left.z - sampleZ);
 			// If top/bottom are in the bounds and have not been checked, add them to the queue and fPoints.
-			if (pointInBoundary(top) && !(std::find(c.begin(), c.end(), top) != c.end())) {
+			if (pointInBoundary(top) && (std::find(c.begin(), c.end(), top) == c.end())) {
 				//fPoints.push_back(top);
 				q.push_back(top);
 				//c.push_back(top);
 			}
-			if (pointInBoundary(bottom) && !(std::find(c.begin(), c.end(), bottom) != c.end())) {
+			if (pointInBoundary(bottom) && (std::find(c.begin(), c.end(), bottom) == c.end())) {
 				//fPoints.push_back(bottom);
 				q.push_back(bottom);
 				//c.push_back(bottom);
@@ -152,7 +152,7 @@ void Formation::populate(int n)
 			left = glm::vec3(left.x - sampleX, left.y, left.z);
 		}
 		// Repeat for right.
-		while (pointInBoundary(right) && !(std::find(c.begin(), c.end(), right) != c.end())) {
+		while (pointInBoundary(right) && (std::find(c.begin(), c.end(), right) == c.end())) {
 			// Add left to fPoints.
 			fPoints.push_back(right);
 			//c.push_back(right);
@@ -160,12 +160,12 @@ void Formation::populate(int n)
 			glm::vec3 top = glm::vec3(right.x, right.y, right.z + sampleZ);
 			glm::vec3 bottom = glm::vec3(right.x, right.y, right.z - sampleZ);
 			// If top/bottom are in the bounds and have not been checked, add them to the queue and fPoints.
-			if (pointInBoundary(top) && !(std::find(c.begin(), c.end(), top) != c.end())) {
+			if (pointInBoundary(top) && (std::find(c.begin(), c.end(), top) == c.end())) {
 				//fPoints.push_back(top);
 				q.push_back(top);
 				//c.push_back(top);
 			}
-			if (pointInBoundary(bottom) && !(std::find(c.begin(), c.end(), bottom) != c.end())) {
+			if (pointInBoundary(bottom) && (std::find(c.begin(), c.end(), bottom) == c.end())) {
 				//fPoints.push_back(bottom);
 				q.push_back(bottom);
 				//c.push_back(bottom);
@@ -192,13 +192,16 @@ void Formation::populate(int n)
 		vector<int> t;
 		int cnt = insideN;
 
-		while (cnt > 0) {
-			int ran = rand() % fPoints.size();
-			if (!(std::find(t.begin(), t.end(), ran) != t.end())) {
-				this->agentCoords.push_back(fPoints[ran]);
-				t.push_back(ran);
+		if (fPoints.size() > 0) {
+			while (cnt > 0) {
+				int ran = rand() % fPoints.size();
+				if ((std::find(t.begin(), t.end(), ran) == t.end())) {
+					this->agentCoords.push_back(fPoints[ran]);
+					t.push_back(ran);
+					cnt--;
+				}
+				
 			}
-			cnt--;
 		}
 	}
 
@@ -208,14 +211,15 @@ void Formation::populate(int n)
 		// Select random coordinates
 		vector<int> t;
 		int cnt = n;
-
-		while (cnt > 0) {
-			int ran = rand() % resampledBoundaryCoords.size();
-			if (!(std::find(t.begin(), t.end(), ran) != t.end())) {
-				this->agentCoords.push_back(resampledBoundaryCoords[ran]);
-				t.push_back(ran);
+		if (fPoints.size() > 0) {
+			while (cnt > 0) {
+				int ran = rand() % resampledBoundaryCoords.size();
+				if ((std::find(t.begin(), t.end(), ran) == t.end())) {
+					this->agentCoords.push_back(resampledBoundaryCoords[ran]);
+					t.push_back(ran);
+					cnt--;
+				}
 			}
-			cnt--;
 		}
 	}
 	
