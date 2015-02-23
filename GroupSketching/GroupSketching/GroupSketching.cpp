@@ -12,8 +12,8 @@ int screenHeight;
 
 bool drawMode;
 bool dragging;
-bool cubeDrawn;
 bool running;
+bool debugSquares;
 int strokeNumber;
 glm::vec3 sq1 = glm::vec3(20.0, 0.0, 30.0);
 glm::vec3 sq2 = glm::vec3(-20.0, 0.0, -10.0);
@@ -63,6 +63,7 @@ void processInput() {
 		Formation* f2 = sketchHandler->processFormation(strokes[1]);
 		Path path = sketchHandler->processPath(strokes[2]);
 		*/
+		debugSquares = true;
 
 		Formation* f1 = new Formation(sq1);
 		Formation* f2 = new Formation(sq2);
@@ -111,7 +112,6 @@ void onMouseClick(int button, int state, int x, int y) {
 			colours.push_back(newColour);
 
 			dragging = true;
-			cubeDrawn = true;
 		}
 		else if (state == GLUT_UP) {
 			dragging = false;
@@ -132,8 +132,13 @@ void onMouseClick(int button, int state, int x, int y) {
 	}
 
 	if (button == GLUT_MIDDLE_BUTTON) {
+		crowdModel->~CrowdModel();
+		crowdModel = new CrowdModel();
+
+		formations.clear();
 		strokes.clear();
 		strokeNumber = 0;
+		running = false;
 	}
 }
 
@@ -176,23 +181,25 @@ void renderEnvironment(void) {
 		glEnd();
 	}
 
-	glColor3f(1.0f, 1.0f, 1.0f);
-	glLineWidth(20.0f);
-	glBegin(GL_LINE_STRIP);
-	glVertex3d(sq1.x-5.0, sq1.y, sq1.z-5.0);
-	glVertex3d(sq1.x-5.0, sq1.y, sq1.z+5.0);
-	glVertex3d(sq1.x+5.0, sq1.y, sq1.z+5.0);
-	glVertex3d(sq1.x+5.0, sq1.y, sq1.z-5.0);
-	glVertex3d(sq1.x-5.0, sq1.y, sq1.z-5.0);
-	glEnd();
+	if (debugSquares) {
+		glColor3f(1.0f, 1.0f, 1.0f);
+		glLineWidth(20.0f);
+		glBegin(GL_LINE_STRIP);
+		glVertex3d(sq1.x-5.0, sq1.y, sq1.z-5.0);
+		glVertex3d(sq1.x-5.0, sq1.y, sq1.z+5.0);
+		glVertex3d(sq1.x+5.0, sq1.y, sq1.z+5.0);
+		glVertex3d(sq1.x+5.0, sq1.y, sq1.z-5.0);
+		glVertex3d(sq1.x-5.0, sq1.y, sq1.z-5.0);
+		glEnd();
 
-	glBegin(GL_LINE_STRIP);
-	glVertex3d(sq2.x-5.0, sq2.y, sq2.z-5.0);
-	glVertex3d(sq2.x-5.0, sq2.y, sq2.z+5.0);
-	glVertex3d(sq2.x+5.0, sq2.y, sq2.z+5.0);
-	glVertex3d(sq2.x+5.0, sq2.y, sq2.z-5.0);
-	glVertex3d(sq2.x-5.0, sq2.y, sq2.z-5.0);
-	glEnd();
+		glBegin(GL_LINE_STRIP);
+		glVertex3d(sq2.x-5.0, sq2.y, sq2.z-5.0);
+		glVertex3d(sq2.x-5.0, sq2.y, sq2.z+5.0);
+		glVertex3d(sq2.x+5.0, sq2.y, sq2.z+5.0);
+		glVertex3d(sq2.x+5.0, sq2.y, sq2.z-5.0);
+		glVertex3d(sq2.x-5.0, sq2.y, sq2.z-5.0);
+		glEnd();
+	}
 }
 
 void display(void) {
@@ -216,6 +223,11 @@ void display(void) {
 
 	if ((input->isKeyPressed(VK_RETURN)) && !(running)) {
 		processInput();
+	}
+
+	if (input->isKeyPressed(VK_ESCAPE)) {
+		cout << "Exit" << endl;
+		exit(EXIT_SUCCESS);
 	}
 
 	if (running) {
@@ -244,8 +256,8 @@ int main(int argc, char **argv) {
 	input = new Input(screenHeight, screenWidth);
 	camera = new Camera();
 	drawMode = false;
-	cubeDrawn = false;
 	running = false;
+	debugSquares = false;
 	strokeNumber = 0;
 	srand (static_cast <unsigned> (time(0)));
 
