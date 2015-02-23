@@ -82,6 +82,24 @@ void processInput() {
 		crowdModel->createCrowd(f1, f2, path);
 		running = true;
 	}
+	else if (strokes.size()==3) {
+		// Formation, Formation, Path
+		Formation* f1 = sketchHandler->processFormation(strokes[0]);
+		formations.push_back(f1->getBoundary());
+		Formation* f2 = sketchHandler->processFormation(strokes[1]);
+		formations.push_back(f2->getBoundary());
+		Path path = strokes[2];
+		strokes.clear();
+		strokeNumber = 0;
+		crowdModel->createCrowd(f1, f2, path);
+		running = true;
+	}
+	else if (strokes.size()==4) {
+		// Formation, Sub-formation, Formation, Sub-formation
+	}
+	else if (strokes.size()==5) {
+		// Formation, Sub-formation, Formation, Sub-formation, Path
+	}
 	else {
 		for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
 			if (strokes[i].size() > 0) {
@@ -226,7 +244,6 @@ void display(void) {
 	}
 
 	if (input->isKeyPressed(VK_ESCAPE)) {
-		cout << "Exit" << endl;
 		exit(EXIT_SUCCESS);
 	}
 
