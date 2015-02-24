@@ -88,14 +88,36 @@ void processInput() {
 		formations.push_back(f1->getBoundary());
 		Formation* f2 = sketchHandler->processFormation(strokes[1]);
 		formations.push_back(f2->getBoundary());
-		Path path = strokes[2];
-		strokes.clear();
-		strokeNumber = 0;
-		crowdModel->createCrowd(f1, f2, path);
-		running = true;
+		Path path = sketchHandler->processPath(strokes[2], f1->getBoundary(), f2->getBoundary());
+		if (path.size() > 1) {
+			strokes.clear();
+			strokeNumber = 0;
+			crowdModel->createCrowd(f1, f2, path);
+			running = true;
+		}
+		else {
+			// Path incorrect
+		}
 	}
 	else if (strokes.size()==4) {
 		// Formation, Sub-formation, Formation, Sub-formation
+		Formation* f1 = sketchHandler->processFormation(strokes[0]);
+		formations.push_back(f1->getBoundary());
+		Formation* f1Sub = sketchHandler->processFormation(strokes[1]);
+		bool sub1Inside = sketchHandler->processSubFormation(f1Sub->getBoundary(), f1->getBoundary());
+
+		Formation* f2 = sketchHandler->processFormation(strokes[2]);
+		formations.push_back(f2->getBoundary());
+		Formation* f2Sub = sketchHandler->processFormation(strokes[3]);
+		bool sub2Inside = sketchHandler->processSubFormation(f2Sub->getBoundary(), f2->getBoundary());
+
+		Path path;
+		if (sub1Inside && sub2Inside) {
+			strokes.clear();
+			strokeNumber = 0;
+			crowdModel->createCrowd(f1, f2, path);
+			running = true;
+		}
 	}
 	else if (strokes.size()==5) {
 		// Formation, Sub-formation, Formation, Sub-formation, Path

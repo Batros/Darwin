@@ -99,6 +99,59 @@ Formation* SketchHandler::processFormation(vector<glm::vec3> stroke) {
 	*/
 }
 
-Path SketchHandler::processPath(vector<glm::vec3> stroke) {
-	return stroke;
+bool SketchHandler::processSubFormation(vector<glm::vec3> stroke, vector<glm::vec3> parent) {
+	bool subInsideParent = true;
+	for(vector<glm::vec3>::size_type i = 0; i < stroke.size(); i++) {
+		if (!pointInBoundary(stroke[i], parent)) {
+			subInsideParent = false;
+			break;
+		}
+	}
+	return subInsideParent;
+}
+
+bool SketchHandler::pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary) {
+	bool inBoundary = false;
+	float m_point = 1;
+	float c_point = point.z - (m_point * point.x);
+	for(vector<glm::vec3>::size_type i = 1; i < boundary.size(); i++) {
+		float m_line, c_line;
+		m_line = (boundary[i].z - boundary[i-1].z) / (boundary[i].x - boundary[i-1].x);
+		c_line = (boundary[i].z - (m_line * boundary[i].x));
+
+		glm::vec3 intersect = glm::vec3(0, 0, 0);
+
+		intersect.x = (c_line - c_point) / (m_point - m_line);
+		intersect.z = ((m_point * c_line) - (m_line * c_point)) / (m_point - m_line);
+		intersect.y = boundary[i].y;
+
+		// Only look one side of the point
+		if (intersect.x > point.x) {
+			// Check if intesect point is on the line segment
+			if (intersect.x <= boundary[i].x) {
+				if (intersect.x >= boundary[i-1].x) {
+					inBoundary = !inBoundary;
+				}
+			}
+			else {
+				if (intersect.x <= boundary[i-1].x) {
+					inBoundary = !inBoundary;
+				}
+			}
+		}
+	}
+	return inBoundary;
+}
+
+Path SketchHandler::processPath(vector<glm::vec3> stroke, vector<glm::vec3> f1, vector<glm::vec3> f2) {
+	bool startInBoundary = pointInBoundary(stroke[0], f1);
+	bool endInBoundary = pointInBoundary(stroke[stroke.size()-1], f2);
+
+	if (startInBoundary && endInBoundary) {
+		return stroke;
+	}
+	else {
+		vector<glm::vec3> blankPath;
+		return blankPath;
+	}
 }
