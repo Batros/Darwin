@@ -68,58 +68,59 @@ Formation::Formation(vector<glm::vec3> boundary)
 	this->setCentre(glm::vec3(cenX, cenY, cenZ));
 }
 
-// Populate function with input number of agents.
-// Finds the oversampled space and fits the number of agents to it.
-void Formation::populate(int n)
-{
-	if (n == 0) {
-		this->agentCoords.push_back(glm::vec3(0, 0, 0));
-		this->agentCoords.push_back(glm::vec3(0, 0, 0));
-		this->agentCoords.push_back(glm::vec3(0, 0, 0));
-		this->agentCoords.push_back(glm::vec3(0, 0, 0));
-		this->agentCoords.push_back(glm::vec3(0, 0, 0));
-		this->agentCoords.push_back(glm::vec3(0, 0, 0));
-		return;
-	}
-	if (n == 1) {
-		this->agentCoords.push_back(glm::vec3(-20, 0, 50));
-		this->agentCoords.push_back(glm::vec3(-20, 0, -50));
-		this->agentCoords.push_back(glm::vec3(20, 0, 30));
-		this->agentCoords.push_back(glm::vec3(-20, 0, 30));
-		this->agentCoords.push_back(glm::vec3(20, 0, 10));
-		this->agentCoords.push_back(glm::vec3(-20, 0, 10));
-		return;
-	}
+// Populate function for boundary.
+// Resamples the boundary points so that all agents are equidistant.
+vector<glm::vec3> Formation::populateBoundary(double stepSize) {
+	vector<glm::vec3> resampledBoundaryCoords;
 
-	// TODO: Change to flood-fill algorithm with dynamic sampling rate.
-
-
-	// TODO: Resample bounds to make sure the sampling is constant using the new sampling rate.
-	vector<glm::vec3> resampledBoundaryCoords = this->boundaryCoords;
-
-	// Basic sampling rate - distance between two points on the boundary.
-	double samplingRate = 0.0;
+	// Iterate over the boundary, keeping a running counter of the distance since the last agent point located.
+	double runningDist = 0;
 	for (int i = 0; i < this->boundaryCoords.size() - 1; i++) {
-		samplingRate += sqrt((this->boundaryCoords[i].x - this->boundaryCoords[i+1].x)*(this->boundaryCoords[i].x - this->boundaryCoords[i+1].x) + (this->boundaryCoords[i].y - this->boundaryCoords[i+1].y)*(this->boundaryCoords[i].y - this->boundaryCoords[i+1].y));
-	}
-	
-	samplingRate = samplingRate / this->boundaryCoords.size();
-	double sampleX = samplingRate;
-	double sampleY = samplingRate;
-	double sampleZ = samplingRate;
+		double startX = this->boundaryCoords[i].x;
+		double startZ = this->boundaryCoords[i].z;
+		double lineLength = sqrt((this->boundaryCoords[i].x - this->boundaryCoords[i+1].x)*(this->boundaryCoords[i].x - this->boundaryCoords[i+1].x) + (this->boundaryCoords[i].z - this->boundaryCoords[i+1].z)*(this->boundaryCoords[i].z - this->boundaryCoords[i+1].z));
+		double oldRunningDist = runningDist;
+		runningDist += lineLength;
+		// If the running distance is greater than the step size a new agent has been found. Calculate its position.
+		while (runningDist >= stepSize) {
+			// Calculate how much of the distance has been passed in the current line.
+			double dist = stepSize - oldRunningDist;
+			oldRunningDist = 0;
+			runningDist -= stepSize;
+			double endX;
+			double endZ;
+			
+			// Calculate line vector and its length. Normalize the vector and use it to calculate the end points along the line.
+			double vx = this->boundaryCoords[i+1].x - startX;
+			double vz = this->boundaryCoords[i+1].z - startZ;
+			double lenV = sqrt(vx*vx + vz*vz);
+			vx /= lenV;
+			vz /= lenV;
+			endX = startX + vx * (lenV + dist);
+			endZ = startZ + vz * (lenV + dist);
 
-	//cout << sampleX << " " << sampleY << " " << sampleZ << endl;
-	// Flood-fill algorithm.
-	// Queue of points to check.
-	vector<glm::vec3> q;
-	// Vector of checked points.
-	vector<glm::vec3> c;
+			// Add the point to the resampled boundary coords and change startX and startY.
+			glm::vec3 bPoint = glm::vec3(endX, 0.0, endZ);
+			startX = endX;
+			startZ = endZ;
+			resampledBoundaryCoords.push_back(bPoint);
+		}
+	}
+
+	return resampledBoundaryCoords;
+}
+
+// Flood-fill algorithm to create oversampled point space for agents.
+vector<glm::vec3> Formation::floodFill(double stepSize, vector<glm::vec3>q) {
 	// Vector of filled points
 	vector<glm::vec3> fPoints;
+	// Vector of checked points.
+	vector<glm::vec3> c;
+	// Set sampling rate as the step size.
+	double sampleX = stepSize;
+	double sampleY = stepSize;
+	double sampleZ = stepSize;
 
-	// Initialize q with the boundary.
-	q = resampledBoundaryCoords;
-	// TODO: if the centre is not in the bounds for some reason, find a different point.
 	while (!q.empty()) {
 		// Select the point to check as the first point in the queue.
 		glm::vec3 checkPoint = q.back();
@@ -175,10 +176,97 @@ void Formation::populate(int n)
 		}
 	}
 
+
+	return fPoints;
+}
+
+// Populate function with input number of agents.
+// Finds the oversampled space and fits the number of agents to it.
+void Formation::populate(int n)
+{
+	if (n == 0) {
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		this->agentCoords.push_back(glm::vec3(0, 0, 0));
+		return;
+	}
+	if (n == 1) {
+		this->agentCoords.push_back(glm::vec3(-20, 0, 50));
+		this->agentCoords.push_back(glm::vec3(-20, 0, -50));
+		this->agentCoords.push_back(glm::vec3(20, 0, 30));
+		this->agentCoords.push_back(glm::vec3(-20, 0, 30));
+		this->agentCoords.push_back(glm::vec3(20, 0, 10));
+		this->agentCoords.push_back(glm::vec3(-20, 0, 10));
+		return;
+	}
+
+	// Perform population with a very small step size.
+	// Used to solve the formula sqrt(i)/b = c, where i is the number of inside agents and b is the number of boundary agents.
+	// c becomes property for the shape of the formation.
+	// Using the values calculated with a small step the optimal values for boundary agents and step size can be found.
+
+	// Calculate the boundary perimeter.
+	double boundaryPerimeter = 0.0;
+	for (int i = 0; i < this->boundaryCoords.size() - 1; i++) {
+		boundaryPerimeter += sqrt((this->boundaryCoords[i].x - this->boundaryCoords[i+1].x)*(this->boundaryCoords[i].x - this->boundaryCoords[i+1].x) + (this->boundaryCoords[i].y - this->boundaryCoords[i+1].y)*(this->boundaryCoords[i].y - this->boundaryCoords[i+1].y));
+	}
+
+	// Populate the boundary (resample)
+	// Choose small step size.
+	double stepSize = boundaryPerimeter/n;
+
+	// Resample the boundary coords to boundaryAgents number of equidistant agents.
+	vector<glm::vec3> resampledBoundaryCoords = this->populateBoundary(stepSize);
+	// Add the starting point of the boundary to the resampled boundary coordinates.
+	resampledBoundaryCoords.push_back(this->boundaryCoords[0]);
+
+	// Flood-fill algorithm.
+	// Queue of points to check.
+	vector<glm::vec3> q;
+	// Vector of filled points
+	vector<glm::vec3> fPoints;
+
+	// Initialize q with the boundary.
+	q = resampledBoundaryCoords;
+	fPoints = this->floodFill(stepSize, q);
+	
+
+	// Calculate the c constant for the given shape.
+	int boundaryAgents = resampledBoundaryCoords.size();
+	int insideAgents = fPoints.size();
+	int totalAgents = n;
+	double c = (sqrt(insideAgents)) / ((double)boundaryAgents);
+	// Optimise the number of boundary agents given the total agents.
+	double optimalBoundaryAgents = (-1 + sqrt(1+4*totalAgents*c*c)) / (2*c*c);
+	
+	// Introduce a certain percent to control the step size so that more agents are generated (oversampled space).
+	double percentControl = 1.0;
+	stepSize = (boundaryPerimeter*percentControl) / optimalBoundaryAgents;
+
+	// Repeat populate with the now optimal step size.
+	// Resample the boundary coords to boundaryAgents number of equidistant agents.
+	resampledBoundaryCoords.clear();
+	resampledBoundaryCoords = this->populateBoundary(stepSize);
+	// Add the starting point of the boundary to the resampled boundary coordinates.
+	resampledBoundaryCoords.push_back(this->boundaryCoords[0]);
+
+	// Flood-fill algorithm.
+	// Queue of points to check.
+	q.clear();
+	// Vector of filled points
+	fPoints.clear();
+
+	// Initialize q with the boundary.
+	q = resampledBoundaryCoords;
+	fPoints = this->floodFill(stepSize, q);
+	
+
 	// Choose the agents from the oversampled list
 	// Take away the number of boundary agents to figure out how many agents will be inside the boundary.
 	int insideN = n - resampledBoundaryCoords.size();
-	//this->agentCoords = fPoints;
 	
 	//cout << insideN << endl;
 	if (insideN > 0) {
