@@ -15,6 +15,8 @@ public:
 	void populate(int n);
 	void populate(Formation* formation);
 	void populate(vector<glm::vec3> coords);
+	vector<glm::vec3> populateBoundary(double stepSize);
+	vector<glm::vec3> floodFill(double stepSize, vector<glm::vec3>q);
 
 	vector<glm::vec3> getAgentCoords();
 	void setAgentCoords(vector<glm::vec3>);
