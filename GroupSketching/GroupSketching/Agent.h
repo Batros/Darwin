@@ -3,7 +3,7 @@ class Agent
 {
 public:
 	Agent(glm::vec3);
-	Agent(glm::vec3, glm::vec3);
+	Agent(glm::vec3, glm::vec3, glm::vec3);
 	glm::vec3 getPosition();
 	void setPosition(glm::vec3 newPosition);
 	void setEndPoint(glm::vec3 end);
@@ -15,6 +15,8 @@ private:
 	glm::vec3 endPoint;
 	int minSpd;
 	int maxSpd;
+	bool needsToMove;
+	glm::vec3 colour;
 	glm::vec3 separation(vector<glm::vec3>);
 	glm::vec3 cohesion(vector<glm::vec3>);
 	glm::vec3 pathfind(glm::vec3);

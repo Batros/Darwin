@@ -15,8 +15,17 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 	vector<glm::vec3> agentCoords = f1->getAgentCoords();
 	vector<glm::vec3> endCoords = f2->getAgentCoords();
 	for (int i=0; i<agentCoords.size(); i++) {
-		Agent* agent = new Agent(agentCoords[i], endCoords[i]);
-		cout << agentCoords[i].x << agentCoords[i].y << agentCoords[i].z << endl;
+		float rndm = rand() % 2;
+		cout << rndm;
+		glm::vec3 colour;
+		if (rndm==1) {
+			colour = glm::vec3 (1.0, 0.5, 0.0);
+		} else {
+			colour = glm::vec3 (0.0, 1.0, 0.5);
+		}
+		Agent* agent = new Agent(agentCoords[i], endCoords[i], colour);
+		cout << rndm;
+		//cout << agentCoords[i].x << agentCoords[i].y << agentCoords[i].z << endl;
 		agents.push_back(agent);
 	}
 }
