@@ -15,6 +15,9 @@ Agent::Agent(vec3 position, vec3 end, vec3 colour) {
 	this->endPoint = end;
 	this->colour = colour;
 	needsToMove = true;
+	COHESION_STRENGTH = 0.06f;
+	SEPARATION_STRENGTH = 0.04f;
+	PATHFIND_STRENGTH = 0.2f;
 }
 
 vec3 Agent::getPosition()
@@ -41,17 +44,20 @@ void Agent::update(vector<vec3> neighbours)
 	if (needsToMove) {
 		//v1 (done): Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
 		//v2 (done): Calculate inverse-square separation of neighbours, and cohesion vector towards them.
-		//v3 (in-dev): Work out if the agent needs to move any more, and stop it if not.
-		//v3 (future): Take into account different attributes - have an AgentProperties class or something that has colour, speed etc, so heterogeneity can be implemented
-		//v4 (future): Allow for an adjustable weighting to these vectors, and have a pointer to the crowd velocity so agents' velocities can be clamped.
-		//v5 (future): Add some kind of rule that takes into account any other restrictions, e.g. the requirement that the agents walk in line with others.
+		//v3 (in-dev): Work out if the agent needs to move any more, and stop it if not
+		//v4 (future): Take into account different attributes - have an AgentProperties class or something that has colour, speed etc, so heterogeneity can be implemented
+		//v5 (future): Allow for an adjustable weighting to these vectors, and have a pointer to the crowd velocity so agents' velocities can be clamped.
+		//v6 (future): Add some kind of rule that takes into account any other restrictions, e.g. the requirement that the agents walk in line with others.
 		vec3 sepVec = separation(neighbours);
 		vec3 cohVec = cohesion(neighbours);
 		vec3 endVec = pathfind(endPoint);
 		vec3 modVec = (sepVec+cohVec+endVec)*10.0f;
-		vec3 newPos = position+endVec+ cohVec;
-		cout << length(endVec) << endl;
+		cout << sepVec.x << ", " << sepVec.z << endl;
+		vec3 newPos = position+endVec+cohVec+sepVec;
 		if (length(endVec)<0.01) {
+			//TODO: This ought to be a function of the distance left to travel and the distance moved.
+			//If the distance moved is very small, this should be set to false. But, to avoid coincidences, the distance to go should also be small.
+			
 			needsToMove = false;
 		}
 		setPosition(newPos);
@@ -63,6 +69,24 @@ void Agent::update(vector<vec3> neighbours)
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
 			glVertex3f(modVec.x,0,modVec.z);
+			glEnd();
+
+			glColor3f(1.0, 0.0, 1.0);
+			glBegin(GL_LINES);
+			glVertex3f(0,0,0);
+			glVertex3f(sepVec.x*100.0,0,sepVec.z*100.0);
+			glEnd();
+
+			glColor3f(0.0, 0.0, 1.0);
+			glBegin(GL_LINES);
+			glVertex3f(0,0,0);
+			glVertex3f(cohVec.x*100.0,0,cohVec.z*100.0);
+			glEnd();
+
+			glColor3f(1.0, 0.0, 0.0);
+			glBegin(GL_LINES);
+			glVertex3f(0,0,0);
+			glVertex3f(endVec.x*10.0,0,endVec.z*10.0);
 			glEnd();
 		glPopMatrix();
 	} else {
@@ -77,36 +101,27 @@ void Agent::update(vector<vec3> neighbours)
 vec3 Agent::separation(vector<vec3> neighbours)
 {
 	//Return the inverse-square sum of all vectors away from nearby neighbours.
+
+	//Get the sum of all vectors from neighbours within a small radius to the agent.
 	vec3 out = vec3 (0.0, 0.0, 0.0);
 	for (vec3 neighbour : neighbours) {
 		vec3 separation = vec3(position.x-neighbour.x, 0, position.z-neighbour.z);
-		if (length(separation)<5) {
-			//TODO: Deal with divide-by-0 errors
-			out += vec3(separation.x, 0, separation.z);
+		if (0<length(separation) && length(separation)<5) {
+
+			//Set the length to be 1/length and add it to the current vector
+			out += normalize(separation)*(1.0f/length(separation));
 		}
 	}
-	//TODO: Clamp value to some large-ish maximum (so they won't shoot away at lightspeed)
-	if (length(out)>0.1f) {
-		out = out*(0.1f/length(out));
+	//If the length is greater than 1, normalize it
+	if (length(out)>1) {
+		out = normalize(out);
 	}
 
-	/*if (abs(out.x)>0.001 && abs(out.z)>0.001) {
-		return (1.0f/out)*0.0025f;
-	} else {
-		return vec3(0,0,0);
-	}
-
-	if (out.x>0) {
-		out.x = 0.1;
-	} else {
-		out.x = -0.1;
-	}
-	if (out.z>0) {
-		out.z = 0.1;
-	} else {
-		out.z = -0.1;
-	}*/
-	return out;
+	//Is the length greater than 1?
+	//If so, normalize and set its length to the separation strength.
+	//Otherwise, multiply it by the separation strength so it is a fraction of its original length.
+	cout << out.x << ", " << out.y << ", " << out.z << ": " << length(out) << endl;
+	return length(out)>1 ? normalize(out)*SEPARATION_STRENGTH : out*SEPARATION_STRENGTH;
 }
 
 vec3 Agent::cohesion(vector<vec3> neighbours)
@@ -116,7 +131,11 @@ vec3 Agent::cohesion(vector<vec3> neighbours)
 	for (vec3 neighbour : neighbours) {
 		out += (neighbour-position);
 	}
-	return out*0.0f;
+
+	//Is the length of "out" greater than 1?
+	//If so, normalize out and multiply it by the cohesion strength.
+	//Otherwise, return the out vector multiplied by the strength.
+	return length(out)>1 ? normalize(out)*COHESION_STRENGTH : out*COHESION_STRENGTH;
 }
 
 vec3 Agent::pathfind(vec3 endPoint)
@@ -127,8 +146,8 @@ vec3 Agent::pathfind(vec3 endPoint)
 	vec3 dstP = normalize(distance)*length(distance);
 
 	//Is the distance to the end less than 3 units?
-	//If so, return a vector in the same direction, but 0.1 of the current length.
-	//Otherwise, return a vector in the same direction with a length of 0.2.
+	//If so, return a vector in the same direction, but a fraction of the current length, dependent on the pathfinding strength (starting equal to the strength).
+	//Otherwise, return a vector in the same direction with a length equal to the pathfinding strength.
 
-	return length(distance)<3 ? distance*0.075f : normalize(distance)*0.2f;
+	return length(distance)<3 ? distance*(PATHFIND_STRENGTH/3.0f) : normalize(distance)*PATHFIND_STRENGTH;
 }

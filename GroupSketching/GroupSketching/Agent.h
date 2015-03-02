@@ -20,5 +20,8 @@ private:
 	glm::vec3 separation(vector<glm::vec3>);
 	glm::vec3 cohesion(vector<glm::vec3>);
 	glm::vec3 pathfind(glm::vec3);
+	float COHESION_STRENGTH;
+	float SEPARATION_STRENGTH;
+	float PATHFIND_STRENGTH;
 };
 
