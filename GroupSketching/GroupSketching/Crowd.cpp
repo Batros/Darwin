@@ -19,9 +19,9 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 		cout << rndm;
 		glm::vec3 colour;
 		if (rndm==1) {
-			colour = glm::vec3 (1.0, 0.5, 0.0);
+			colour = glm::vec3 (30.0/256.0, 60.0/256.0, 200.0/256.0);
 		} else {
-			colour = glm::vec3 (0.0, 1.0, 0.5);
+			colour = glm::vec3 (200.0/256.0, 30.0/256.0, 30.0/256.0);
 		}
 		Agent* agent = new Agent(agentCoords[i], endCoords[i], colour);
 		cout << rndm;
