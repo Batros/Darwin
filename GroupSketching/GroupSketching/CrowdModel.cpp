@@ -4,6 +4,12 @@
 
 CrowdModel::CrowdModel(void)
 {
+	for (int i=0; i<100; i++) {
+		float ranX = rand() % 20;
+		float ranZ = rand() % 20;
+		glm::vec3 point = glm::vec3(ranX, 0, ranZ);
+		freeAgents.push_back(new Agent(point, point, glm::vec3(0.2, 0.5, 0.9)));
+	}
 }
 
 
@@ -13,14 +19,41 @@ CrowdModel::~CrowdModel(void)
 
 
 void CrowdModel::createCrowd(Formation* f1, Formation* f2, Path path) {
-	vector<Agent> agents;
-	//Basic: Use 50 agents
-	//Extended: Decide number of agents intelligently
+	vector<Agent*> agents;
+	//v1 (done): Use 50 agents
+	//v2 (future): Decide number of agents intelligently
 	f1->populate(50);
 	f2->populate(50);
 	Crowd* newCrowd = new Crowd(f1, f2, path);
 	crowds.push_back(newCrowd);
 	//Need to remove any agents added here from freeAgents
+}
+
+
+void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke2, Path path) {
+	//First vector - check all free agents and add it to a list if it's within this series of points
+	vector<glm::vec3> agentsInBoundary;
+
+
+	//Create formation with the first boundary
+	Formation* f1 = new Formation(stroke1);
+	
+	//Then populate it with these agents
+	for (int i=0; i<freeAgents.size(); i++) {
+		if (pointInBoundary(freeAgents[i]->getPosition(), stroke1)) {
+			agentsInBoundary.push_back(freeAgents[i]->getPosition());
+		}
+	}
+	f1->populate(agentsInBoundary);
+
+	//Second formation - populate it with the number of agents found in the first one
+	Formation* f2 = new Formation(stroke2);
+		
+	f2->populate((int) (f1->getAgentCoords()).size());
+
+
+	Crowd* newCrowd = new Crowd(f1, f2, path);
+	crowds.push_back(newCrowd);
 }
 
 
@@ -37,4 +70,37 @@ bool CrowdModel::update() {
 		crowds[i]->update(neighbouringCrowds);
 	}
 	return false;
+}
+
+bool CrowdModel::pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary) {
+	bool inBoundary = false;
+	float m_point = 1;
+	float c_point = point.z - (m_point * point.x);
+	for(vector<glm::vec3>::size_type i = 1; i < boundary.size(); i++) {
+		float m_line, c_line;
+		m_line = (boundary[i].z - boundary[i-1].z) / (boundary[i].x - boundary[i-1].x);
+		c_line = (boundary[i].z - (m_line * boundary[i].x));
+
+		glm::vec3 intersect = glm::vec3(0, 0, 0);
+
+		intersect.x = (c_line - c_point) / (m_point - m_line);
+		intersect.z = ((m_point * c_line) - (m_line * c_point)) / (m_point - m_line);
+		intersect.y = boundary[i].y;
+
+		// Only look one side of the point
+		if (intersect.x > point.x) {
+			// Check if intesect point is on the line segment
+			if (intersect.x <= boundary[i].x) {
+				if (intersect.x >= boundary[i-1].x) {
+					inBoundary = !inBoundary;
+				}
+			}
+			else {
+				if (intersect.x <= boundary[i-1].x) {
+					inBoundary = !inBoundary;
+				}
+			}
+		}
+	}
+	return inBoundary;
 }

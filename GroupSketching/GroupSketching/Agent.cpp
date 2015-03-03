@@ -110,6 +110,10 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 			glEnd();
 		glPopMatrix();
 	} else {
+		//Calculate pushing vector - once an agent is where it needs to be, others do not use them for separation vectors.
+		//Instead, these agents have strong separation to every other agent, but only very close - if an agent is within 1.5 units, move away strongly.
+		//If no agents are that close, go back to your desired spot.
+		vec3 pshVec = getPushedBy(potentialNeighbours);
 		glPushMatrix();
 			glColor3f(1-colour.x, 1-colour.y, 1-colour.z);
 			glTranslated(position.x, position.y, position.z);
@@ -169,4 +173,10 @@ vec3 Agent::pathfind(vec3 endPoint)
 	//Otherwise, return a vector in the same direction with a length equal to the pathfinding strength.
 
 	return length(distance)<3 ? distance*(PATHFIND_STRENGTH/3.0f) : normalize(distance)*PATHFIND_STRENGTH;
+}
+
+vec3 Agent::getPushedBy(vector<Agent*> neighbours)
+{
+	vec3 herp;
+	return herp;
 }

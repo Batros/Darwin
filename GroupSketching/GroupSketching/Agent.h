@@ -22,6 +22,7 @@ private:
 	vec3 separation(vector<vec3>);
 	vec3 cohesion(vector<vec3>);
 	vec3 pathfind(vec3);
+	vec3 getPushedBy(vector<Agent*>);
 	float COHESION_STRENGTH;
 	float SEPARATION_STRENGTH;
 	float PATHFIND_STRENGTH;
