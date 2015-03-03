@@ -72,10 +72,10 @@ void processInput() {
 		running = true;
 	}
 	else if (strokes.size()==2) {
-		Formation* f1 = sketchHandler->processFormation(strokes[0]);
-		formations.push_back(f1->getBoundary());
-		Formation* f2 = sketchHandler->processFormation(strokes[1]);
-		formations.push_back(f2->getBoundary());
+		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
+		formations.push_back(f1);
+		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[1]);
+		formations.push_back(f2);
 		Path path;
 		strokes.clear();
 		strokeNumber = 0;
@@ -84,11 +84,11 @@ void processInput() {
 	}
 	else if (strokes.size()==3) {
 		// Formation, Formation, Path
-		Formation* f1 = sketchHandler->processFormation(strokes[0]);
-		formations.push_back(f1->getBoundary());
-		Formation* f2 = sketchHandler->processFormation(strokes[1]);
-		formations.push_back(f2->getBoundary());
-		Path path = sketchHandler->processPath(strokes[2], f1->getBoundary(), f2->getBoundary());
+		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
+		formations.push_back(f1);
+		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[1]);
+		formations.push_back(f2);
+		Path path = sketchHandler->processPath(strokes[2], f1, f2);
 		if (path.size() > 1) {
 			strokes.clear();
 			strokeNumber = 0;
@@ -101,15 +101,15 @@ void processInput() {
 	}
 	else if (strokes.size()==4) {
 		// Formation, Sub-formation, Formation, Sub-formation
-		Formation* f1 = sketchHandler->processFormation(strokes[0]);
-		formations.push_back(f1->getBoundary());
-		Formation* f1Sub = sketchHandler->processFormation(strokes[1]);
-		bool sub1Inside = sketchHandler->processSubFormation(f1Sub->getBoundary(), f1->getBoundary());
+		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
+		formations.push_back(f1);
+		vector<glm::vec3> f1Sub = sketchHandler->processFormation(strokes[1]);
+		bool sub1Inside = sketchHandler->processSubFormation(f1Sub, f1);
 
-		Formation* f2 = sketchHandler->processFormation(strokes[2]);
-		formations.push_back(f2->getBoundary());
-		Formation* f2Sub = sketchHandler->processFormation(strokes[3]);
-		bool sub2Inside = sketchHandler->processSubFormation(f2Sub->getBoundary(), f2->getBoundary());
+		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[2]);
+		formations.push_back(f2);
+		vector<glm::vec3> f2Sub = sketchHandler->processFormation(strokes[3]);
+		bool sub2Inside = sketchHandler->processSubFormation(f2Sub, f2);
 
 		Path path;
 		if (sub1Inside && sub2Inside) {
@@ -125,8 +125,8 @@ void processInput() {
 	else {
 		for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
 			if (strokes[i].size() > 0) {
-				Formation* f = sketchHandler->processFormation(strokes[i]);
-				formations.push_back(f->getBoundary());
+				vector<glm::vec3> f = sketchHandler->processFormation(strokes[i]);
+				formations.push_back(f);
 			}
 		}
 		strokes.clear();

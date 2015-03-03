@@ -11,7 +11,7 @@ SketchHandler::~SketchHandler(void) {
 
 }
 
-Formation* SketchHandler::processFormation(vector<glm::vec3> stroke) {
+vector<glm::vec3> SketchHandler::processFormation(vector<glm::vec3> stroke) {
 	// Distance-variable resampling
 	vector<glm::vec3> newStroke;
 	newStroke.push_back(stroke[0]);
@@ -79,8 +79,7 @@ Formation* SketchHandler::processFormation(vector<glm::vec3> stroke) {
 		newStroke.erase(newStroke.begin(), newStroke.begin()+firstLine);
 	}
 
-	Formation* formation = new Formation(newStroke);
-	return formation;
+	return newStroke;
 
 	/* FIXED RESAMPLING
 	int resample = 3;
