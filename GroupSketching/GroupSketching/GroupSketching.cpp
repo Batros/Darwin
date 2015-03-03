@@ -269,9 +269,8 @@ void display(void) {
 		exit(EXIT_SUCCESS);
 	}
 
-	if (running) {
-		running = !(crowdModel->update());
-	}
+	crowdModel->update();
+	//running = !(crowdModel->update());
 
 	renderEnvironment();
 	glutSwapBuffers();
