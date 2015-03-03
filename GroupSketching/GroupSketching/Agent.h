@@ -1,25 +1,27 @@
 #pragma once
+using namespace glm;
 class Agent
 {
 public:
-	Agent(glm::vec3);
-	Agent(glm::vec3, glm::vec3, glm::vec3);
-	glm::vec3 getPosition();
-	void setPosition(glm::vec3 newPosition);
-	void setEndPoint(glm::vec3 end);
-	void update(vector<glm::vec3> neighbours);
+	Agent(vec3);
+	Agent(vec3, vec3, vec3);
+	vec3 getPosition();
+	vec3 getColour();
+	void setPosition(vec3 newPosition);
+	void setEndPoint(vec3 end);
+	void update(vector<Agent*> neighbours);
 	~Agent(void);
 
 private:
-	glm::vec3 position;
-	glm::vec3 endPoint;
+	vec3 position;
+	vec3 endPoint;
 	int minSpd;
 	int maxSpd;
 	bool needsToMove;
-	glm::vec3 colour;
-	glm::vec3 separation(vector<glm::vec3>);
-	glm::vec3 cohesion(vector<glm::vec3>);
-	glm::vec3 pathfind(glm::vec3);
+	vec3 colour;
+	vec3 separation(vector<vec3>);
+	vec3 cohesion(vector<vec3>);
+	vec3 pathfind(vec3);
 	float COHESION_STRENGTH;
 	float SEPARATION_STRENGTH;
 	float PATHFIND_STRENGTH;

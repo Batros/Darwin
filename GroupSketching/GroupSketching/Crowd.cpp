@@ -15,13 +15,15 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 	vector<glm::vec3> agentCoords = f1->getAgentCoords();
 	vector<glm::vec3> endCoords = f2->getAgentCoords();
 	for (int i=0; i<agentCoords.size(); i++) {
-		float rndm = rand() % 2;
+		float rndm = rand() % 3;
 		cout << rndm;
 		glm::vec3 colour;
 		if (rndm==1) {
 			colour = glm::vec3 (30.0/256.0, 60.0/256.0, 200.0/256.0);
-		} else {
+		} else if (rndm==2) {
 			colour = glm::vec3 (200.0/256.0, 30.0/256.0, 30.0/256.0);
+		} else {
+			colour = glm::vec3 (45.0/256.0, 200.0/256.0, 50.0/256.0);
 		}
 		Agent* agent = new Agent(agentCoords[i], endCoords[i], colour);
 		cout << rndm;
@@ -41,28 +43,23 @@ Crowd::~Crowd(void)
 {
 }
 
-void Crowd::update(vector<glm::vec3> neighbours)
+void Crowd::update(vector<Agent*> neighbours)
 {
 	//v1 (done): Just update each agent individually, don't work out neighbours
-	//v2 (in-dev): All agents in the crowd are neighbours, none outside are
+	//v2 (done): All agents in the crowd are neighbours, none outside are
 	//v3 (future): Neighbours are all agents in current crowd within a threshold
 	//v4 (future): Neighbours are all agents in current and nearby crowds within a threshold
 	//v5 (future, potentially slower and less useful): Neighbours are only drawn from a number of 5x5 blocks around the current agent
-	vector<glm::vec3> relCoords = getRelativeAgentCoords();
-	if (neighbours.size()>0) {
-		neighbours.insert(neighbours.begin(), relCoords.begin(), relCoords.end());
-		neighbours.erase (neighbours.begin());
-	}
-	else {
-		neighbours = relCoords;
-	}
+	
+	//Insert the list of agents into the neighbour list (this should later be modified on an agent-by-agent basis)
+	neighbours.insert(neighbours.begin(), agents.begin(), agents.end());
+	
 	//Append agents to beginning of neighbours
 	//Each iteration in this loop, replace i (or i-1?) with i+1 (or i?)
 	for (int i=0; i<agents.size(); i++) {
-
 		agents[i]->update(neighbours);
 		if (i<agents.size()-1) {
-			neighbours[i] = agents[i+1]->getPosition();
+			neighbours[i] = agents[i+1];
 		}
 	}
 }

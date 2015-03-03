@@ -33,7 +33,7 @@ bool CrowdModel::update() {
 		//v1 (done): No neighbouring crowds.
 		//v2 (in-dev): Check all other crowds, see if there are any in the radius. If so, pass these.
 		//v3 (future): Convert neighbouring crowds coordinates into this crowd's coordinate system and pass those
-		vector <glm::vec3> neighbouringCrowds;
+		vector <Agent*> neighbouringCrowds;
 		crowds[i]->update(neighbouringCrowds);
 	}
 	return false;
