@@ -41,6 +41,7 @@ Formation::Formation(glm::vec3 cen)
 //Construct formation with boundary coordinates. Calculate the centre based on the input boundary and change the boundary to be relative to the centre.
 Formation::Formation(vector<glm::vec3> boundary)
 {
+	boundary.push_back(boundary.front());
 	// Find the (x,y) coordinates of the centre (the centroid of the input polygon) as the average x and y of the vertices.
 	double cenX = 0.0;
 	double cenY = 0.0;
@@ -67,6 +68,40 @@ Formation::Formation(vector<glm::vec3> boundary)
 	this->setBoundary(boundary);
 	this->setCentre(glm::vec3(cenX, cenY, cenZ));
 }
+
+//Construct formation with boundary coordinates and exclusive boundary. Calculate the centre based on the input boundary and change the boundary to be relative to the centre.
+Formation::Formation(vector<glm::vec3> boundary,vector<glm::vec3> exclusiveBoundary)
+{
+	boundary.push_back(boundary.front());
+	exclusiveBoundary.push_back(exclusiveBoundary.front());
+	// Find the (x,y) coordinates of the centre (the centroid of the input polygon) as the average x and y of the vertices.
+	double cenX = 0.0;
+	double cenY = 0.0;
+	double cenZ = 0.0;
+	// Iterate over the boundary and sum the x and y values.
+	for (std::vector<glm::vec3>::iterator bpoint = boundary.begin(); bpoint != boundary.end(); ++bpoint) {
+		cenX += (*bpoint).x;
+		cenY += (*bpoint).y;
+		cenZ += (*bpoint).z;
+	}
+	// Divide the sums by the number of boundary points.
+	cenX /= boundary.size();
+	cenY /= boundary.size();
+	cenZ /= boundary.size();
+
+	// Calculate the relative positions of the boundary points and update the vector.
+	for (std::vector<glm::vec3>::iterator bpoint = boundary.begin(); bpoint != boundary.end(); ++bpoint) {
+		(*bpoint).x -= cenX;
+		(*bpoint).y -= cenY;
+		(*bpoint).z -= cenZ;
+	}
+
+	// Set the boundary points and the centre point.
+	this->setBoundary(boundary);
+	this->setCentre(glm::vec3(cenX, cenY, cenZ));
+	this->setExclusiveBoundary(exclusiveBoundary);
+}
+
 
 // Populate function for boundary.
 // Resamples the boundary points so that all agents are equidistant.
@@ -109,6 +144,38 @@ vector<glm::vec3> Formation::populateBoundary(double stepSize) {
 
 	return resampledBoundaryCoords;
 }
+
+// Bounding rectangle algorithm to create oversampled point space for agents.
+vector<glm::vec3> Formation::boundingRect(double stepSize) {
+	// Find rectMinX/Y and MaxX/Y
+	double rectMinX = this->boundaryCoords[0].x;
+	double rectMaxX = this->boundaryCoords[0].x;
+	double rectMinY = this->boundaryCoords[0].y;
+	double rectMaxY = this->boundaryCoords[0].y;
+	for (std::vector<glm::vec3>::iterator bpoint = this->boundaryCoords.begin(); bpoint != this->boundaryCoords.end(); ++bpoint) {
+		if ((*bpoint).x < rectMinX)
+			rectMinX = (*bpoint).x;
+		if ((*bpoint).x > rectMaxX)
+			rectMaxX = (*bpoint).x;
+		if ((*bpoint).y < rectMinY)
+			rectMinY = (*bpoint).y;
+		if ((*bpoint).y > rectMaxY)
+			rectMaxY = (*bpoint).y;
+	}
+	// Vector of filled points
+	vector<glm::vec3> fPoints;
+	// Iterate over points [MinX-MaxX,MinY-MaxY]. For any such point within the boundary, add it to fPoints.
+	for (double y = rectMinY; y < rectMaxY; y += stepSize) {
+		for (double x = rectMinX; x < rectMaxX; x += stepSize) {
+			glm::vec3 point = glm::vec3(x,0.0,y);
+			if (pointInBoundary(point)) {
+				fPoints.push_back(point);
+			}
+		}
+	}
+	return fPoints;
+}
+
 
 // Flood-fill algorithm to create oversampled point space for agents.
 vector<glm::vec3> Formation::floodFill(double stepSize, vector<glm::vec3>q) {
@@ -231,7 +298,7 @@ void Formation::populate(int n)
 
 	// Initialize q with the boundary.
 	q = resampledBoundaryCoords;
-	fPoints = this->floodFill(stepSize, q);
+	fPoints = this->boundingRect(stepSize);
 	
 
 	// Calculate the c constant for the given shape.
@@ -261,7 +328,7 @@ void Formation::populate(int n)
 
 	// Initialize q with the boundary.
 	q = resampledBoundaryCoords;
-	fPoints = this->floodFill(stepSize, q);
+	fPoints = this->boundingRect(stepSize);
 	
 
 	// Choose the agents from the oversampled list
@@ -342,7 +409,7 @@ void Formation::populate(vector<glm::vec3> coords)
 		}
 	}
 
-	// TODO: If there is a point outside the bounds, return an error or move the point in?
+	// TODO: If there is a point outside the bounds, return an error, move the point in or just ignore it?
 	if (flag) {
 
 	}
@@ -353,62 +420,6 @@ void Formation::populate(vector<glm::vec3> coords)
 	}
 }
 
-// Return the agent coordinates in real world space.
-vector<glm::vec3> Formation::getAgentCoords()
-{
-	vector<glm::vec3> realCoords;
-	// Iterate over the agent coords.
-	for (std::vector<glm::vec3>::iterator agent = this->agentCoords.begin(); agent != this->agentCoords.end(); ++agent) {
-		// For every agent calculate the real world coords (by adding the centre).
-		glm::vec3 realAgent;
-		realAgent = (*agent) + this->centre;
-		//cout << "Agent " << (*agent).x << " " << (*agent).y << " " << (*agent).z << endl;
-		//cout << "Centre " << this->centre.x << " " << this->centre.y << " " << this->centre.z << endl;
-		//cout << "Real Agent " << realAgent.x << " " << realAgent.y << " " << realAgent.z << endl;
-		realCoords.push_back(realAgent);
-	}
-	// Return the real world coords.
-	return realCoords;
-}
-
-// Return the boundary coordinates in real world space.
-vector<glm::vec3> Formation::getBoundary()
-{
-	vector<glm::vec3> realCoords;
-	// Iterate over the boundary coords
-	for (std::vector<glm::vec3>::iterator bpoint = this->boundaryCoords.begin(); bpoint != this->boundaryCoords.end(); ++bpoint) {
-		// For every boundary point calculate the real world coords (by adding the centre).
-		glm::vec3 realBound;
-		realBound = (*bpoint) + this->centre;
-		realCoords.push_back(realBound);
-	}
-	// Return the real world coords.
-	return realCoords;
-}
-
-// Getter function for the formation's centre.
-glm::vec3 Formation::getCentre()
-{
-	return this->centre;
-}
-
-// Setter function for the agent coordinates.
-void Formation::setAgentCoords(vector<glm::vec3> coords)
-{
-	this->agentCoords = coords;
-}
-
-// Setter function for the boundary coordinates.
-void Formation::setBoundary(vector<glm::vec3> coords)
-{
-	this->boundaryCoords = coords;
-}
-
-// Setter function for the centre.
-void Formation::setCentre(glm::vec3 cen)
-{
-	this->centre = cen;
-}
 
 // Check if a point is in the bounds. Using Ray casting algorithm.
 bool Formation::pointInBoundary(glm::vec3 point)
@@ -417,23 +428,55 @@ bool Formation::pointInBoundary(glm::vec3 point)
 	// Count how many times a constant ray from the point intercepts the polygon.
 	// If the number is odd, then the point is inside. Outside otherwise.
 	// NB: This algorithm only works for 2-D coordinates. Need angle sum algorithm for 3-D.
-	int polySides = this->boundaryCoords.size();
-	float polyX[1024];
-	float polyY[1024];
-	for (int k = 0; k < this->boundaryCoords.size(); k++) {
-		polyX[k] = this->boundaryCoords[k].x;
-		polyY[k] = this->boundaryCoords[k].z;
+	
+	// If an exclusive boundary is present, check that point is not inside it.
+	if (this->exclusiveBoundaryCoords.size() > 0) {
+		int boundarySides = this->exclusiveBoundaryCoords.size();
+		float boundaryX[1024];
+		float boundaryY[1024];
+		// Convert x-z space to x-y space
+		for (int k = 0; k < this->exclusiveBoundaryCoords.size(); k++) {
+			boundaryX[k] = this->exclusiveBoundaryCoords[k].x;
+			boundaryY[k] = this->exclusiveBoundaryCoords[k].z;
+		}
+		int   i, j = boundarySides - 1;
+		bool  oddNodes = false;
+
+		float x = point.x;
+		float y = point.z;
+
+		for (i = 0; i<boundarySides; i++) {
+			if (boundaryY[i]<y && boundaryY[j] >= y
+				|| boundaryY[j]<y && boundaryY[i] >= y) {
+				if (boundaryX[i] + (y - boundaryY[i]) / (boundaryY[j] - boundaryY[i])*(boundaryX[j] - boundaryX[i])<x) {
+					oddNodes = !oddNodes;
+				}
+			}
+			j = i;
+		}
+		if (oddNodes)
+			return false;
 	}
-	int   i, j = polySides - 1;
+
+	// If the point is not inside the exclusive boundary (or such a boundary is not present), proceed as normal.
+	int boundarySides = this->boundaryCoords.size();
+	float boundaryX[1024];
+	float boundaryY[1024];
+	// Convert x-z space to x-y space
+	for (int k = 0; k < this->boundaryCoords.size(); k++) {
+		boundaryX[k] = this->boundaryCoords[k].x;
+		boundaryY[k] = this->boundaryCoords[k].z;
+	}
+	int   i, j = boundarySides - 1;
 	bool  oddNodes = false;
 
 	float x = point.x;
 	float y = point.z;
 
-	for (i = 0; i<polySides; i++) {
-		if (polyY[i]<y && polyY[j] >= y
-			|| polyY[j]<y && polyY[i] >= y) {
-			if (polyX[i] + (y - polyY[i]) / (polyY[j] - polyY[i])*(polyX[j] - polyX[i])<x) {
+	for (i = 0; i<boundarySides; i++) {
+		if (boundaryY[i]<y && boundaryY[j] >= y
+			|| boundaryY[j]<y && boundaryY[i] >= y) {
+			if (boundaryX[i] + (y - boundaryY[i]) / (boundaryY[j] - boundaryY[i])*(boundaryX[j] - boundaryX[i])<x) {
 				oddNodes = !oddNodes;
 			}
 		}
@@ -498,6 +541,84 @@ bool Formation::pointInBoundary(glm::vec3 point)
 	else return false;
 	
 	*/
+}
+
+// Return the agent coordinates in real world space.
+vector<glm::vec3> Formation::getAgentCoords()
+{
+	vector<glm::vec3> realCoords;
+	// Iterate over the agent coords.
+	for (std::vector<glm::vec3>::iterator agent = this->agentCoords.begin(); agent != this->agentCoords.end(); ++agent) {
+		// For every agent calculate the real world coords (by adding the centre).
+		glm::vec3 realAgent;
+		realAgent = (*agent) + this->centre;
+		//cout << "Agent " << (*agent).x << " " << (*agent).y << " " << (*agent).z << endl;
+		//cout << "Centre " << this->centre.x << " " << this->centre.y << " " << this->centre.z << endl;
+		//cout << "Real Agent " << realAgent.x << " " << realAgent.y << " " << realAgent.z << endl;
+		realCoords.push_back(realAgent);
+	}
+	// Return the real world coords.
+	return realCoords;
+}
+
+// Return the boundary coordinates in real world space.
+vector<glm::vec3> Formation::getBoundary()
+{
+	vector<glm::vec3> realCoords;
+	// Iterate over the boundary coords
+	for (std::vector<glm::vec3>::iterator bpoint = this->boundaryCoords.begin(); bpoint != this->boundaryCoords.end(); ++bpoint) {
+		// For every boundary point calculate the real world coords (by adding the centre).
+		glm::vec3 realBound;
+		realBound = (*bpoint) + this->centre;
+		realCoords.push_back(realBound);
+	}
+	// Return the real world coords.
+	return realCoords;
+}
+
+// Return the boundary coordinates in real world space.
+vector<glm::vec3> Formation::getExclusiveBoundary()
+{
+	vector<glm::vec3> realCoords;
+	// Iterate over the boundary coords
+	for (std::vector<glm::vec3>::iterator bpoint = this->exclusiveBoundaryCoords.begin(); bpoint != this->exclusiveBoundaryCoords.end(); ++bpoint) {
+		// For every boundary point calculate the real world coords (by adding the centre).
+		glm::vec3 realBound;
+		realBound = (*bpoint) + this->centre;
+		realCoords.push_back(realBound);
+	}
+	// Return the real world coords.
+	return realCoords;
+}
+
+// Getter function for the formation's centre.
+glm::vec3 Formation::getCentre()
+{
+	return this->centre;
+}
+
+// Setter function for the agent coordinates.
+void Formation::setAgentCoords(vector<glm::vec3> coords)
+{
+	this->agentCoords = coords;
+}
+
+// Setter function for the boundary coordinates.
+void Formation::setBoundary(vector<glm::vec3> coords)
+{
+	this->boundaryCoords = coords;
+}
+
+// Setter function for the exdclusive boundary coordinates.
+void Formation::setExclusiveBoundary(vector<glm::vec3> coords)
+{
+	this->exclusiveBoundaryCoords = coords;
+}
+
+// Setter function for the centre.
+void Formation::setCentre(glm::vec3 cen)
+{
+	this->centre = cen;
 }
 
 Formation::~Formation(void)
