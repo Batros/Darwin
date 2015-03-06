@@ -34,6 +34,7 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 	//First vector - check all free agents and add it to a list if it's within this series of points
 	vector<glm::vec3> agentsInBoundary;
 	vector<Agent*> agents;
+	vector<int> agentsToDelete;
 
 
 	//Create formation with the first boundary
@@ -44,6 +45,7 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 		if (pointInBoundary(freeAgents[i]->getPosition(), stroke1)) {
 			agentsInBoundary.push_back(freeAgents[i]->getPosition());
 			agents.push_back(freeAgents[i]);
+			agentsToDelete.push_back(i);
 		}
 	}
 	f1->populate(agentsInBoundary);
@@ -51,10 +53,13 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 	//Second formation - populate it with the number of agents found in the first one
 	Formation* f2 = new Formation(stroke2);
 		
-	f2->populate((int) (f1->getAgentCoords()).size());
+	f2->populate(agentsInBoundary.size());
 
-
+	for (int i=agentsToDelete.size()-1; i>=0; i--) {
+		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
+	}
 	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
+	
 	crowds.push_back(newCrowd);
 }
 

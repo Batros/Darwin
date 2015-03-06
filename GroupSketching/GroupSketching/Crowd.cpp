@@ -38,7 +38,12 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents)
 	endFormation = f2;
 	this->path = path;
 	this->agents = agents;
+	vector<glm::vec3> coords = f2->getAgentCoords();
+	for (int i=0; i<agents.size(); i++) {
+		agents[i]->setEndPoint(coords[i]);
+	}
 }
+
 Crowd::~Crowd(void)
 {
 }
