@@ -16,8 +16,8 @@ Agent::Agent(vec3 position, vec3 end, vec3 colour) {
 	this->colour = colour;
 	needsToMove = true;
 	SIZE = 0.5f;
-	COHESION_STRENGTH = 0.04f;
-	SEPARATION_STRENGTH = 0.15*SIZE;
+	COHESION_STRENGTH = 0.00f;
+	SEPARATION_STRENGTH = 0.0*SIZE;
 	PATHFIND_STRENGTH = 0.08f;
 }
 

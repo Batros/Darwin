@@ -4,10 +4,18 @@
 
 CrowdModel::CrowdModel(void)
 {
-	for (int i=0; i<100; i++) {
-		float ranX = rand() % 20;
-		float ranZ = rand() % 20;
+	vector<glm::vec3> prevPoints;
+	for (int i=0; i<17; i++) {
+		float ranX = rand() % 5;
+		float ranZ = rand() % 4;
 		glm::vec3 point = glm::vec3(ranX, 0, ranZ);
+		while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end()) {
+			float ranX = rand() % 5;
+			float ranZ = rand() % 4;
+			point = glm::vec3(ranX, 0, ranZ);
+			cout << "Clash" << endl;
+		}
+		prevPoints.push_back(point);
 		freeAgents.push_back(new Agent(point, point, glm::vec3(0.2, 0.5, 0.9)));
 	}
 }
@@ -57,6 +65,11 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 
 	for (int i=agentsToDelete.size()-1; i>=0; i--) {
 		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
+	}
+	
+	if (f1->getAgentCoords().size()>f2->getAgentCoords().size()) {
+		Formation* f3 = new Formation(stroke2);
+		f3->populate(agentsInBoundary.size());
 	}
 	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
 	

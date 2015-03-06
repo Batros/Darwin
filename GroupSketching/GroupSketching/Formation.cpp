@@ -150,17 +150,17 @@ vector<glm::vec3> Formation::boundingRect(double stepSize) {
 	// Find rectMinX/Y and MaxX/Y
 	double rectMinX = this->boundaryCoords[0].x;
 	double rectMaxX = this->boundaryCoords[0].x;
-	double rectMinY = this->boundaryCoords[0].y;
-	double rectMaxY = this->boundaryCoords[0].y;
+	double rectMinY = this->boundaryCoords[0].z;
+	double rectMaxY = this->boundaryCoords[0].z;
 	for (std::vector<glm::vec3>::iterator bpoint = this->boundaryCoords.begin(); bpoint != this->boundaryCoords.end(); ++bpoint) {
 		if ((*bpoint).x < rectMinX)
 			rectMinX = (*bpoint).x;
 		if ((*bpoint).x > rectMaxX)
 			rectMaxX = (*bpoint).x;
-		if ((*bpoint).y < rectMinY)
-			rectMinY = (*bpoint).y;
-		if ((*bpoint).y > rectMaxY)
-			rectMaxY = (*bpoint).y;
+		if ((*bpoint).z < rectMinY)
+			rectMinY = (*bpoint).z;
+		if ((*bpoint).z > rectMaxY)
+			rectMaxY = (*bpoint).z;
 	}
 	// Vector of filled points
 	vector<glm::vec3> fPoints;
