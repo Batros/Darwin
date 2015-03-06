@@ -282,13 +282,15 @@ void Formation::populate(int n)
 	// Calculate the boundary perimeter.
 	double boundaryPerimeter = 0.0;
 	for (int i = 0; i < this->boundaryCoords.size() - 1; i++) {
-		boundaryPerimeter += sqrt((this->boundaryCoords[i].x - this->boundaryCoords[i+1].x)*(this->boundaryCoords[i].x - this->boundaryCoords[i+1].x) + (this->boundaryCoords[i].y - this->boundaryCoords[i+1].y)*(this->boundaryCoords[i].y - this->boundaryCoords[i+1].y));
+		boundaryPerimeter += sqrt((this->boundaryCoords[i].x - this->boundaryCoords[i+1].x)*(this->boundaryCoords[i].x - this->boundaryCoords[i+1].x) + (this->boundaryCoords[i].z - this->boundaryCoords[i+1].z)*(this->boundaryCoords[i].z - this->boundaryCoords[i+1].z));
 	}
 
 	// Populate the boundary (resample)
 	// Choose small step size.
 	int testBoundary = 20;
 	double stepSize = boundaryPerimeter/testBoundary;
+	if (stepSize < 0.0000001)
+		stepSize = 0.0000001;
 
 	// Resample the boundary coords to boundaryAgents number of equidistant agents.
 	vector<glm::vec3> resampledBoundaryCoords = this->populateBoundary(stepSize);
