@@ -61,7 +61,7 @@ glm::vec3 Input::onMouseClick(int x, int y) {
  
     gluUnProject( winX, winY, winZ, modelview, projection, viewport, &posX, &posY, &posZ);
  
-	glm::vec3 posVec = glm::vec3(posX, posY, posZ);
+	glm::vec3 posVec = glm::vec3(posX, 0.01, posZ);
 	
 	return posVec;
 }

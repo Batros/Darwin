@@ -213,13 +213,15 @@ void onMouseClick(int button, int state, int x, int y) {
 	}
 
 	if (button == GLUT_MIDDLE_BUTTON) {
-		crowdModel->~CrowdModel();
-		crowdModel = new CrowdModel();
+		if (state == GLUT_DOWN) {
+			crowdModel->~CrowdModel();
+			crowdModel = new CrowdModel();
 
-		formations.clear();
-		strokes.clear();
-		strokeNumber = 0;
-		running = false;
+			formations.clear();
+			strokes.clear();
+			strokeNumber = 0;
+			running = false;
+		}
 	}
 }
 
