@@ -33,6 +33,7 @@ void CrowdModel::createCrowd(Formation* f1, Formation* f2, Path path) {
 void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke2, Path path) {
 	//First vector - check all free agents and add it to a list if it's within this series of points
 	vector<glm::vec3> agentsInBoundary;
+	vector<Agent*> agents;
 
 
 	//Create formation with the first boundary
@@ -42,6 +43,7 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 	for (int i=0; i<freeAgents.size(); i++) {
 		if (pointInBoundary(freeAgents[i]->getPosition(), stroke1)) {
 			agentsInBoundary.push_back(freeAgents[i]->getPosition());
+			agents.push_back(freeAgents[i]);
 		}
 	}
 	f1->populate(agentsInBoundary);
@@ -52,7 +54,7 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 	f2->populate((int) (f1->getAgentCoords()).size());
 
 
-	Crowd* newCrowd = new Crowd(f1, f2, path);
+	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
 	crowds.push_back(newCrowd);
 }
 
@@ -62,6 +64,16 @@ bool CrowdModel::update() {
 	//v2 (in-dev): Calculate radius around each crowd, if any of these overlap there is the potential for collisions so check with that crowd.
 	//So, send other crowd for possible separation calculation.
 	//Extended: Continue updating until they don't need to move any more, stop at that point.
+	
+	for (int i=0; i<freeAgents.size(); i++) {
+		glm::vec3 colour = freeAgents[i]->getColour();
+		glm::vec3 position = freeAgents[i]->getPosition();
+		glPushMatrix();
+			glColor3f(colour.x, colour.y, colour.z);
+			glTranslated(position.x, position.y, position.z);
+			glutSolidSphere(1.0f, 20, 20);
+		glPopMatrix();
+	}
 	for (int i=0; i<crowds.size(); i++) {
 		//v1 (done): No neighbouring crowds.
 		//v2 (in-dev): Check all other crowds, see if there are any in the radius. If so, pass these.
