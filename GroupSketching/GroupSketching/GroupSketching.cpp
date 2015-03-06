@@ -203,7 +203,7 @@ void renderEnvironment(void) {
 	drawFloor(40.0f, 300);
 	for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
 		glColor3f(1.0, 1.0, 1.0);
-		glLineWidth(20.0f);
+		glLineWidth(5.0f);
 		glBegin(GL_LINE_STRIP);
 		for(glm::vec3::size_type j = 0; j != strokes[i].size(); j++) {
 			glVertex3d(strokes[i][j].x, strokes[i][j].y+0.01, strokes[i][j].z);
@@ -213,7 +213,7 @@ void renderEnvironment(void) {
 
 	for(vector<glm::vec3>::size_type i = 0; i != formations.size(); i++) {
 		glColor3f(0.0, 0.0, 0.0);
-		glLineWidth(20.0f);
+		glLineWidth(5.0f);
 		glBegin(GL_LINE_STRIP);
 		for(glm::vec3::size_type j = 0; j != formations[i].size(); j++) {
 			glVertex3d(formations[i][j].x, formations[i][j].y+0.01, formations[i][j].z);
@@ -287,8 +287,10 @@ void reshape(int width, int height) {
 
 int main(int argc, char **argv) {
 	glutInit(&argc, argv);
-	screenWidth = glutGet(GLUT_SCREEN_WIDTH);
-	screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+	//screenWidth = glutGet(GLUT_SCREEN_WIDTH);
+	//screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
+	screenWidth = 1024;
+	screenHeight = 768;
 
 	sketchHandler = new SketchHandler();
 	crowdModel = new CrowdModel();
@@ -315,7 +317,7 @@ int main(int argc, char **argv) {
 	glutMotionFunc(onMouseDrag);
 	glutMouseFunc(onMouseClick);
 	glutSetCursor(GLUT_CURSOR_NONE);
-	glutFullScreen();
+	//glutFullScreen();
 
 	input->init();
 	glutMainLoop();
