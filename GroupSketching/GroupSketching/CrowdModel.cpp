@@ -5,15 +5,14 @@
 CrowdModel::CrowdModel(void)
 {
 	vector<glm::vec3> prevPoints;
-	for (int i=0; i<17; i++) {
-		float ranX = rand() % 5;
-		float ranZ = rand() % 4;
+	for (int i=0; i<100; i++) {
+		float ranX = rand() % 20;
+		float ranZ = rand() % 20;
 		glm::vec3 point = glm::vec3(ranX, 0, ranZ);
 		while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end()) {
-			float ranX = rand() % 5;
-			float ranZ = rand() % 4;
+			float ranX = rand() % 20;
+			float ranZ = rand() % 20;
 			point = glm::vec3(ranX, 0, ranZ);
-			cout << "Clash" << endl;
 		}
 		prevPoints.push_back(point);
 		freeAgents.push_back(new Agent(point, point, glm::vec3(0.2, 0.5, 0.9)));
