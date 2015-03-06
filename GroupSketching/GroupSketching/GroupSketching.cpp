@@ -58,6 +58,7 @@ void onMouseDrag(int x, int y) {
 
 void processInput() {
 	if (strokes.size()==0) {
+		return;
 		/*
 		Formation* f1 = sketchHandler->processFormation(strokes[0]);
 		Formation* f2 = sketchHandler->processFormation(strokes[1]);
@@ -261,7 +262,7 @@ void display(void) {
 		camera->positionCamera(input);
 	}
 
-	if ((input->isKeyPressed(VK_RETURN)) && !(running)) {
+	if (input->isKeyPressed(VK_RETURN)) {
 		processInput();
 	}
 
