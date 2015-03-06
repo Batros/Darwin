@@ -251,6 +251,9 @@ vector<glm::vec3> Formation::floodFill(double stepSize, vector<glm::vec3>q) {
 // Finds the oversampled space and fits the number of agents to it.
 void Formation::populate(int n)
 {
+	/*
+	// Deprecated.
+	// For testing purposes.
 	if (n == 0) {
 		this->agentCoords.push_back(glm::vec3(0, 0, 0));
 		this->agentCoords.push_back(glm::vec3(0, 0, 0));
@@ -269,6 +272,7 @@ void Formation::populate(int n)
 		this->agentCoords.push_back(glm::vec3(-20, 0, 10));
 		return;
 	}
+	*/
 
 	// Perform population with a very small step size.
 	// Used to solve the formula sqrt(i)/b = c, where i is the number of inside agents and b is the number of boundary agents.
@@ -283,7 +287,8 @@ void Formation::populate(int n)
 
 	// Populate the boundary (resample)
 	// Choose small step size.
-	double stepSize = boundaryPerimeter/n;
+	int testBoundary = 20;
+	double stepSize = boundaryPerimeter/testBoundary;
 
 	// Resample the boundary coords to boundaryAgents number of equidistant agents.
 	vector<glm::vec3> resampledBoundaryCoords = this->populateBoundary(stepSize);
@@ -310,7 +315,7 @@ void Formation::populate(int n)
 	double optimalBoundaryAgents = (-1 + sqrt(1+4*totalAgents*c*c)) / (2*c*c);
 	
 	// Introduce a certain percent to control the step size so that more agents are generated (oversampled space).
-	double percentControl = 1.0;
+	double percentControl = 0.8;
 	stepSize = (boundaryPerimeter*percentControl) / optimalBoundaryAgents;
 
 	// Repeat populate with the now optimal step size.
@@ -366,7 +371,7 @@ void Formation::populate(int n)
 		// Select random coordinates
 		vector<int> t;
 		int cnt = n;
-		if (fPoints.size() > 0) {
+		if (resampledBoundaryCoords.size() > 0) {
 			while (cnt > 0) {
 				int ran = rand() % resampledBoundaryCoords.size();
 				if ((std::find(t.begin(), t.end(), ran) == t.end())) {
@@ -389,7 +394,8 @@ void Formation::populate(Formation* formation)
 {
 	// Call populate(n) with input the number of agents in the input formation.
 	this->populate(formation->getAgentCoords().size());
-	// The two formations need to be lined up.
+	// TODO:The two formations need to be lined up.
+	// 
 }
 
 // Populate function with input set of real world agent coordinates.
