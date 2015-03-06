@@ -395,29 +395,20 @@ void Formation::populate(Formation* formation)
 // Populate function with input set of real world agent coordinates.
 // Used with box select.
 // Does not change the positions of the agents.
-// Error checks the input for positions outside of the boundaries.
+// Assumes all agents are within the boundary.
+// Changes real coordinates to relative ones.
 void Formation::populate(vector<glm::vec3> coords)
 {
-	// Boolean flag whether there is a point outside the bounds.
-	bool flag = false;
-
-	// If an agent is not in the boundary, set the flag to true and stop checking.
-	for (std::vector<glm::vec3>::iterator agent = coords.begin(); agent != coords.end(); ++agent) {
-		if (!this->pointInBoundary((*agent))) {
-			flag = true;
-			break;
-		}
+	// Change agent positions to relative ones.
+	glm::vec3 cent = this->getCentre();
+	for (int i = 0; i < coords.size(); i++) {
+		coords[i].x -= cent.x;
+		coords[i].y -= cent.y;
+		coords[i].z -= cent.z;
 	}
 
-	// TODO: If there is a point outside the bounds, return an error, move the point in or just ignore it?
-	if (flag) {
-
-	}
-
-	// If all points are inside the bounds, set them as the agent coordinates
-	else {
-		this->setAgentCoords(coords);
-	}
+	// Add agents to the formation.
+	this->setAgentCoords(coords);
 }
 
 
