@@ -17,7 +17,7 @@ Agent::Agent(vec3 position, vec3 end, vec3 colour) {
 	needsToMove = true;
 	SIZE = 0.5f;
 	COHESION_STRENGTH = 0.04f;
-	SEPARATION_STRENGTH = 0.15*SIZE;
+	SEPARATION_STRENGTH = 1.15*SIZE;
 	PATHFIND_STRENGTH = 0.08f;
 }
 
@@ -86,7 +86,7 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 		setPosition(newPos);
 		glPushMatrix();
 			glColor3f(colour.x, colour.y, colour.z);
-			glTranslated(position.x, position.y, position.z);
+			glTranslated(position.x, 0, position.z);
 			glutSolidSphere(SIZE, 20, 20);
 			glLineWidth(2.5);
 			glBegin(GL_LINES);
@@ -116,10 +116,16 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 		//Calculate pushing vector - once an agent is where it needs to be, others do not use them for separation vectors.
 		//Instead, these agents have strong separation to every other agent, but only very close - if an agent is within 1.5 units, move away strongly.
 		//If no agents are that close, go back to your desired spot.
-		vec3 pshVec = getPushedBy(potentialNeighbours);
+		vector<vec3> pshNeighbours;
+		for (int i=0; i<potentialNeighbours.size(); i++) {
+			if (length(potentialNeighbours[i]->getPosition()-position)<SIZE) {
+				pshNeighbours.push_back(potentialNeighbours[i]->getPosition());
+			}
+		}
+		vec3 pshVec = getPushedBy(pshNeighbours);
 		glPushMatrix();
 			glColor3f(1-colour.x, 1-colour.y, 1-colour.z);
-			glTranslated(position.x, position.y, position.z);
+			glTranslated(position.x, 0, position.z);
 			glutSolidSphere(SIZE, 20, 20);
 		glPopMatrix();
 	}
@@ -133,16 +139,15 @@ vec3 Agent::separation(vector<vec3> neighbours)
 	vec3 out = vec3 (0.0, 0.0, 0.0);
 	for (vec3 neighbour : neighbours) {
 		vec3 separation = vec3(position.x-neighbour.x, 0, position.z-neighbour.z);
+		//Possible optimization - precalculate length(separation) so it doesn't have to be calced 2 or 3 times
 		if (0<length(separation) && length(separation)<5) {
 			//TODO - fix flickering of this vector. If the length to the other one is 4.99, the separation should be tiny. If it is 1, it should basically be trying as hard as it can to get to a distance of 1.
 
-			//Set the length to be 1/length and add it to the current vector
-			out += normalize(separation)*(1.0f/length(separation));
+			//We want the vector to be gigantic if they are touching, so it should be an exponential decay curve.
+			//Set the length to be Ne^(-Lambda*x-SIZE) and add it to the current vector
+			float x = length(separation);
+			out += normalize(separation)*(10*exp(-4*(x+(SIZE*2))));
 		}
-	}
-	//If the length is greater than 1, normalize it
-	if (length(out)>1) {
-		out = normalize(out);
 	}
 
 	//Is the length greater than 1?
@@ -182,8 +187,12 @@ vec3 Agent::pathfind(vec3 endPoint)
 	return length(distance)<3 ? distance*(PATHFIND_STRENGTH/3.0f) : normalize(distance)*PATHFIND_STRENGTH;
 }
 
-vec3 Agent::getPushedBy(vector<Agent*> neighbours)
+vec3 Agent::getPushedBy(vector<vec3> neighbours)
 {
-	vec3 herp;
-	return herp;
+	vec3 out = vec3(0.0, 0.0, 0.0);
+
+	for (int i=0; i<neighbours.size(); i++) {
+	}
+		//Move so that you are not touching any of them
+	return out;
 }

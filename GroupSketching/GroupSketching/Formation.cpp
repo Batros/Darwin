@@ -38,42 +38,11 @@ Formation::Formation(glm::vec3 cen)
 	this->setCentre(cen);
 }
 
-//Construct formation with boundary coordinates. Calculate the centre based on the input boundary and change the boundary to be relative to the centre.
-Formation::Formation(vector<glm::vec3> boundary)
-{
-	boundary.push_back(boundary.front());
-	// Find the (x,y) coordinates of the centre (the centroid of the input polygon) as the average x and y of the vertices.
-	double cenX = 0.0;
-	double cenY = 0.0;
-	double cenZ = 0.0;
-	// Iterate over the boundary and sum the x and y values.
-	for (std::vector<glm::vec3>::iterator bpoint = boundary.begin(); bpoint != boundary.end(); ++bpoint) {
-		cenX += (*bpoint).x;
-		cenY += (*bpoint).y;
-		cenZ += (*bpoint).z;
-	}
-	// Divide the sums by the number of boundary points.
-	cenX /= boundary.size();
-	cenY /= boundary.size();
-	cenZ /= boundary.size();
-
-	// Calculate the relative positions of the boundary points and update the vector.
-	for (std::vector<glm::vec3>::iterator bpoint = boundary.begin(); bpoint != boundary.end(); ++bpoint) {
-		(*bpoint).x -= cenX;
-		(*bpoint).y -= cenY;
-		(*bpoint).z -= cenZ;
-	}
-
-	// Set the boundary points and the centre point.
-	this->setBoundary(boundary);
-	this->setCentre(glm::vec3(cenX, cenY, cenZ));
-}
-
 //Construct formation with boundary coordinates and exclusive boundary. Calculate the centre based on the input boundary and change the boundary to be relative to the centre.
 Formation::Formation(vector<glm::vec3> boundary,vector<glm::vec3> exclusiveBoundary)
 {
-	boundary.push_back(boundary.front());
-	exclusiveBoundary.push_back(exclusiveBoundary.front());
+	//boundary.push_back(boundary.front());
+	//exclusiveBoundary.push_back(exclusiveBoundary.front());
 	// Find the (x,y) coordinates of the centre (the centroid of the input polygon) as the average x and y of the vertices.
 	double cenX = 0.0;
 	double cenY = 0.0;
@@ -95,11 +64,27 @@ Formation::Formation(vector<glm::vec3> boundary,vector<glm::vec3> exclusiveBound
 		(*bpoint).y -= cenY;
 		(*bpoint).z -= cenZ;
 	}
+
+	// Calculate the relative positions of the exclusive boundary points and update the vector.
+	for (std::vector<glm::vec3>::iterator bpoint = exclusiveBoundary.begin(); bpoint != exclusiveBoundary.end(); ++bpoint) {
+		(*bpoint).x -= cenX;
+		(*bpoint).y -= cenY;
+		(*bpoint).z -= cenZ;
+	}
+
 
 	// Set the boundary points and the centre point.
 	this->setBoundary(boundary);
 	this->setCentre(glm::vec3(cenX, cenY, cenZ));
 	this->setExclusiveBoundary(exclusiveBoundary);
+}
+
+//Construct formation with boundary coordinates. Calculate the centre based on the input boundary and change the boundary to be relative to the centre.
+// Same as constructing with an empty exclusive boundary.
+Formation::Formation(vector<glm::vec3> boundary)
+{
+	vector<glm::vec3> exclusiveBoundary;
+	this->Formation::Formation(boundary, exclusiveBoundary);
 }
 
 

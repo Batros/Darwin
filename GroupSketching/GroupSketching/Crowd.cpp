@@ -44,6 +44,10 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents)
 	}
 }
 
+//Add more constructors - Formation, Sub-formation, Formation, Sub-formation, Path
+//Formation, Sub-formation, Formation, Sub-formation, Path, Sub-path
+//Formation, list of sub-formation, Formation, List of sub-formations, Path, list of sub-paths
+
 Crowd::~Crowd(void)
 {
 }
