@@ -122,6 +122,46 @@ void processInput() {
 	}
 	else if (strokes.size()==5) {
 		// Formation, Sub-formation, Formation, Sub-formation, Path
+		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
+		formations.push_back(f1);
+		vector<glm::vec3> f1Sub = sketchHandler->processFormation(strokes[1]);
+		bool sub1Inside = sketchHandler->processSubFormation(f1Sub, f1);
+
+		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[2]);
+		formations.push_back(f2);
+		vector<glm::vec3> f2Sub = sketchHandler->processFormation(strokes[3]);
+		bool sub2Inside = sketchHandler->processSubFormation(f2Sub, f2);
+
+
+		Path path = sketchHandler->processPath(strokes[4], f1, f2);
+		if (sub1Inside && sub2Inside) {
+			strokes.clear();
+			strokeNumber = 0;
+			crowdModel->createCrowd(f1, f2, path);
+			running = true;
+		}
+	}
+	else if (strokes.size()==6) {
+		// Formation, Sub-formation, Formation, Sub-formation, Path, Sub-path
+		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
+		formations.push_back(f1);
+		vector<glm::vec3> f1Sub = sketchHandler->processFormation(strokes[1]);
+		bool sub1Inside = sketchHandler->processSubFormation(f1Sub, f1);
+
+		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[2]);
+		formations.push_back(f2);
+		vector<glm::vec3> f2Sub = sketchHandler->processFormation(strokes[3]);
+		bool sub2Inside = sketchHandler->processSubFormation(f2Sub, f2);
+
+
+		Path path = sketchHandler->processPath(strokes[4], f1, f2);
+		Path subPath = sketchHandler->processPath(strokes[5], f1Sub, f2Sub);
+		if (sub1Inside && sub2Inside) {
+			strokes.clear();
+			strokeNumber = 0;
+			crowdModel->createCrowd(f1, f2, path);
+			running = true;
+		}
 	}
 	else {
 		for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {

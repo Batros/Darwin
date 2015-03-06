@@ -21,7 +21,8 @@ vector<glm::vec3> SketchHandler::processFormation(vector<glm::vec3> stroke) {
 			newStroke.push_back(stroke[i]);
 		}
 	}
-	
+	newStroke.push_back(newStroke[0]);
+
 	// Line crossing handler
 	bool lineCross = false;
 	glm::vec3 intersect = glm::vec3(0, 0, 0);
@@ -110,7 +111,6 @@ bool SketchHandler::processSubFormation(vector<glm::vec3> stroke, vector<glm::ve
 }
 
 bool SketchHandler::pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary) {
-	boundary.push_back(boundary[0]);
 	bool inBoundary = false;
 	float m_point = 1;
 	float c_point = point.z - (m_point * point.x);
