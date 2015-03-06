@@ -84,7 +84,7 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 		glPushMatrix();
 			glColor3f(colour.x, colour.y, colour.z);
 			glTranslated(position.x, position.y, position.z);
-			glutSolidSphere(1.0f, 20, 20);
+			glutSolidSphere(0.5f, 20, 20);
 			glLineWidth(2.5);
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
@@ -100,13 +100,13 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 			glColor3f(colour.x, colour.y, colour.z);
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
-			glVertex3f(cohVec.x*150.0,0,cohVec.z*150.0);
+			glVertex3f(cohVec.x*50.0,0,cohVec.z*50.0);
 			glEnd();
 
 			glColor3f(1.0, 1.0, 0.0);
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
-			glVertex3f(endVec.x*100.0,0,endVec.z*100.0);
+			glVertex3f(endVec.x*50.0,0,endVec.z*50.0);
 			glEnd();
 		glPopMatrix();
 	} else {
@@ -117,7 +117,7 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 		glPushMatrix();
 			glColor3f(1-colour.x, 1-colour.y, 1-colour.z);
 			glTranslated(position.x, position.y, position.z);
-			glutSolidSphere(1.0f, 20, 20);
+			glutSolidSphere(0.5f, 20, 20);
 		glPopMatrix();
 	}
 }

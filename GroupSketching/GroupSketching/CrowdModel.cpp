@@ -76,7 +76,7 @@ bool CrowdModel::update() {
 		glPushMatrix();
 			glColor3f(colour.x, colour.y, colour.z);
 			glTranslated(position.x, position.y, position.z);
-			glutSolidSphere(1.0f, 20, 20);
+			glutSolidSphere(0.5f, 20, 20);
 		glPopMatrix();
 	}
 	for (int i=0; i<crowds.size(); i++) {
