@@ -15,8 +15,9 @@ Agent::Agent(vec3 position, vec3 end, vec3 colour) {
 	this->endPoint = end;
 	this->colour = colour;
 	needsToMove = true;
+	SIZE = 0.5f;
 	COHESION_STRENGTH = 0.04f;
-	SEPARATION_STRENGTH = 0.18f;
+	SEPARATION_STRENGTH = 0.15*SIZE;
 	PATHFIND_STRENGTH = 0.08f;
 }
 
@@ -74,7 +75,9 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 		vec3 endVec = pathfind(endPoint);
 		vec3 modVec = (sepVec+cohVec+endVec)*10.0f;
 		vec3 newPos = position+endVec+cohVec+sepVec;
-		if (length(endVec)<0.01) {
+		float endLen = length(endVec);
+		float vecLen = length(endVec+cohVec+sepVec);
+		if ((endLen*vecLen)<0.0001) {
 			//TODO: This ought to be a function of the distance left to travel and the distance moved.
 			//If the distance moved is very small, this should be set to false. But, to avoid coincidences, the distance to go should also be small.
 			
@@ -84,7 +87,7 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 		glPushMatrix();
 			glColor3f(colour.x, colour.y, colour.z);
 			glTranslated(position.x, position.y, position.z);
-			glutSolidSphere(0.5f, 20, 20);
+			glutSolidSphere(SIZE, 20, 20);
 			glLineWidth(2.5);
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
@@ -94,19 +97,19 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 			glColor3f(1.0, 0.0, 1.0);
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
-			glVertex3f(sepVec.x*50.0,0,sepVec.z*50.0);
+			glVertex3f(sepVec.x*SIZE*50.0,0,sepVec.z*SIZE*50.0);
 			glEnd();
 
 			glColor3f(colour.x, colour.y, colour.z);
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
-			glVertex3f(cohVec.x*50.0,0,cohVec.z*50.0);
+			glVertex3f(cohVec.x*SIZE*50.0,0,cohVec.z*SIZE*50.0);
 			glEnd();
 
 			glColor3f(1.0, 1.0, 0.0);
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
-			glVertex3f(endVec.x*50.0,0,endVec.z*50.0);
+			glVertex3f(endVec.x*SIZE*50.0,0,endVec.z*SIZE*50.0);
 			glEnd();
 		glPopMatrix();
 	} else {
@@ -117,7 +120,7 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 		glPushMatrix();
 			glColor3f(1-colour.x, 1-colour.y, 1-colour.z);
 			glTranslated(position.x, position.y, position.z);
-			glutSolidSphere(0.5f, 20, 20);
+			glutSolidSphere(SIZE, 20, 20);
 		glPopMatrix();
 	}
 }
@@ -156,8 +159,12 @@ vec3 Agent::cohesion(vector<vec3> neighbours)
 		out += (neighbour-position);
 	}
 
-	//Is the length of "out" greater than 1?
-	//If so, normalize out and multiply it by the cohesion strength.
+	//Decrease the cohesion if it is close to the end point, so they don't get pulled together much in spread-out formations.
+	if (length(endPoint-position)<3) {
+		out = out*(length(endPoint-position)/3.0f);
+	}
+	//Is the length greater than 1?
+	//If so, normalize and multiply it by the cohesion strength.
 	//Otherwise, return the out vector multiplied by the strength.
 	return length(out)>1 ? normalize(out)*COHESION_STRENGTH : out*COHESION_STRENGTH;
 }

@@ -26,5 +26,6 @@ private:
 	float COHESION_STRENGTH;
 	float SEPARATION_STRENGTH;
 	float PATHFIND_STRENGTH;
+	float SIZE;
 };
 

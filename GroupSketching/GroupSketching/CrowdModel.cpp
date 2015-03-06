@@ -90,6 +90,7 @@ bool CrowdModel::update() {
 }
 
 bool CrowdModel::pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary) {
+	boundary.push_back(boundary[0]);
 	bool inBoundary = false;
 	float m_point = 1;
 	float c_point = point.z - (m_point * point.x);
