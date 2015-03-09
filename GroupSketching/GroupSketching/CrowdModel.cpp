@@ -9,6 +9,9 @@ CrowdModel::CrowdModel(void)
 		float ranX = rand() % 20;
 		float ranZ = rand() % 20;
 		glm::vec3 point = glm::vec3(ranX, 0, ranZ);
+
+		//While the current randolmy-generated point is found in the list already generated
+		//Prevents agents being spawned on the same spot
 		while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end()) {
 			float ranX = rand() % 20;
 			float ranZ = rand() % 20;
@@ -46,7 +49,10 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 
 	//Create formation with the first boundary
 	Formation* f1 = new Formation(stroke1);
-	
+	for (int i=0; i<path.size(); i++) {
+		cout << path[i].x << ", " << path[i].z << endl;
+	}
+
 	//Then populate it with these agents
 	for (int i=0; i<freeAgents.size(); i++) {
 		if (pointInBoundary(freeAgents[i]->getPosition(), stroke1)) {
@@ -61,7 +67,15 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 	Formation* f2 = new Formation(stroke2);
 		
 	f2->populate(agentsInBoundary.size());
+	
+	//The total length of the path
+	vec3 pathLength = path[0]-f1->getCentre();
+	for (int i=1; i<path.size(); i++) {
+		pathLength += (path[i]-path[i-1]);
+	}
+	pathLength += f2->getCentre()-path[end];
 
+	//Remove all agents
 	for (int i=agentsToDelete.size()-1; i>=0; i--) {
 		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
 	}
@@ -91,6 +105,7 @@ bool CrowdModel::update() {
 			glutSolidSphere(0.5f, 20, 20);
 		glPopMatrix();
 	}
+
 	for (int i=0; i<crowds.size(); i++) {
 		//v1 (done): No neighbouring crowds.
 		//v2 (in-dev): Check all other crowds, see if there are any in the radius. If so, pass these.
