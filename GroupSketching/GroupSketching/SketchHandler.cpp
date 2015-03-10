@@ -78,6 +78,7 @@ vector<glm::vec3> SketchHandler::processFormation(vector<glm::vec3> stroke) {
 	if (lineCross) {
 		newStroke.erase(newStroke.begin()+secondLine, newStroke.end());
 		newStroke.erase(newStroke.begin(), newStroke.begin()+firstLine);
+		newStroke.push_back(newStroke[0]);
 	}
 
 	return newStroke;
