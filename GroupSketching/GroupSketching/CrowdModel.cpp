@@ -89,6 +89,45 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 	crowds.push_back(newCrowd);
 }
 
+void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub) {
+	//First vector - check all free agents and add it to a list if it's within this series of points
+	vector<glm::vec3> agentsInBoundary;
+	vector<Agent*> agents;
+	vector<int> agentsToDelete;
+
+
+	//Create formation with the first boundary
+	Formation* f1 = new Formation(bound1, bound1Sub);
+
+	//Then populate it with these agents
+	for (int i=0; i<freeAgents.size(); i++) {
+		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
+			agentsInBoundary.push_back(freeAgents[i]->getPosition());
+			agents.push_back(freeAgents[i]);
+			agentsToDelete.push_back(i);
+		}
+	}
+	f1->populate(agentsInBoundary);
+
+	//Second formation - populate it with the number of agents found in the first one
+	Formation* f2 = new Formation(bound2, bound2Sub);
+		
+	f2->populate(agentsInBoundary.size());
+
+	//Remove all agents
+	for (int i=agentsToDelete.size()-1; i>=0; i--) {
+		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
+	}
+	
+	if (f1->getAgentCoords().size()>f2->getAgentCoords().size()) {
+		Formation* f3 = new Formation(bound2);
+		f3->populate(agentsInBoundary.size());
+	}
+	Path path;
+	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
+	
+	crowds.push_back(newCrowd);
+}
 
 bool CrowdModel::update() {
 	//v1 (done): Take a list of crowds at their current state, update them all

@@ -105,18 +105,20 @@ void processInput() {
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
 		vector<glm::vec3> f1Sub = sketchHandler->processFormation(strokes[1]);
+		formations.push_back(f1Sub);
 		bool sub1Inside = sketchHandler->processSubFormation(f1Sub, f1);
 
 		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[2]);
 		formations.push_back(f2);
 		vector<glm::vec3> f2Sub = sketchHandler->processFormation(strokes[3]);
+		formations.push_back(f2Sub);
 		bool sub2Inside = sketchHandler->processSubFormation(f2Sub, f2);
 
 		Path path;
 		if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
-			crowdModel->createCrowd(f1, f2, path);
+			crowdModel->createCrowd(f1, f2, f1Sub, f2Sub);
 			running = true;
 		}
 	}

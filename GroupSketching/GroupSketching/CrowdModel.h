@@ -11,7 +11,11 @@ public:
 	CrowdModel(void);
 	~CrowdModel(void);
 	void createCrowd(Formation* f1, Formation* f2, Path path);
-	void createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke2, Path path);
+	void createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2);
+	void createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, Path path);
+	void createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub);
+	void createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub, Path path);
+	void createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub, Path path, Path subPath);
 	bool update();
 
 private:
