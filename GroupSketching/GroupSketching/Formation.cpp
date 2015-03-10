@@ -382,7 +382,87 @@ void Formation::populate(Formation* formation)
 	// Call populate(n) with input the number of agents in the input formation.
 	this->populate(formation->getAgentCoords().size());
 	// TODO:The two formations need to be lined up.
-	// 
+	// Calculate average radius of each formation, to be used for normalizing agent distances to the center.
+	double radF2 = 0.0;
+	double radF1 = 0.0;
+	for (std::vector<glm::vec3>::iterator bpoint = formation->boundaryCoords.begin(); bpoint != formation->boundaryCoords.end(); ++bpoint) {
+		radF1 += sqrt(((*bpoint).x)*((*bpoint).x) + ((*bpoint).z)*((*bpoint).z));
+	}
+	radF1 /= formation->boundaryCoords.size();
+	for (std::vector<glm::vec3>::iterator bpoint = this->boundaryCoords.begin(); bpoint != this->boundaryCoords.end(); ++bpoint) {
+		radF2 += sqrt(((*bpoint).x)*((*bpoint).x) + ((*bpoint).z)*((*bpoint).z));
+	}
+	radF2 /= this->boundaryCoords.size();
+
+	// For each agent in the formation, calculate its relative position pair (Theta, alpha), where alpha is the normalized distance between the point and the formation's center
+	// and theta is the angle showing agent's orientation relative to a constant line (take the X axis).
+	vector<glm::vec2> relativePosF1;
+	vector<glm::vec2> relativePosF2;
+	for (std::vector<glm::vec3>::iterator agent = formation->agentCoords.begin(); agent != formation->agentCoords.end(); ++agent) {
+		// Calculate alpha - distance to formation center.
+		double alpha = sqrt(((*agent).x)*((*agent).x) + ((*agent).z)*((*agent).z));
+		// Calculate beta - distance of a line on the X axis starting from the formation center and going up a distance equal to the agent's x coordinate.
+		// alpha and beta create a right triangle.
+		double beta = sqrt(((*agent).x)*((*agent).x));
+		// Calculate cosine of theta - angle between OA (line from the center of the formation to the agent) and the X axis.
+		double theta = 1.0;
+		if (alpha > 0) 
+			theta = beta/alpha;
+		// Normalize alpha
+		alpha /= radF1;
+		relativePosF1.push_back(glm::vec2(theta,alpha));
+	}
+
+	// Repeat for the end formation.
+	for (std::vector<glm::vec3>::iterator agent = this->agentCoords.begin(); agent != this->agentCoords.end(); ++agent) {
+		// Calculate alpha - distance to formation center.
+		double alpha = sqrt(((*agent).x)*((*agent).x) + ((*agent).z)*((*agent).z));
+		// Calculate beta - distance of a line on the X axis starting from the formation center and going up a distance equal to the agent's x coordinate.
+		// alpha and beta create a right triangle.
+		double beta = sqrt(((*agent).x)*((*agent).x));
+		// Calculate cosine of theta - angle between OA (line from the center of the formation to the agent) and the X axis.
+		double theta = 1.0;
+		if (alpha > 0) 
+			theta = beta/alpha;
+		// Normalize alpha
+		alpha /= radF1;
+		relativePosF2.push_back(glm::vec2(theta,alpha));
+	}
+
+	// Find the corresponding point in F2 for every agent in F1 by calculating its nearest neighbour in relative distance.
+	vector<int> corrIDs;
+	for (int i = 0; i < relativePosF1.size(); i++) {
+		double leastDistance = 100000;
+		int corrID = -1;
+		for (int j = 0; j < relativePosF2.size(); j++) {
+			// Find the distance between the current starting agent and the target end position.
+			double dist = sqrt(((relativePosF1[i].x-relativePosF2[j].x)*(relativePosF1[i].x-relativePosF2[j].x)) + ((relativePosF1[i].y-relativePosF2[j].y)*(relativePosF1[i].y-relativePosF2[j].y)));
+			if (dist < leastDistance) {
+				// Check if this id has been used
+				bool used = false;
+				for (int k = 0; k < corrIDs.size(); k++) {
+					if (corrIDs[k] == j) {
+						used = true;
+						break;
+					}
+				}
+				// If it hasn't been used, set it as the closest point.
+				if (!used) {
+					leastDistance = dist;
+					corrID = j;
+				}
+			}
+		}
+		// Add the ID to the ordered vector.
+		corrIDs.push_back(corrID);
+	}
+
+	// Reorder the agents in formation 2 based on the ordered list of IDs.
+	vector<glm::vec3> orderedAgents;
+	for (int i = 0; i < corrIDs.size(); i++) {
+		orderedAgents.push_back(this->agentCoords[corrIDs[i]]);
+	}
+	this->agentCoords = orderedAgents;
 }
 
 // Populate function with input set of real world agent coordinates.
