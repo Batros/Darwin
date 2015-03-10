@@ -146,7 +146,7 @@ vec3 Agent::separation(vector<vec3> neighbours)
 			//We want the vector to be gigantic if they are touching, so it should be an exponential decay curve.
 			//Set the length to be Ne^(-Lambda*x-SIZE) and add it to the current vector
 			float x = length(separation);
-			out += normalize(separation)*(10*exp(-4*(x+(SIZE*2))));
+			out += normalize(separation)*(10*exp(-4*(x-(SIZE*2))));
 		}
 	}
 
