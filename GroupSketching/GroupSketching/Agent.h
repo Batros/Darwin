@@ -27,5 +27,6 @@ private:
 	float SEPARATION_STRENGTH;
 	float PATHFIND_STRENGTH;
 	float SIZE;
+	vector<vec3> positionsStack;
 };
 

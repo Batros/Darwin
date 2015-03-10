@@ -69,7 +69,7 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 			//}
 		}
 		
-
+		//TODO - make them move faster when they get closer to the end
 		vec3 sepVec = separation(sepNeighbours);
 		vec3 cohVec = cohesion(cohNeighbours);
 		vec3 endVec = pathfind(endPoint);
@@ -77,11 +77,19 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 		vec3 newPos = position+endVec+cohVec+sepVec;
 		float endLen = length(endVec);
 		float vecLen = length(endVec+cohVec+sepVec);
-		if ((endLen*vecLen)<0.0001) {
-			//TODO: This ought to be a function of the distance left to travel and the distance moved.
-			//If the distance moved is very small, this should be set to false. But, to avoid coincidences, the distance to go should also be small.
-			
-			needsToMove = false;
+		if (positionsStack.size()==9) {
+			//If the latest position is very close to where it was 9 updates ago, assume it is either stuck, jittering or has reached its destination.
+			//So, tell it it no longer needs to move.
+				
+			positionsStack.push_back(newPos);
+			vec3 oldPos = positionsStack.front();
+			positionsStack.erase(positionsStack.begin());
+			if (length(oldPos-newPos)<0.0001) {
+				needsToMove = false;
+			}
+		} else {
+			//Otherwise just push the new position onto the stack
+			positionsStack.push_back(newPos);
 		}
 		setPosition(newPos);
 		glPushMatrix();

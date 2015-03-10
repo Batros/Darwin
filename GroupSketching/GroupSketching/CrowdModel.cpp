@@ -10,7 +10,7 @@ CrowdModel::CrowdModel(void)
 		float ranZ = rand() % 20;
 		glm::vec3 point = glm::vec3(ranX, 0, ranZ);
 
-		//While the current randolmy-generated point is found in the list already generated
+		//While the current randomly-generated point is found in the list already generated
 		//Prevents agents being spawned on the same spot
 		while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end()) {
 			float ranX = rand() % 20;
@@ -46,7 +46,7 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2)
 	vector<Agent*> agents;
 	vector<int> agentsToDelete;
 
-
+	glutSolidCube(2);
 	//Create formation with the first boundary
 	Formation* f1 = new Formation(bound1);
 
@@ -54,6 +54,8 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2)
 	for (int i=0; i<freeAgents.size(); i++) {
 		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
 			agentsInBoundary.push_back(freeAgents[i]->getPosition());
+			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
+			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
 			agents.push_back(freeAgents[i]);
 			agentsToDelete.push_back(i);
 		}
@@ -70,9 +72,8 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2)
 		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
 	}
 	
-	//Create a default path that is a single line from one centre to the other
+	//Create a default path that is a single line from one centre to the other (the first formation's centre is not part of the path, so only add the second one)
 	Path path;
-	path.push_back(f1->getCentre());
 	path.push_back(f2->getCentre());
 
 
@@ -88,7 +89,8 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 	vector<glm::vec3> agentsInBoundary;
 	vector<Agent*> agents;
 	vector<int> agentsToDelete;
-
+	
+	glutSolidCube(2);
 
 	//Create formation with the first boundary
 	Formation* f1 = new Formation(bound1);
@@ -97,7 +99,8 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 	for (int i=0; i<freeAgents.size(); i++) {
 		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
 			agentsInBoundary.push_back(freeAgents[i]->getPosition());
-			//freeAgents[i] need to be modified, so the startVec and endVec are relative
+			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
+			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
 			agents.push_back(freeAgents[i]);
 			agentsToDelete.push_back(i);
 		}
@@ -106,7 +109,7 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 
 	//Second formation - populate it with the number of agents found in the first one
 	Formation* f2 = new Formation(bound2);
-		
+	
 	f2->populate(agentsInBoundary.size());
 
 	//Remove all necessary agents from freeAgents
@@ -114,6 +117,8 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
 	}
 	
+	//Push the end formation's centre to the end of the path
+	path.push_back(f2->getCentre());
 	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
 	
 	crowds.push_back(newCrowd);
@@ -125,14 +130,20 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 	vector<Agent*> agents;
 	vector<int> agentsToDelete;
 
-
+	
+	glutSolidCube(2);
 	//Create formation with the first boundaries. This will contain agents inside the main group, but not the sub-group.
 	Formation* f1 = new Formation(bound1, bound1Sub);
 
 	//Then populate it with these agents
 	for (int i=0; i<freeAgents.size(); i++) {
 		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
+			if (pointInBoundary(freeAgents[i]->getPosition(), bound1Sub)) {
+				//Add it to a sub-group
+			}
 			agentsInBoundary.push_back(freeAgents[i]->getPosition());
+			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
+			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
 			agents.push_back(freeAgents[i]);
 			agentsToDelete.push_back(i);
 		}
@@ -166,14 +177,20 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 	vector<Agent*> agents;
 	vector<int> agentsToDelete;
 
-
+	
+	glutSolidCube(2);
 	//Create formation with the first boundaries. This will contain agents inside the main group, but not the sub-group.
 	Formation* f1 = new Formation(bound1, bound1Sub);
 
 	//Then populate it with these agents
 	for (int i=0; i<freeAgents.size(); i++) {
 		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
+			if (pointInBoundary(freeAgents[i]->getPosition(), bound1Sub)) {
+				//Add it to a sub-group
+			}
 			agentsInBoundary.push_back(freeAgents[i]->getPosition());
+			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
+			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
 			agents.push_back(freeAgents[i]);
 			agentsToDelete.push_back(i);
 		}
@@ -190,7 +207,49 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
 	}
 
-	//Create the crowd with this default path, both formations and the list of agents
+	//Create the crowd with a path and a default sub-path, both formations and the list of agents
+	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
+	
+	crowds.push_back(newCrowd);
+}
+
+void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub, Path path, Path subPath) {
+	//First vector - check all free agents and add it to a list if it's within this series of points
+	vector<glm::vec3> agentsInBoundary;
+	vector<Agent*> agents;
+	vector<int> agentsToDelete;
+
+	
+	glutSolidCube(2);
+	//Create formation with the first boundaries. This will contain agents inside the main group, but not the sub-group.
+	Formation* f1 = new Formation(bound1, bound1Sub);
+
+	//Then populate it with these agents
+	for (int i=0; i<freeAgents.size(); i++) {
+		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
+			if (pointInBoundary(freeAgents[i]->getPosition(), bound1Sub)) {
+				//Add it to a sub-group
+			}
+			agentsInBoundary.push_back(freeAgents[i]->getPosition());
+			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
+			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
+			agents.push_back(freeAgents[i]);
+			agentsToDelete.push_back(i);
+		}
+	}
+	f1->populate(agentsInBoundary);
+
+	//Second formation - populate it with the number of agents found in the first one
+	Formation* f2 = new Formation(bound2, bound2Sub);
+		
+	f2->populate(agentsInBoundary.size());
+
+	//Remove all necessary agents from freeAgents
+	for (int i=agentsToDelete.size()-1; i>=0; i--) {
+		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
+	}
+
+	//Create the crowd with a path and sub-path, both formations and the list of agents
 	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
 	
 	crowds.push_back(newCrowd);

@@ -2,12 +2,12 @@
 
 class Formation
 {
-	vector<glm::vec3> agentCoords;
 	vector<glm::vec3> boundaryCoords;
 	vector<glm::vec3> exclusiveBoundaryCoords;
 	glm::vec3 centre;
 
 public:
+	vector<glm::vec3> agentCoords;
 	Formation(void);
 	Formation(glm::vec3 point);
 	Formation(vector<glm::vec3> boundary);

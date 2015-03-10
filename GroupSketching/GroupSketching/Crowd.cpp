@@ -48,7 +48,7 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents)
 
 	//Set each agent's destination point to be this point, but relative to their current position
 	for (int i=0; i<agents.size(); i++) {
-		agents[i]->setEndPoint(coords[i]-f2->getCentre()+f1->getCentre());
+		agents[i]->setEndPoint(coords[i]-f2->getCentre());
 	}
 
 	//Set the crowd's pathVec to point towards the current destination.
@@ -105,14 +105,14 @@ void Crowd::update(vector<Agent*> neighbours)
 		glTranslated(currentPosition.x, 0, currentPosition.z);
 		//glRotated(1, pathVec.x, 0, pathVec.z);
 		glutSolidSphere(1.4, 20, 20);
-	glPopMatrix();
-	for (int i=0; i<agents.size(); i++) {
-		//TODO - optimise this, give agents a pointer to pathVec when they are initialised, so there is no need to call it after this.
-		agents[i]->update(neighbours);
-		if (i<agents.size()-1) {
-			neighbours[i] = agents[i+1];
+		for (int i=0; i<agents.size(); i++) {
+			//TODO - optimise this, give agents a pointer to pathVec when they are initialised, so there is no need to call it after this.
+			agents[i]->update(neighbours);
+			if (i<agents.size()-1) {
+				neighbours[i] = agents[i+1];
+			}	
 		}
-	}
+	glPopMatrix();
 }
 
 vector<glm::vec3> Crowd::getRelativeAgentCoords()
