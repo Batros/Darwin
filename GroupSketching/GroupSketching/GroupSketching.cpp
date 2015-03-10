@@ -90,9 +90,9 @@ void processInput() {
 		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[1]);
 		formations.push_back(f2);
 		Path path = sketchHandler->processPath(strokes[2], f1, f2);
+		strokes.clear();
+		strokeNumber = 0;
 		if (path.size() > 1) {
-			strokes.clear();
-			strokeNumber = 0;
 			crowdModel->createCrowd(f1, f2, path);
 			running = true;
 		}

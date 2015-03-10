@@ -149,7 +149,16 @@ Path SketchHandler::processPath(vector<glm::vec3> stroke, vector<glm::vec3> f1, 
 	bool endInBoundary = pointInBoundary(stroke[stroke.size()-1], f2);
 
 	if (startInBoundary && endInBoundary) {
-		return stroke;
+		// Distance-variable resampling
+		vector<glm::vec3> newStroke;
+		newStroke.push_back(stroke[0]);
+		for(vector<glm::vec3>::size_type i = 1; i < stroke.size(); i++) {
+			double dist = glm::length(stroke[i] - newStroke[newStroke.size()-1]);
+			if (dist > 1) {
+				newStroke.push_back(stroke[i]);
+			}
+		}
+		return newStroke;
 	}
 	else {
 		vector<glm::vec3> blankPath;
