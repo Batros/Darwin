@@ -80,7 +80,7 @@ void processInput() {
 		Path path;
 		strokes.clear();
 		strokeNumber = 0;
-		crowdModel->createCrowd(f1, f2, path);
+		crowdModel->createCrowd(f1, f2);
 		running = true;
 	}
 	else if (strokes.size()==3) {
