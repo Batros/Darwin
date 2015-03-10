@@ -24,5 +24,8 @@ private:
 	Formation* startFormation;
 	Formation* endFormation;
 	Path path;
+	glm::vec3 currentPosition;
+	glm::vec3 currentDestination;
+	glm::vec3 pathVec;
 };
 
