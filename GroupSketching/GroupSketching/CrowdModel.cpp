@@ -73,7 +73,7 @@ void CrowdModel::createCrowd(vector<glm::vec3> stroke1, vector<glm::vec3> stroke
 	for (int i=1; i<path.size(); i++) {
 		pathLength += (path[i]-path[i-1]);
 	}
-	pathLength += f2->getCentre()-path[end];
+	pathLength += f2->getCentre()-path.back();
 
 	//Remove all agents
 	for (int i=agentsToDelete.size()-1; i>=0; i--) {
