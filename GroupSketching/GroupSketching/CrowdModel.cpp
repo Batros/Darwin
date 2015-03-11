@@ -162,7 +162,6 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 	
 	//Create a default path that is a single line from one centre to the other
 	Path path;
-	path.push_back(f1->getCentre());
 	path.push_back(f2->getCentre());
 
 	//Create the crowd with this default path, both formations and the list of agents
@@ -187,12 +186,13 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
 			if (pointInBoundary(freeAgents[i]->getPosition(), bound1Sub)) {
 				//Add it to a sub-group
+			} else {
+				agentsInBoundary.push_back(freeAgents[i]->getPosition());
+				//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
+				freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
+				agents.push_back(freeAgents[i]);
+				agentsToDelete.push_back(i);
 			}
-			agentsInBoundary.push_back(freeAgents[i]->getPosition());
-			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
-			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
-			agents.push_back(freeAgents[i]);
-			agentsToDelete.push_back(i);
 		}
 	}
 	f1->populate(agentsInBoundary);
@@ -206,6 +206,8 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 	for (int i=agentsToDelete.size()-1; i>=0; i--) {
 		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
 	}
+
+	path.push_back(f2->getCentre());
 
 	//Create the crowd with a path and a default sub-path, both formations and the list of agents
 	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
@@ -229,12 +231,13 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2,
 		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
 			if (pointInBoundary(freeAgents[i]->getPosition(), bound1Sub)) {
 				//Add it to a sub-group
+			} else {
+				agentsInBoundary.push_back(freeAgents[i]->getPosition());
+				//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
+				freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
+				agents.push_back(freeAgents[i]);
+				agentsToDelete.push_back(i);
 			}
-			agentsInBoundary.push_back(freeAgents[i]->getPosition());
-			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
-			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
-			agents.push_back(freeAgents[i]);
-			agentsToDelete.push_back(i);
 		}
 	}
 	f1->populate(agentsInBoundary);
