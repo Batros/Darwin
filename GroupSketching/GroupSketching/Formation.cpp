@@ -625,6 +625,12 @@ vector<glm::vec3> Formation::getAgentCoords()
 	return realCoords;
 }
 
+// Return the agent coordinates in relative space.
+vector<glm::vec3> Formation::getAgentCoordsRelative()
+{
+	return this->agentCoords;
+}
+
 // Return the boundary coordinates in real world space.
 vector<glm::vec3> Formation::getBoundary()
 {

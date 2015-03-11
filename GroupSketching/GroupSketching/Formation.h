@@ -4,10 +4,11 @@ class Formation
 {
 	vector<glm::vec3> boundaryCoords;
 	vector<glm::vec3> exclusiveBoundaryCoords;
+	vector<glm::vec3> agentCoords;
 	glm::vec3 centre;
 
 public:
-	vector<glm::vec3> agentCoords;
+	
 	Formation(void);
 	Formation(glm::vec3 point);
 	Formation(vector<glm::vec3> boundary);
@@ -22,6 +23,7 @@ public:
 	vector<glm::vec3> boundingRect(double stepSize);
 
 	vector<glm::vec3> getAgentCoords();
+	vector<glm::vec3> getAgentCoordsRelative();
 	void setAgentCoords(vector<glm::vec3>);
 	vector<glm::vec3> getBoundary();
 	void setBoundary(vector<glm::vec3>);
