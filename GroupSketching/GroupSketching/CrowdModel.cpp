@@ -41,36 +41,12 @@ void CrowdModel::createCrowd(Formation* f1, Formation* f2, Path path) {
 
 
 void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2) {
-	//First vector - check all free agents and add it to a list if it's within this series of points
-	vector<glm::vec3> agentsInBoundary;
-	vector<Agent*> agents;
-	vector<int> agentsToDelete;
 
-	glutSolidCube(2);
-	//Create formation with the first boundary
-	Formation* f1 = new Formation(bound1);
+	pair<pair<Formation*, Formation*>, vector<Agent*>> package = populateFormations(bound1, bound2);
 
-	//Then populate it with these agents
-	for (int i=0; i<freeAgents.size(); i++) {
-		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
-			agentsInBoundary.push_back(freeAgents[i]->getPosition());
-			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
-			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
-			agents.push_back(freeAgents[i]);
-			agentsToDelete.push_back(i);
-		}
-	}
-	f1->populate(agentsInBoundary);
-
-	//Second formation - populate it with the number of agents found in the first one
-	Formation* f2 = new Formation(bound2);
-		
-	f2->populate(agentsInBoundary.size());
-	
-	//Remove all necessary agents from freeAgents
-	for (int i=agentsToDelete.size()-1; i>=0; i--) {
-		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
-	}
+	Formation* f1 = package.first.first;
+	Formation* f2 = package.first.second;
+	vector<Agent*> agents = package.second;
 	
 	//Create a default path that is a single line from one centre to the other (the first formation's centre is not part of the path, so only add the second one)
 	Path path;
@@ -85,38 +61,13 @@ void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2)
 }
 
 void CrowdModel::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, Path path) {
-	//First vector - check all free agents and add it to a list if it's within this series of points
-	vector<glm::vec3> agentsInBoundary;
-	vector<Agent*> agents;
-	vector<int> agentsToDelete;
 	
-	glutSolidCube(2);
+	pair<pair<Formation*, Formation*>, vector<Agent*>> package = populateFormations(bound1, bound2);
 
-	//Create formation with the first boundary
-	Formation* f1 = new Formation(bound1);
+	Formation* f1 = package.first.first;
+	Formation* f2 = package.first.second;
+	vector<Agent*> agents = package.second;
 
-	//Then populate it with these agents
-	for (int i=0; i<freeAgents.size(); i++) {
-		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
-			agentsInBoundary.push_back(freeAgents[i]->getPosition());
-			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
-			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
-			agents.push_back(freeAgents[i]);
-			agentsToDelete.push_back(i);
-		}
-	}
-	f1->populate(agentsInBoundary);
-
-	//Second formation - populate it with the number of agents found in the first one
-	Formation* f2 = new Formation(bound2);
-	
-	f2->populate(agentsInBoundary.size());
-
-	//Remove all necessary agents from freeAgents
-	for (int i=agentsToDelete.size()-1; i>=0; i--) {
-		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
-	}
-	
 	//Push the end formation's centre to the end of the path
 	path.push_back(f2->getCentre());
 	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
@@ -315,4 +266,44 @@ bool CrowdModel::pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary) {
 		}
 	}
 	return inBoundary;
+}
+
+pair<pair<Formation*, Formation*>, vector<Agent*>>  CrowdModel::populateFormations(vector<glm::vec3> bound1, vector<glm::vec3> bound2) {
+
+	//First vector - check all free agents and add it to a list if it's within this series of points
+	vector<glm::vec3> agentsInBoundary;
+	vector<Agent*> agents;
+	vector<int> agentsToDelete;
+
+	glutSolidCube(2);
+	//Create formation with the first boundary
+	Formation* f1 = new Formation(bound1);
+
+	//Then populate it with these agents
+	for (int i=0; i<freeAgents.size(); i++) {
+		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
+			agentsInBoundary.push_back(freeAgents[i]->getPosition());
+			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
+			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
+			agents.push_back(freeAgents[i]);
+			agentsToDelete.push_back(i);
+		}
+	}
+	f1->populate(agentsInBoundary);
+
+	//Second formation - populate it with the number of agents found in the first one
+	Formation* f2 = new Formation(bound2);
+		
+	f2->populate(agentsInBoundary.size());
+	
+	//Remove all necessary agents from freeAgents
+	for (int i=agentsToDelete.size()-1; i>=0; i--) {
+		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
+	}
+
+	//Construct return values
+	pair<Formation*, Formation*> formations(f1, f2);
+	pair<pair<Formation*, Formation*>, vector<Agent*>> returnVal(formations, agents);
+
+	return returnVal;
 }

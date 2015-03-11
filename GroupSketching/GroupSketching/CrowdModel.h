@@ -21,7 +21,7 @@ public:
 private:
 	bool pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary);
 	vector<Agent*> freeAgents;
-	vector<Formation*> CrowdModel::populateFormations(vector<glm::vec3> bound1, vector<glm::vec3> bound2);
-	vector<Formation*> CrowdModel::populateFormationsWithSubformations(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub);
+	pair<pair<Formation*, Formation*>, vector<Agent*>> CrowdModel::populateFormations(vector<glm::vec3> bound1, vector<glm::vec3> bound2);
+	pair<pair<Formation*, Formation*>, vector<Agent*>> CrowdModel::populateFormationsWithSubformations(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub);
 };
 
