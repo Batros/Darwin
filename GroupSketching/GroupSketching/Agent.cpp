@@ -16,8 +16,8 @@ Agent::Agent(vec3 position, vec3 end, vec3 colour) {
 	this->colour = colour;
 	needsToMove = true;
 	SIZE = 0.5f;
-	COHESION_STRENGTH = 0.01f;
-	SEPARATION_STRENGTH = 1.15*SIZE;
+	COHESION_STRENGTH = 0.02f;
+	SEPARATION_STRENGTH = 0.20*SIZE;
 	PATHFIND_STRENGTH = 0.08f;
 }
 
@@ -45,7 +45,7 @@ Agent::~Agent(void)
 }
 
 
-void Agent::update(vector<Agent*> potentialNeighbours)
+void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 {
 	if (needsToMove) {
 		//v1 (done): Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
@@ -73,8 +73,9 @@ void Agent::update(vector<Agent*> potentialNeighbours)
 		vec3 sepVec = separation(sepNeighbours);
 		vec3 cohVec = cohesion(cohNeighbours);
 		vec3 endVec = pathfind(endPoint);
+		//Add a rule - the closer they are to their end point, the more malleable they are (i.e. the greater their "pushed" vector)
 		vec3 modVec = (sepVec+cohVec+endVec)*10.0f;
-		vec3 newPos = position+endVec+cohVec+sepVec;
+		vec3 newPos = position+((endVec+cohVec+sepVec)*urgency);
 		float endLen = length(endVec);
 		float vecLen = length(endVec+cohVec+sepVec);
 		if (positionsStack.size()==9) {
@@ -158,10 +159,10 @@ vec3 Agent::separation(vector<vec3> neighbours)
 		}
 	}
 
-	//Is the length greater than 1?
+	//Is the length greater than 0.5?
 	//If so, normalize and set its length to the separation strength.
 	//Otherwise, multiply it by the separation strength so it is a fraction of its original length.
-	return length(out)>1 ? normalize(out)*SEPARATION_STRENGTH : out*SEPARATION_STRENGTH;
+	return length(out)>0.5 ? normalize(out)*SEPARATION_STRENGTH : out*SEPARATION_STRENGTH;
 }
 
 vec3 Agent::cohesion(vector<vec3> neighbours)

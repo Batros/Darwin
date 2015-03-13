@@ -9,7 +9,7 @@ public:
 	vec3 getColour();
 	void setPosition(vec3 newPosition);
 	void setEndPoint(vec3 end);
-	void update(vector<Agent*> neighbours);
+	void update(vector<Agent*> neighbours, float urgency);
 	~Agent(void);
 
 private:

@@ -27,5 +27,8 @@ private:
 	glm::vec3 currentPosition;
 	glm::vec3 currentDestination;
 	glm::vec3 pathVec;
+	float urgency;
+	float pathLength;
+	float pathLeft;
 };
 
