@@ -331,40 +331,50 @@ void Formation::populate(int n)
 	if (insideN > 0) {
 		// Add the resampled boundary as the agent coords.
 		for (std::vector<glm::vec3>::iterator bpoint = resampledBoundaryCoords.begin(); bpoint != resampledBoundaryCoords.end(); ++bpoint) {
-			// Convert to coordinates relative to centre.
 			this->agentCoords.push_back((*bpoint));
 		}
 		
-		// Select random coordinates
+		// Select equidistant coordinates.
 		vector<int> t;
 		int cnt = insideN;
-
+		int dist = (int) (fPoints.size()/insideN);
+		int cur = 0;
 		if (fPoints.size() > 0) {
 			while (cnt > 0) {
-				int ran = rand() % fPoints.size();
-				if ((std::find(t.begin(), t.end(), ran) == t.end())) {
-					this->agentCoords.push_back(fPoints[ran]);
-					t.push_back(ran);
+				if ((std::find(t.begin(), t.end(), cur) == t.end())) {
+					this->agentCoords.push_back(fPoints[cur]);
+					t.push_back(cur);
 					cnt--;
+					cur += dist;
+					cur %= fPoints.size();
 				}
-				
+				else {
+					cur += 1;
+					cur %= fPoints.size();
+				}
 			}
 		}
 	}
 
 	else {
 		// Add the resampled boundary as the agent coords.
-		//cout << "Outside" << endl;
-		// Select random coordinates
+		// Select equidistant coordinates.
 		vector<int> t;
 		int cnt = n;
+		int dist = (int) (resampledBoundaryCoords.size()/n);
+		int cur = 0;
 		if (resampledBoundaryCoords.size() > 0) {
 			while (cnt > 0) {
-				int ran = rand() % resampledBoundaryCoords.size();
-				if ((std::find(t.begin(), t.end(), ran) == t.end())) {
-					this->agentCoords.push_back(resampledBoundaryCoords[ran]);
-					t.push_back(ran);
+				if ((std::find(t.begin(), t.end(), cur) == t.end())) {
+					this->agentCoords.push_back(resampledBoundaryCoords[cur]);
+					t.push_back(cur);
 					cnt--;
+					cur += dist;
+					cur %= resampledBoundaryCoords.size();
+				}
+				else {
+					cur += 1;
+					cur %= resampledBoundaryCoords.size();
 				}
 			}
 		}
