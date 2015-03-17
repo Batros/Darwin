@@ -219,4 +219,5 @@ bool Agent::isStillMoving() {
 
 vec3 Agent::randomVec() {
 	//Return the previous random vector, modified by a small value. This one should be accelerated, rather than moved.
+	return vec3(0.0, 0.0, 0.0);
 }
