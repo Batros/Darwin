@@ -11,6 +11,7 @@ public:
 	void setEndPoint(vec3 end);
 	void update(vector<Agent*> neighbours, float urgency);
 	~Agent(void);
+	bool isStillMoving();
 
 private:
 	vec3 position;
@@ -19,9 +20,10 @@ private:
 	int maxSpd;
 	bool needsToMove;
 	vec3 colour;
-	vec3 separation(vector<vec3>);
+	vec3 separation(vector<vec3>, vector<float>);
 	vec3 cohesion(vector<vec3>);
 	vec3 pathfind(vec3);
+	vec3 randomVec();
 	vec3 getPushedBy(vector<vec3>);
 	float COHESION_STRENGTH;
 	float SEPARATION_STRENGTH;

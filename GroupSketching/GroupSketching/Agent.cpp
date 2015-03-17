@@ -17,7 +17,7 @@ Agent::Agent(vec3 position, vec3 end, vec3 colour) {
 	needsToMove = true;
 	SIZE = 0.5f;
 	COHESION_STRENGTH = 0.02f;
-	SEPARATION_STRENGTH = 0.20*SIZE;
+	SEPARATION_STRENGTH = 0.14*SIZE;
 	PATHFIND_STRENGTH = 0.08f;
 }
 
@@ -54,27 +54,32 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 		//v4 (future): Take into account different attributes - have an AgentProperties class or something that has colour, speed etc, so heterogeneity can be implemented
 		//v5 (future): Allow for an adjustable weighting to these vectors, and have a pointer to the crowd velocity so agents' velocities can be clamped.
 		//v6 (future): Add some kind of rule that takes into account any other restrictions, e.g. the requirement that the agents walk in line with others.
+		
+		vec3 endVec = pathfind(endPoint);
 
 		vector<vec3> cohNeighbours;
-		for (int i=0; i<potentialNeighbours.size(); i++) {
-			if (potentialNeighbours[i]->getColour() == colour) {
-				cohNeighbours.push_back(potentialNeighbours[i]->getPosition());
+		for (Agent* neighbour : potentialNeighbours) {
+			if (neighbour->getColour() == colour) {
+				cohNeighbours.push_back(neighbour->getPosition());
 			}
 		}
 
 		vector<vec3> sepNeighbours;
-		for (int i=0; i<potentialNeighbours.size(); i++) {
-			//if (length(potentialNeighbours[i]->getPosition-position)<5) {
-				sepNeighbours.push_back(potentialNeighbours[i]->getPosition());
-			//}
+		vector<float> strength;
+		for (Agent* neighbour : potentialNeighbours) {
+			if (length(neighbour->getPosition()-position)<5) {
+				sepNeighbours.push_back(neighbour->getPosition());
+				//If the distance left to travel is greater than 2, return 2. If it is less than SIZE, return SIZE. Otherwise return the distance.
+				length(endVec)>2 ? strength.push_back(2) : (length(endVec)<SIZE ? strength.push_back(SIZE) : strength.push_back(length(endVec)));
+			}
 		}
 		
 		//TODO - make them move faster when they get closer to the end
-		vec3 sepVec = separation(sepNeighbours);
+		vec3 sepVec = separation(sepNeighbours, strength);
 		vec3 cohVec = cohesion(cohNeighbours);
-		vec3 endVec = pathfind(endPoint);
-		//Add a rule - the closer they are to their end point, the more malleable they are (i.e. the greater their "pushed" vector)
+		//Add a rule - the closer they are to their end point, the closer they are allowed to get to each other)
 		vec3 modVec = (sepVec+cohVec+endVec)*10.0f;
+		vec3 rndVec = randomVec();
 		vec3 newPos = position+((endVec+cohVec+sepVec)*urgency);
 		float endLen = length(endVec);
 		float vecLen = length(endVec+cohVec+sepVec);
@@ -85,7 +90,7 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 			positionsStack.push_back(newPos);
 			vec3 oldPos = positionsStack.front();
 			positionsStack.erase(positionsStack.begin());
-			if (length(oldPos-newPos)<0.0001) {
+			if (length(oldPos-newPos)<0.001) {
 				needsToMove = false;
 			}
 		} else {
@@ -140,13 +145,14 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 	}
 }
 
-vec3 Agent::separation(vector<vec3> neighbours)
+vec3 Agent::separation(vector<vec3> neighbours, vector<float> strength)
 {
 	//Return the inverse-square sum of all vectors away from nearby neighbours.
 
 	//Get the sum of all vectors from neighbours within a small radius to the agent.
 	vec3 out = vec3 (0.0, 0.0, 0.0);
-	for (vec3 neighbour : neighbours) {
+	for (int i=0; i<neighbours.size(); i++) {
+		vec3 neighbour = neighbours[i];
 		vec3 separation = vec3(position.x-neighbour.x, 0, position.z-neighbour.z);
 		//Possible optimization - precalculate length(separation) so it doesn't have to be calced 2 or 3 times
 		if (0<length(separation) && length(separation)<5) {
@@ -155,7 +161,7 @@ vec3 Agent::separation(vector<vec3> neighbours)
 			//We want the vector to be gigantic if they are touching, so it should be an exponential decay curve.
 			//Set the length to be Ne^(-Lambda*x-SIZE) and add it to the current vector
 			float x = length(separation);
-			out += normalize(separation)*(10*exp(-4*(x-(SIZE*2))));
+			out += normalize(separation)*(10*exp(-4*(x-(SIZE*2))))*strength[i];
 		}
 	}
 
@@ -201,7 +207,16 @@ vec3 Agent::getPushedBy(vector<vec3> neighbours)
 	vec3 out = vec3(0.0, 0.0, 0.0);
 
 	for (int i=0; i<neighbours.size(); i++) {
-	}
 		//Move so that you are not touching any of them
+		cout << length(neighbours[i]-getPosition()) << endl;
+	}
 	return out;
+}
+
+bool Agent::isStillMoving() {
+	return needsToMove;
+}
+
+vec3 Agent::randomVec() {
+	//Return the previous random vector, modified by a small value. This one should be accelerated, rather than moved.
 }
