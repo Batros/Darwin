@@ -16,9 +16,8 @@ Agent::Agent(vec3 position, vec3 end, vec3 colour) {
 	this->colour = colour;
 	needsToMove = true;
 	SIZE = 0.5f;
-	COHESION_STRENGTH = 0.02f;
-	SEPARATION_STRENGTH = 0.14*SIZE;
-	PATHFIND_STRENGTH = 0.08f;
+	SEPARATION_STRENGTH = 1.0f*SIZE;
+	PATHFIND_STRENGTH = 0.25f;
 }
 
 vec3 Agent::getPosition()
@@ -57,13 +56,6 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 		
 		vec3 endVec = pathfind(endPoint);
 
-		vector<vec3> cohNeighbours;
-		for (Agent* neighbour : potentialNeighbours) {
-			if (neighbour->getColour() == colour) {
-				cohNeighbours.push_back(neighbour->getPosition());
-			}
-		}
-
 		vector<vec3> sepNeighbours;
 		vector<float> strength;
 		for (Agent* neighbour : potentialNeighbours) {
@@ -76,13 +68,12 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 		
 		//TODO - make them move faster when they get closer to the end
 		vec3 sepVec = separation(sepNeighbours, strength);
-		vec3 cohVec = cohesion(cohNeighbours);
 		//Add a rule - the closer they are to their end point, the closer they are allowed to get to each other)
-		vec3 modVec = (sepVec+cohVec+endVec)*10.0f;
+		vec3 modVec = (sepVec+endVec)*10.0f;
 		vec3 rndVec = randomVec();
-		vec3 newPos = position+((endVec+cohVec+sepVec)*urgency);
+		vec3 newPos = position+((endVec+sepVec)*urgency);
 		float endLen = length(endVec);
-		float vecLen = length(endVec+cohVec+sepVec);
+		float vecLen = length(endVec+sepVec);
 		if (positionsStack.size()==9) {
 			//If the latest position is very close to where it was 9 updates ago, assume it is either stuck, jittering or has reached its destination.
 			//So, tell it it no longer needs to move.
@@ -102,7 +93,7 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 			glColor3f(colour.x, colour.y, colour.z);
 			glTranslated(position.x, 0, position.z);
 			glutSolidSphere(SIZE, 20, 20);
-			glLineWidth(2.5);
+			glLineWidth(5.5);/*
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
 			glVertex3f(modVec.x,0,modVec.z);
@@ -125,15 +116,22 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 			glVertex3f(0,0,0);
 			glVertex3f(endVec.x*SIZE*50.0,0,endVec.z*SIZE*50.0);
 			glEnd();
+			*/
+			glColor3f(1.0, 1.0, 0.0);
+			glBegin(GL_LINES);
+			glVertex3f(0,0,0);
+			vec3 direction = normalize(modVec)*SIZE*5.0f;
+			glVertex3f(direction.x,0,direction.z);
+			glEnd();
 		glPopMatrix();
 	} else {
 		//Calculate pushing vector - once an agent is where it needs to be, others do not use them for separation vectors.
 		//Instead, these agents have strong separation to every other agent, but only very close - if an agent is within 1.5 units, move away strongly.
 		//If no agents are that close, go back to your desired spot.
 		vector<vec3> pshNeighbours;
-		for (int i=0; i<potentialNeighbours.size(); i++) {
-			if (length(potentialNeighbours[i]->getPosition()-position)<SIZE) {
-				pshNeighbours.push_back(potentialNeighbours[i]->getPosition());
+		for (Agent* neighbour : potentialNeighbours) {
+			if (length(neighbour->getPosition()-position)<SIZE) {
+				pshNeighbours.push_back(neighbour->getPosition());
 			}
 		}
 		vec3 pshVec = getPushedBy(pshNeighbours);
@@ -151,7 +149,7 @@ vec3 Agent::separation(vector<vec3> neighbours, vector<float> strength)
 
 	//Get the sum of all vectors from neighbours within a small radius to the agent.
 	vec3 out = vec3 (0.0, 0.0, 0.0);
-	for (int i=0; i<neighbours.size(); i++) {
+	for (unsigned int i=0; i<neighbours.size(); i++) {
 		vec3 neighbour = neighbours[i];
 		vec3 separation = vec3(position.x-neighbour.x, 0, position.z-neighbour.z);
 		//Possible optimization - precalculate length(separation) so it doesn't have to be calced 2 or 3 times
@@ -168,25 +166,7 @@ vec3 Agent::separation(vector<vec3> neighbours, vector<float> strength)
 	//Is the length greater than 0.5?
 	//If so, normalize and set its length to the separation strength.
 	//Otherwise, multiply it by the separation strength so it is a fraction of its original length.
-	return length(out)>0.5 ? normalize(out)*SEPARATION_STRENGTH : out*SEPARATION_STRENGTH;
-}
-
-vec3 Agent::cohesion(vector<vec3> neighbours)
-{
-	//Return the sum of all vectors towards neighbours.
-	vec3 out = vec3 (0.0, 0.0, 0.0);
-	for (vec3 neighbour : neighbours) {
-		out += (neighbour-position);
-	}
-
-	//Decrease the cohesion if it is close to the end point, so they don't get pulled together much in spread-out formations.
-	if (length(endPoint-position)<3) {
-		out = out*(length(endPoint-position)/3.0f);
-	}
-	//Is the length greater than 1?
-	//If so, normalize and multiply it by the cohesion strength.
-	//Otherwise, return the out vector multiplied by the strength.
-	return length(out)>1 ? normalize(out)*COHESION_STRENGTH : out*COHESION_STRENGTH;
+	return length(out)>0.5 ? normalize(out)*SEPARATION_STRENGTH*0.5f : out*SEPARATION_STRENGTH;
 }
 
 vec3 Agent::pathfind(vec3 endPoint)
@@ -206,9 +186,9 @@ vec3 Agent::getPushedBy(vector<vec3> neighbours)
 {
 	vec3 out = vec3(0.0, 0.0, 0.0);
 
-	for (int i=0; i<neighbours.size(); i++) {
+	for (vec3 neighbourVec : neighbours) {
 		//Move so that you are not touching any of them
-		cout << length(neighbours[i]-getPosition()) << endl;
+		cout << length(neighbourVec-getPosition()) << endl;
 	}
 	return out;
 }
@@ -219,5 +199,7 @@ bool Agent::isStillMoving() {
 
 vec3 Agent::randomVec() {
 	//Return the previous random vector, modified by a small value. This one should be accelerated, rather than moved.
+	float ranX = (rand() % 100) / 100.0f;
+	float ranY = (rand() % 100) / 100.0f;
 	return vec3(0.0, 0.0, 0.0);
 }

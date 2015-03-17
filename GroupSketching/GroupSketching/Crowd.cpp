@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Crowd.h"
+#include <math.h>
 
 
 Crowd::Crowd(void)
@@ -12,6 +13,7 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 	endFormation = f2;
 	this->path = path;
 	urgency = 0.1f;
+	rotation = 0;
 	//Get agents from agent coordinates
 	vector<glm::vec3> agentCoords = f1->getAgentCoords();
 	vector<glm::vec3> endCoords = f2->getAgentCoords();
@@ -44,6 +46,7 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents)
 	endFormation = f2;
 	this->path = path;
 	this->agents = agents;
+	rotation = 0;
 	urgency = 0.1f;
 	//Set the current position, and the first destination (and remove this from the vector)
 	currentPosition = f1->getCentre();
@@ -118,20 +121,32 @@ void Crowd::update(vector<Agent*> neighbours)
 
 	//Recalculate the urgency
 	//pathLeft/pathLength varies from 1 to 0, and the urgency from 0.1 to 3.1.
-	//Enter the following in Wolfram Alpha to see the urgency values for a pathLength of 100 (in which case the multiplier, k, is 5)
-	//y=3e^(-5x)+0.1, x = 0 to 1, y = 0 to 3.5
-	//If the pathLength = 400, k = 20, so the agents will only begin move with urgency much later along the path.
+	//Enter the following in Wolfram Alpha to see the urgency values for a pathLength of 100 (in which case the multiplier, k, is 10)
+	//y=3e^(-10x)+0.1, x = 0 to 1, y = 0 to 3.5
+	//If the pathLength = 400, k = 40, so the agents will only begin move with urgency much later along the path.
 
-	float k = (pathLength*(5.0/100.0));
+	float k = (pathLength*(10.0/100.0));
 	float x = pathLeft/pathLength;
 	urgency=(3*exp(-k*x))+0.1;
-	cout << urgency << ", " << pathLeft << ", " << pathLength << ", " << k << endl;
 	//Append agents to beginning of neighbours
 	//Each iteration in this loop, replace i (or i-1?) with i+1 (or i?)
+	/*
+	?(0, 1) = pi/2
+	?(1, 0) = pi
+	?(0, -1) = 3pi/2*/
 	glPushMatrix();
 		glTranslated(currentPosition.x, 0, currentPosition.z);
-		//glRotated(1, pathVec.x, 0, pathVec.z);
-		//glutSolidSphere(1.4, 20, 20);
+		/*double pathRotation = atan2(pathVec.z, pathVec.x)*180/M_PI;
+		//If there is less than a degree between the current rotation and pathRotation, set rotation equal to pathRotation
+		if (abs(rotation-pathRotation)<1) {
+			rotation = pathRotation;
+		} else {
+			//Otherwise, change rotation by one degree towards pathRotation.
+			rotation < pathRotation ? rotation++ : rotation--;
+		}*/
+
+		glRotated(rotation, 0, -1, 0);
+		glutSolidCone(1.4, 4.4, 20, 20);
 		for (int i=0; i<agents.size(); i++) {
 			//Give agents the list of their neighbours, as well as the urgency (which is the same for all agents in a single update)
 			agents[i]->update(neighbours, urgency);

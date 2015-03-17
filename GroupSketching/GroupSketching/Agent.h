@@ -21,11 +21,10 @@ private:
 	bool needsToMove;
 	vec3 colour;
 	vec3 separation(vector<vec3>, vector<float>);
-	vec3 cohesion(vector<vec3>);
 	vec3 pathfind(vec3);
 	vec3 randomVec();
+	vec3 rndVec;
 	vec3 getPushedBy(vector<vec3>);
-	float COHESION_STRENGTH;
 	float SEPARATION_STRENGTH;
 	float PATHFIND_STRENGTH;
 	float SIZE;

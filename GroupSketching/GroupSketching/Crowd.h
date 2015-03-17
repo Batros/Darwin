@@ -30,5 +30,6 @@ private:
 	float urgency;
 	float pathLength;
 	float pathLeft;
+	double rotation;
 };
 
