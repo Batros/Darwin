@@ -116,8 +116,8 @@ vector<glm::vec3> Formation::populateBoundary(double stepSize) {
 			double lenV = sqrt(vx*vx + vz*vz);
 			vx /= lenV;
 			vz /= lenV;
-			endX = startX + vx * (lenV + dist);
-			endZ = startZ + vz * (lenV + dist);
+			endX = startX + vx * (dist);
+			endZ = startZ + vz * (dist);
 
 			// Add the point to the resampled boundary coords and change startX and startY.
 			glm::vec3 bPoint = glm::vec3(endX, 0.0, endZ);
