@@ -14,6 +14,7 @@ bool drawMode;
 bool dragging;
 bool running;
 bool debugSquares;
+bool drawFormations;
 int strokeNumber;
 glm::vec3 sq1 = glm::vec3(20.0, 0.0, 30.0);
 glm::vec3 sq2 = glm::vec3(-20.0, 0.0, -10.0);
@@ -257,15 +258,17 @@ void renderEnvironment(void) {
 		glEnd();
 	}
 
-	for(vector<glm::vec3>::size_type i = 0; i != formations.size(); i++) {
-		glColor3f(0.0, 0.0, 0.0);
-		glLineWidth(5.0f);
-		glBegin(GL_LINE_STRIP);
-		for(glm::vec3::size_type j = 0; j != formations[i].size(); j++) {
-			glVertex3d(formations[i][j].x, formations[i][j].y+0.01, formations[i][j].z);
+	if (drawFormations) {
+		for(vector<glm::vec3>::size_type i = 0; i != formations.size(); i++) {
+			glColor3f(0.0, 0.0, 0.0);
+			glLineWidth(5.0f);
+			glBegin(GL_LINE_STRIP);
+			for(glm::vec3::size_type j = 0; j != formations[i].size(); j++) {
+				glVertex3d(formations[i][j].x, formations[i][j].y+0.01, formations[i][j].z);
+			}
+			glVertex3d(formations[i][0].x, formations[i][0].y+0.01, formations[i][0].z);
+			glEnd();
 		}
-		glVertex3d(formations[i][0].x, formations[i][0].y+0.01, formations[i][0].z);
-		glEnd();
 	}
 
 	if (debugSquares) {
@@ -316,6 +319,13 @@ void display(void) {
 		exit(EXIT_SUCCESS);
 	}
 
+	if (input->isKeyPressed('f')) {
+		drawFormations = true;
+	}
+	if (input->isKeyPressed('g')) {
+		drawFormations = false;
+	}
+
 	crowdModel->update();
 	//running = !(crowdModel->update());
 
@@ -345,6 +355,7 @@ int main(int argc, char **argv) {
 	drawMode = false;
 	running = false;
 	debugSquares = false;
+	drawFormations = true;
 	strokeNumber = 0;
 	srand (static_cast <unsigned> (time(0)));
 
