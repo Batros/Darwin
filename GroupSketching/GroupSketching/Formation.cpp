@@ -337,20 +337,20 @@ void Formation::populate(int n)
 		// Select equidistant coordinates.
 		vector<int> t;
 		int cnt = insideN;
-		int dist = (int) (fPoints.size()/insideN);
-		int cur = 0;
+		double dist = (double) ((double)(fPoints.size())/insideN);
+		double cur = 0.0;
 		if (fPoints.size() > 0) {
 			while (cnt > 0) {
 				if ((std::find(t.begin(), t.end(), cur) == t.end())) {
-					this->agentCoords.push_back(fPoints[cur]);
+					int curI = (int) (cur + 0.5);
+					curI %= fPoints.size();
+					this->agentCoords.push_back(fPoints[curI]);
 					t.push_back(cur);
 					cnt--;
 					cur += dist;
-					cur %= fPoints.size();
 				}
 				else {
 					cur += 1;
-					cur %= fPoints.size();
 				}
 			}
 		}
@@ -361,20 +361,20 @@ void Formation::populate(int n)
 		// Select equidistant coordinates.
 		vector<int> t;
 		int cnt = n;
-		int dist = (int) (resampledBoundaryCoords.size()/n);
-		int cur = 0;
+		double dist = (double) ((double)(resampledBoundaryCoords.size())/insideN);
+		double cur = 0.0;
 		if (resampledBoundaryCoords.size() > 0) {
 			while (cnt > 0) {
 				if ((std::find(t.begin(), t.end(), cur) == t.end())) {
-					this->agentCoords.push_back(resampledBoundaryCoords[cur]);
+					int curI = (int) (cur + 0.5);
+					curI %= resampledBoundaryCoords.size();
+					this->agentCoords.push_back(resampledBoundaryCoords[curI]);
 					t.push_back(cur);
 					cnt--;
 					cur += dist;
-					cur %= resampledBoundaryCoords.size();
 				}
 				else {
 					cur += 1;
-					cur %= resampledBoundaryCoords.size();
 				}
 			}
 		}
