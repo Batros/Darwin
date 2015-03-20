@@ -15,6 +15,7 @@ bool dragging;
 bool running;
 bool debugSquares;
 bool drawFormations;
+bool classicControl;
 int strokeNumber;
 glm::vec3 sq1 = glm::vec3(20.0, 0.0, 30.0);
 glm::vec3 sq2 = glm::vec3(-20.0, 0.0, -10.0);
@@ -52,12 +53,43 @@ void onMouseMove(int x, int y) {
 }
 
 void onMouseDrag(int x, int y) {
-	if (dragging) {
-		strokes[strokeNumber].push_back(input->onMouseClick(x, y));
+	if (classicControl) {
+		if (dragging) {
+			if (strokes[0].size() > 1) {
+				strokes[0][1] = input->onMouseClick(x, y);
+			}
+			else {
+				strokes[0].push_back(input->onMouseClick(x, y));
+			}
+		}
+	}
+	else {
+		if (dragging) {
+			strokes[strokeNumber].push_back(input->onMouseClick(x, y));
+		}
 	}
 }
 
 void processInput() {
+	if (classicControl) {
+		vector<glm::vec3> classicStroke;
+		classicStroke.push_back(strokes[0][0]);
+		classicStroke.push_back(glm::vec3(strokes[0][0].x, strokes[0][0].y, strokes[0][1].z));
+		classicStroke.push_back(glm::vec3(strokes[0][0].x, strokes[0][0].y, strokes[0][1].z));
+		classicStroke.push_back(glm::vec3(strokes[0][1].x, strokes[0][0].y, strokes[0][1].z));
+		classicStroke.push_back(strokes[0][0]);
+		
+		vector<glm::vec3> endStroke;
+		endStroke.push_back(strokes[1][0]);
+		endStroke.push_back(glm::vec3(strokes[1][0].x, strokes[1][0].y, strokes[1][0].z+10));
+		endStroke.push_back(glm::vec3(strokes[1][0].x+10, strokes[1][0].y, strokes[1][0].z+10));
+		endStroke.push_back(glm::vec3(strokes[1][0].x+10, strokes[1][0].y, strokes[1][0].z));
+		endStroke.push_back(strokes[1][0]);
+
+		strokes.clear();
+		strokeNumber = 0;
+		crowdModel->createCrowd(classicStroke, endStroke);
+	}
 	if (strokes.size()==0) {
 		return;
 		/*
@@ -184,6 +216,9 @@ void onMouseClick(int button, int state, int x, int y) {
 	if(button == GLUT_LEFT_BUTTON) {
 		if (state == GLUT_DOWN) {
 			vector<glm::vec3> newStroke;
+			if (classicControl) {
+				newStroke.push_back(input->onMouseClick(x, y));
+			}
 			strokes.push_back(newStroke);
 
 			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
@@ -200,6 +235,9 @@ void onMouseClick(int button, int state, int x, int y) {
 			dragging = true;
 		}
 		else if (state == GLUT_UP) {
+			if (classicControl && strokeNumber > 0) {
+				processInput();
+			}
 			dragging = false;
 			strokeNumber += 1;
 		}
@@ -248,14 +286,29 @@ void drawFloor(float size, int polys) {
 
 void renderEnvironment(void) {
 	drawFloor(40.0f, 300);
-	for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
+	if (classicControl) {
 		glColor3f(1.0, 1.0, 1.0);
 		glLineWidth(5.0f);
 		glBegin(GL_LINE_STRIP);
-		for(glm::vec3::size_type j = 0; j != strokes[i].size(); j++) {
-			glVertex3d(strokes[i][j].x, strokes[i][j].y+0.01, strokes[i][j].z);
+		if (strokes.size() > 0 && strokes[0].size() > 1) {
+			glVertex3d(strokes[0][0].x, strokes[0][0].y+0.01, strokes[0][0].z);
+			glVertex3d(strokes[0][0].x, strokes[0][0].y+0.01, strokes[0][1].z);
+			glVertex3d(strokes[0][1].x, strokes[0][0].y+0.01, strokes[0][1].z);
+			glVertex3d(strokes[0][1].x, strokes[0][0].y+0.01, strokes[0][0].z);
+			glVertex3d(strokes[0][0].x, strokes[0][0].y+0.01, strokes[0][0].z);
 		}
 		glEnd();
+	}
+	else {
+		for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
+			glColor3f(1.0, 1.0, 1.0);
+			glLineWidth(5.0f);
+			glBegin(GL_LINE_STRIP);
+			for(glm::vec3::size_type j = 0; j != strokes[i].size(); j++) {
+				glVertex3d(strokes[i][j].x, strokes[i][j].y+0.01, strokes[i][j].z);
+			}
+			glEnd();
+		}
 	}
 
 	if (drawFormations) {
@@ -326,6 +379,19 @@ void display(void) {
 		drawFormations = false;
 	}
 
+	if (input->isKeyPressed('c')) {
+		classicControl = true;
+		formations.clear();
+		strokes.clear();
+		strokeNumber = 0;
+	}
+	if (input->isKeyPressed('n')) {
+		classicControl = false;
+		formations.clear();
+		strokes.clear();
+		strokeNumber = 0;
+	}
+
 	crowdModel->update();
 	//running = !(crowdModel->update());
 
@@ -356,6 +422,7 @@ int main(int argc, char **argv) {
 	running = false;
 	debugSquares = false;
 	drawFormations = true;
+	classicControl = false;
 	strokeNumber = 0;
 	srand (static_cast <unsigned> (time(0)));
 
