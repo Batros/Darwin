@@ -83,6 +83,7 @@
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Crowd.h" />
     <ClInclude Include="CrowdModel.h" />
+    <ClInclude Include="CrowdModelAgentFocus.h" />
     <ClInclude Include="Formation.h" />
     <ClInclude Include="Input.h" />
     <ClInclude Include="SketchHandler.h" />
@@ -95,6 +96,7 @@
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Crowd.cpp" />
     <ClCompile Include="CrowdModel.cpp" />
+    <ClCompile Include="CrowdModelAgentFocus.cpp" />
     <ClCompile Include="Formation.cpp" />
     <ClCompile Include="GroupSketching.cpp" />
     <ClCompile Include="Input.cpp" />
