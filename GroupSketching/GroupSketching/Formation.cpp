@@ -116,8 +116,8 @@ vector<glm::vec3> Formation::populateBoundary(double stepSize) {
 			double lenV = sqrt(vx*vx + vz*vz);
 			vx /= lenV;
 			vz /= lenV;
-			endX = startX + vx * (lenV + dist);
-			endZ = startZ + vz * (lenV + dist);
+			endX = startX + vx * (dist);
+			endZ = startZ + vz * (dist);
 
 			// Add the point to the resampled boundary coords and change startX and startY.
 			glm::vec3 bPoint = glm::vec3(endX, 0.0, endZ);
@@ -337,20 +337,20 @@ void Formation::populate(int n)
 		// Select equidistant coordinates.
 		vector<int> t;
 		int cnt = insideN;
-		int dist = (int) (fPoints.size()/insideN);
-		int cur = 0;
+		double dist = (double) ((double)(fPoints.size())/insideN);
+		double cur = 0.0;
 		if (fPoints.size() > 0) {
 			while (cnt > 0) {
 				if ((std::find(t.begin(), t.end(), cur) == t.end())) {
-					this->agentCoords.push_back(fPoints[cur]);
+					int curI = (int) (cur + 0.5);
+					curI %= fPoints.size();
+					this->agentCoords.push_back(fPoints[curI]);
 					t.push_back(cur);
 					cnt--;
 					cur += dist;
-					cur %= fPoints.size();
 				}
 				else {
 					cur += 1;
-					cur %= fPoints.size();
 				}
 			}
 		}
@@ -361,20 +361,20 @@ void Formation::populate(int n)
 		// Select equidistant coordinates.
 		vector<int> t;
 		int cnt = n;
-		int dist = (int) (resampledBoundaryCoords.size()/n);
-		int cur = 0;
+		double dist = (double) ((double)(resampledBoundaryCoords.size())/insideN);
+		double cur = 0.0;
 		if (resampledBoundaryCoords.size() > 0) {
 			while (cnt > 0) {
 				if ((std::find(t.begin(), t.end(), cur) == t.end())) {
-					this->agentCoords.push_back(resampledBoundaryCoords[cur]);
+					int curI = (int) (cur + 0.5);
+					curI %= resampledBoundaryCoords.size();
+					this->agentCoords.push_back(resampledBoundaryCoords[curI]);
 					t.push_back(cur);
 					cnt--;
 					cur += dist;
-					cur %= resampledBoundaryCoords.size();
 				}
 				else {
 					cur += 1;
-					cur %= resampledBoundaryCoords.size();
 				}
 			}
 		}
