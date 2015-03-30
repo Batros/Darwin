@@ -18,12 +18,12 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 	vector<glm::vec3> agentCoords = f1->getAgentCoords();
 	vector<glm::vec3> endCoords = f2->getAgentCoords();
 	pathLength = 0;
-	for (int i=0; i<path.size()-1; i++) {
+	for (unsigned int i=0; i<path.size()-1; i++) {
 		pathLength += length(path[i+1]-path[i]);
 	}
 	pathLeft = pathLength;
-	for (int i=0; i<agentCoords.size(); i++) {
-		float rndm = rand() % 3;
+	for (unsigned int i=0; i<agentCoords.size(); i++) {
+		int rndm = rand() % 3;
 		cout << rndm;
 		glm::vec3 colour;
 		if (rndm==1) {
@@ -52,7 +52,7 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents)
 	currentPosition = f1->getCentre();
 	
 	pathLength = length(path[0]-currentPosition);
-	for (int i=0; i<path.size()-1; i++) {
+	for (unsigned int i=0; i<path.size()-1; i++) {
 		pathLength += length(path[i+1]-path[i]);
 	}
 	pathLeft = pathLength;
@@ -64,7 +64,7 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents)
 	vector<glm::vec3> coords = f2->getAgentCoords();
 
 	//Set each agent's destination point to be this point, but relative to their current position
-	for (int i=0; i<agents.size(); i++) {
+	for (unsigned int i=0; i<agents.size(); i++) {
 		agents[i]->setEndPoint(coords[i]-f2->getCentre());
 	}
 
@@ -75,6 +75,38 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents)
 //Add more constructors - Formation, Sub-formation, Formation, Sub-formation, Path
 //Formation, Sub-formation, Formation, Sub-formation, Path, Sub-path
 //Formation, list of sub-formation, Formation, List of sub-formations, Path, list of sub-paths
+
+Crowd::Crowd(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path path, Path subPath, vector<Agent*> agents, vector<Agent*> subAgents)
+{
+	startFormation = f1;
+	endFormation = f2;
+	this->path = path;
+	this->agents = agents;
+	rotation = 0;
+	urgency = 0.1f;
+	//Set the current position, and the first destination (and remove this from the vector)
+	currentPosition = f1->getCentre();
+	
+	pathLength = length(path[0]-currentPosition);
+	for (unsigned int i=0; i<path.size()-1; i++) {
+		pathLength += length(path[i+1]-path[i]);
+	}
+	pathLeft = pathLength;
+
+	currentDestination = path.front();
+	path.erase(path.begin());
+	
+	//Get the list of end coords from the second formation
+	vector<glm::vec3> coords = f2->getAgentCoords();
+
+	//Set each agent's destination point to be this point, but relative to their current position
+	for (unsigned int i=0; i<agents.size(); i++) {
+		agents[i]->setEndPoint(coords[i]-f2->getCentre());
+	}
+
+	//Set the crowd's pathVec to point towards the current destination.
+	pathVec = normalize(currentDestination-currentPosition)*0.1f;
+}
 
 Crowd::~Crowd(void)
 {
@@ -105,12 +137,12 @@ void Crowd::update(vector<Agent*> neighbours)
 			
 			//Work out the vector to travel in, which is in that direction but a much smaller, static, speed.
 			vec3 heading = normalize(currentDestination-currentPosition)*0.1f;
-			for (int i=0; i<agents.size(); i++) {
+			for (unsigned int i=0; i<agents.size(); i++) {
 				pathVec = heading;
 			}
 		} else {
 			//Otherwise, the agents are at their destination, so set the path vector to 0.
-			for (int i=0; i<agents.size(); i++) {
+			for (unsigned int i=0; i<agents.size(); i++) {
 				pathVec = vec3(0, 0, 0);
 			}
 		}
@@ -119,15 +151,20 @@ void Crowd::update(vector<Agent*> neighbours)
 		pathLeft -= length(pathVec);
 	}
 
+	//Need to check how far the main and sub-formations are along their paths, and adjust their speeds accordingly.
+
+
+
+
 	//Recalculate the urgency
 	//pathLeft/pathLength varies from 1 to 0, and the urgency from 0.1 to 3.1.
 	//Enter the following in Wolfram Alpha to see the urgency values for a pathLength of 100 (in which case the multiplier, k, is 10)
 	//y=3e^(-10x)+0.1, x = 0 to 1, y = 0 to 3.5
 	//If the pathLength = 400, k = 40, so the agents will only begin move with urgency much later along the path.
 
-	float k = (pathLength*(10.0/100.0));
-	float x = pathLeft/pathLength;
-	urgency=(3*exp(-k*x))+0.1;
+	float k = (pathLength*(10.0f/100.0f));
+	float x = (float) pathLeft/pathLength;
+	urgency = (3*exp(-k*x))+0.1f;
 	//Append agents to beginning of neighbours
 	//Each iteration in this loop, replace i (or i-1?) with i+1 (or i?)
 	/*
@@ -147,7 +184,7 @@ void Crowd::update(vector<Agent*> neighbours)
 
 		glRotated(rotation, 0, -1, 0);
 		glutSolidCone(1.4, 4.4, 20, 20);
-		for (int i=0; i<agents.size(); i++) {
+		for (unsigned int i=0; i<agents.size(); i++) {
 			//Give agents the list of their neighbours, as well as the urgency (which is the same for all agents in a single update)
 			agents[i]->update(neighbours, urgency);
 			if (i<agents.size()-1) {
@@ -160,7 +197,7 @@ void Crowd::update(vector<Agent*> neighbours)
 vector<glm::vec3> Crowd::getRelativeAgentCoords()
 {
 	vector<glm::vec3> coords;
-	for (int i=0; i<agents.size(); i++) {
+	for (unsigned int i=0; i<agents.size(); i++) {
 		coords.push_back(agents[i]->getPosition());
 	}
 	return coords;
@@ -169,7 +206,7 @@ vector<glm::vec3> Crowd::getRelativeAgentCoords()
 vector<glm::vec3> Crowd::getAbsoluteAgentCoords()
 {
 	vector<glm::vec3> coords;
-	for (int i=0; i<agents.size(); i++) {
+	for (unsigned int i=0; i<agents.size(); i++) {
 		coords.push_back(agents[i]->getPosition()+centre);
 	}
 	return coords;

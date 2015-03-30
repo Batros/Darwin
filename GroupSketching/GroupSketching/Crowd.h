@@ -9,6 +9,7 @@ public:
 	Crowd(void);
 	Crowd(Formation* f1, Formation* f2, Path path);
 	Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents);
+	Crowd(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path path, Path subPath, vector<Agent*> agents, vector<Agent*> subAgents);
 	~Crowd(void);
 	
 	vector<glm::vec3> getRelativeAgentCoords();
