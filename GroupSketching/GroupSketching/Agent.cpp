@@ -20,6 +20,11 @@ Agent::Agent(vec3 position, vec3 end, vec3 colour) {
 	PATHFIND_STRENGTH = 0.25f;
 }
 
+vec3 Agent::getEndPoint()
+{
+	return endPoint;
+}
+
 vec3 Agent::getPosition()
 {
 	return position;
@@ -37,6 +42,11 @@ void Agent::setEndPoint(vec3 end) {
 void Agent::setPosition(vec3 newPosition)
 {
 	position = newPosition;
+}
+
+void Agent::setColour(vec3 newColour)
+{
+	colour = newColour;
 }
 
 Agent::~Agent(void)

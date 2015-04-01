@@ -22,6 +22,7 @@ private:
 	glm::vec3 centre;
 	GLdouble boundRadius;
 	vector<Agent*> agents;
+	vector<Agent*> subAgents;
 	Formation* startFormation;
 	Formation* endFormation;
 	Path path;

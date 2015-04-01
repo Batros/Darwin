@@ -5,10 +5,12 @@ class Agent
 public:
 	Agent(vec3);
 	Agent(vec3, vec3, vec3);
+	vec3 getEndPoint();
 	vec3 getPosition();
 	vec3 getColour();
 	void setPosition(vec3 newPosition);
 	void setEndPoint(vec3 end);
+	void setColour(vec3 colour);
 	void update(vector<Agent*> neighbours, float urgency);
 	~Agent(void);
 	bool isStillMoving();

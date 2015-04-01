@@ -82,6 +82,7 @@ Crowd::Crowd(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path 
 	endFormation = f2;
 	this->path = path;
 	this->agents = agents;
+	this->subAgents = subAgents;
 	rotation = 0;
 	urgency = 0.1f;
 	//Set the current position, and the first destination (and remove this from the vector)
@@ -104,6 +105,13 @@ Crowd::Crowd(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path 
 		agents[i]->setEndPoint(coords[i]-f2->getCentre());
 	}
 
+	//Do the same things for the agents in the sub-formation
+	vector<vec3> subCoords = f2s->getAgentCoords();
+
+	for(unsigned int i=0; i<subAgents.size(); i++) {
+		subAgents[i]->setEndPoint(coords[i]-f2s->getCentre());
+	}
+
 	//Set the crowd's pathVec to point towards the current destination.
 	pathVec = normalize(currentDestination-currentPosition)*0.1f;
 }
@@ -117,7 +125,7 @@ void Crowd::update(vector<Agent*> neighbours)
 	//v1 (done): Just update each agent individually, don't work out neighbours
 	//v2 (done): All agents in the crowd are neighbours, none outside are
 	//v3 (done): Agents are also given the crowd vector, which follows the path. This is calculated each frame.
-	//v4 (future): Neighbours are all agents in current crowd within a threshold
+	//v4 (done): Neighbours are all agents in current crowd within a threshold
 	//v5 (future): Neighbours are all agents in current and nearby crowds within a threshold
 	//v6 (future, potentially slower and less useful): Neighbours are only drawn from a number of 5x5 blocks around the current agent
 	
@@ -137,14 +145,10 @@ void Crowd::update(vector<Agent*> neighbours)
 			
 			//Work out the vector to travel in, which is in that direction but a much smaller, static, speed.
 			vec3 heading = normalize(currentDestination-currentPosition)*0.1f;
-			for (unsigned int i=0; i<agents.size(); i++) {
-				pathVec = heading;
-			}
+			pathVec = heading;
 		} else {
 			//Otherwise, the agents are at their destination, so set the path vector to 0.
-			for (unsigned int i=0; i<agents.size(); i++) {
-				pathVec = vec3(0, 0, 0);
-			}
+			pathVec = vec3(0, 0, 0);
 		}
 	} else {
 		//If the point is not close enough, the current vector is alright so keep heading in this direction, reducing the distance left to travel.
@@ -191,21 +195,43 @@ void Crowd::update(vector<Agent*> neighbours)
 				neighbours[i] = agents[i+1];
 			}
 		}
+		//Now update the sub-agents
+		for (unsigned int i=0; i<subAgents.size(); i++) {
+			subAgents[i]->update(neighbours, urgency);
+		}
+	glPopMatrix();
+	glPushMatrix();
+		glColor3f(0.7f, 0.7f, 0.2f);
+		for (Agent* agent : agents) {
+			vec3 end = agent->getEndPoint();
+			glPushMatrix();
+				glTranslated(end.x, end.y, end.z);
+				glutSolidSphere(0.5, 25, 25);
+			glPopMatrix();
+		}
+		glColor3f(0.7f, 0.2f, 0.7f);
+		for (Agent* agent : subAgents) {
+			vec3 end = agent->getEndPoint();
+			glPushMatrix();
+				glTranslated(end.x, end.y, end.z);
+				glutSolidSphere(0.5, 25, 25);
+			glPopMatrix();
+		}
 	glPopMatrix();
 }
 
-vector<glm::vec3> Crowd::getRelativeAgentCoords()
+vector<vec3> Crowd::getRelativeAgentCoords()
 {
-	vector<glm::vec3> coords;
+	vector<vec3> coords;
 	for (unsigned int i=0; i<agents.size(); i++) {
 		coords.push_back(agents[i]->getPosition());
 	}
 	return coords;
 }
 
-vector<glm::vec3> Crowd::getAbsoluteAgentCoords()
+vector<vec3> Crowd::getAbsoluteAgentCoords()
 {
-	vector<glm::vec3> coords;
+	vector<vec3> coords;
 	for (unsigned int i=0; i<agents.size(); i++) {
 		coords.push_back(agents[i]->getPosition()+centre);
 	}
