@@ -18,7 +18,7 @@ CrowdModelAgentFocus::CrowdModelAgentFocus(void)
 			point = glm::vec3(ranX, 0, ranZ);
 		}
 		prevPoints.push_back(point);
-		freeAgents.push_back(new Agent(point, point, glm::vec3(0.2, 0.5, 0.9)));
+		freeAgents.push_back(new AgentFocus(point, point, glm::vec3(0.2, 0.5, 0.9)));
 	}
 }
 
@@ -29,12 +29,12 @@ CrowdModelAgentFocus::~CrowdModelAgentFocus(void)
 
 
 void CrowdModelAgentFocus::createCrowd(Formation* f1, Formation* f2, Path path) {
-	vector<Agent*> agents;
+	vector<AgentFocus*> agents;
 	//v1 (done): Use 50 agents
 	//v2 (future): Decide number of agents intelligently
 	f1->populate(50);
 	f2->populate(50);
-	Crowd* newCrowd = new Crowd(f1, f2, path);
+	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f2, path);
 	crowds.push_back(newCrowd);
 	//Need to remove any agents added here from freeAgents
 }
@@ -42,11 +42,11 @@ void CrowdModelAgentFocus::createCrowd(Formation* f1, Formation* f2, Path path) 
 
 void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2) {
 
-	pair<pair<Formation*, Formation*>, vector<Agent*>> package = populateFormations(bound1, bound2);
+	pair<pair<Formation*, Formation*>, vector<AgentFocus*>> package = populateFormations(bound1, bound2);
 
 	Formation* f1 = package.first.first;
 	Formation* f2 = package.first.second;
-	vector<Agent*> agents = package.second;
+	vector<AgentFocus*> agents = package.second;
 	
 	//Create a default path that is a single line from one centre to the other (the first formation's centre is not part of the path, so only add the second one)
 	Path path;
@@ -54,7 +54,7 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 
 
 	//Create a Crowd with the default path
-	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
+	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f2, path, agents);
 	
 	crowds.push_back(newCrowd);
 
@@ -62,15 +62,15 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 
 void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, Path path) {
 	
-	pair<pair<Formation*, Formation*>, vector<Agent*>> package = populateFormations(bound1, bound2);
+	pair<pair<Formation*, Formation*>, vector<AgentFocus*>> package = populateFormations(bound1, bound2);
 
 	Formation* f1 = package.first.first;
 	Formation* f2 = package.first.second;
-	vector<Agent*> agents = package.second;
+	vector<AgentFocus*> agents = package.second;
 
 	//Push the end formation's centre to the end of the path
 	path.push_back(f2->getCentre());
-	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
+	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f2, path, agents);
 	
 	crowds.push_back(newCrowd);
 }
@@ -78,7 +78,8 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub) {
 	//First vector - check all free agents and add it to a list if it's within this series of points
 	vector<glm::vec3> agentsInBoundary;
-	vector<Agent*> agents;
+	vector<glm::vec3> agentsInSubBoundary;
+	vector<AgentFocus*> agents;
 	vector<int> agentsToDelete;
 
 	
@@ -91,11 +92,12 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
 			if (pointInBoundary(freeAgents[i]->getPosition(), bound1Sub)) {
 				//Add it to a sub-group
+				agentsInSubBoundary.push_back(freeAgents[i]->getPosition());
 			}
-			agentsInBoundary.push_back(freeAgents[i]->getPosition());
-			//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
-			freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
-			agents.push_back(freeAgents[i]);
+			else {
+				agentsInBoundary.push_back(freeAgents[i]->getPosition());
+				agents.push_back(freeAgents[i]);
+			}
 			agentsToDelete.push_back(i);
 		}
 	}
@@ -103,8 +105,10 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 
 	//Second formation - populate it with the number of agents found in the first one
 	Formation* f2 = new Formation(bound2, bound2Sub);
+	Formation* f2Sub = new Formation(bound2Sub);
 		
 	f2->populate(agentsInBoundary.size());
+	f2Sub->populate(agentsInSubBoundary.size());
 
 	//Remove all necessary agents from freeAgents
 	for (int i=agentsToDelete.size()-1; i>=0; i--) {
@@ -116,7 +120,7 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 	path.push_back(f2->getCentre());
 
 	//Create the crowd with this default path, both formations and the list of agents
-	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
+	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f2, path, agents);
 	
 	crowds.push_back(newCrowd);
 }
@@ -124,7 +128,7 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub, Path path) {
 	//First vector - check all free agents and add it to a list if it's within this series of points
 	vector<glm::vec3> agentsInBoundary;
-	vector<Agent*> agents;
+	vector<AgentFocus*> agents;
 	vector<int> agentsToDelete;
 
 	
@@ -161,7 +165,7 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 	path.push_back(f2->getCentre());
 
 	//Create the crowd with a path and a default sub-path, both formations and the list of agents
-	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
+	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f2, path, agents);
 	
 	crowds.push_back(newCrowd);
 }
@@ -169,7 +173,7 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub, Path path, Path subPath) {
 	//First vector - check all free agents and add it to a list if it's within this series of points
 	vector<glm::vec3> agentsInBoundary;
-	vector<Agent*> agents;
+	vector<AgentFocus*> agents;
 	vector<int> agentsToDelete;
 
 	
@@ -204,7 +208,7 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 	}
 
 	//Create the crowd with a path and sub-path, both formations and the list of agents
-	Crowd* newCrowd = new Crowd(f1, f2, path, agents);
+	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f2, path, agents);
 	
 	crowds.push_back(newCrowd);
 }
@@ -229,7 +233,7 @@ bool CrowdModelAgentFocus::update() {
 		//v1 (done): No neighbouring crowds.
 		//v2 (in-dev): Check all other crowds, see if there are any in the radius. If so, pass these.
 		//v3 (future): Convert neighbouring crowds coordinates into this crowd's coordinate system and pass those
-		vector <Agent*> neighbouringCrowds;
+		vector <AgentFocus*> neighbouringCrowds;
 		crowds[i]->update(neighbouringCrowds);
 	}
 	return false;
@@ -268,11 +272,11 @@ bool CrowdModelAgentFocus::pointInBoundary(glm::vec3 point, vector<glm::vec3> bo
 	return inBoundary;
 }
 
-pair<pair<Formation*, Formation*>, vector<Agent*>>  CrowdModelAgentFocus::populateFormations(vector<glm::vec3> bound1, vector<glm::vec3> bound2) {
+pair<pair<Formation*, Formation*>, vector<AgentFocus*>>  CrowdModelAgentFocus::populateFormations(vector<glm::vec3> bound1, vector<glm::vec3> bound2) {
 
 	//First vector - check all free agents and add it to a list if it's within this series of points
 	vector<glm::vec3> agentsInBoundary;
-	vector<Agent*> agents;
+	vector<AgentFocus*> agents;
 	vector<int> agentsToDelete;
 
 	glutSolidCube(2);
@@ -303,7 +307,7 @@ pair<pair<Formation*, Formation*>, vector<Agent*>>  CrowdModelAgentFocus::popula
 
 	//Construct return values
 	pair<Formation*, Formation*> formations(f1, f2);
-	pair<pair<Formation*, Formation*>, vector<Agent*>> returnVal(formations, agents);
+	pair<pair<Formation*, Formation*>, vector<AgentFocus*>> returnVal(formations, agents);
 
 	return returnVal;
 }

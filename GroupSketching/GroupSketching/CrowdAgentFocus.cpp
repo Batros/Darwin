@@ -1,13 +1,13 @@
 #include "stdafx.h"
-#include "Crowd.h"
+#include "CrowdAgentFocus.h"
 #include <math.h>
 
 
-Crowd::Crowd(void)
+CrowdAgentFocus::CrowdAgentFocus(void)
 {
 }
 
-Crowd::Crowd(Formation* f1, Formation* f2, Path path) 
+CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f2, Path path) 
 {
 	startFormation = f1;
 	endFormation = f2;
@@ -33,14 +33,14 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 		} else {
 			colour = glm::vec3 (45.0/256.0, 200.0/256.0, 50.0/256.0);
 		}
-		Agent* agent = new Agent(agentCoords[i], endCoords[i], colour);
+		AgentFocus* agent = new AgentFocus(agentCoords[i], endCoords[i], colour);
 		cout << rndm;
 		//cout << agentCoords[i].x << agentCoords[i].y << agentCoords[i].z << endl;
 		agents.push_back(agent);
 	}
 }
 
-Crowd::Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents)
+CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f2, Path path, vector<AgentFocus*> agents)
 {
 	startFormation = f1;
 	endFormation = f2;
@@ -76,7 +76,7 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path, vector<Agent*> agents)
 //Formation, Sub-formation, Formation, Sub-formation, Path, Sub-path
 //Formation, list of sub-formation, Formation, List of sub-formations, Path, list of sub-paths
 
-Crowd::Crowd(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path path, Path subPath, vector<Agent*> agents, vector<Agent*> subAgents)
+CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path path, Path subPath, vector<AgentFocus*> agents, vector<AgentFocus*> subAgents)
 {
 	startFormation = f1;
 	endFormation = f2;
@@ -109,18 +109,18 @@ Crowd::Crowd(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path 
 	vector<vec3> subCoords = f2s->getAgentCoords();
 
 	for(unsigned int i=0; i<subAgents.size(); i++) {
-		subAgents[i]->setEndPoint(subCoords[i]-f2s->getCentre());
+		subAgents[i]->setEndPoint(coords[i]-f2s->getCentre());
 	}
 
 	//Set the crowd's pathVec to point towards the current destination.
 	pathVec = normalize(currentDestination-currentPosition)*0.1f;
 }
 
-Crowd::~Crowd(void)
+CrowdAgentFocus::~CrowdAgentFocus(void)
 {
 }
 
-void Crowd::update(vector<Agent*> neighbours)
+void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 {
 	//v1 (done): Just update each agent individually, don't work out neighbours
 	//v2 (done): All agents in the crowd are neighbours, none outside are
@@ -202,7 +202,7 @@ void Crowd::update(vector<Agent*> neighbours)
 	glPopMatrix();
 	glPushMatrix();
 		glColor3f(0.7f, 0.7f, 0.2f);
-		for (Agent* agent : agents) {
+		for (AgentFocus* agent : agents) {
 			vec3 end = agent->getEndPoint();
 			glPushMatrix();
 				glTranslated(end.x, end.y, end.z);
@@ -210,7 +210,7 @@ void Crowd::update(vector<Agent*> neighbours)
 			glPopMatrix();
 		}
 		glColor3f(0.7f, 0.2f, 0.7f);
-		for (Agent* agent : subAgents) {
+		for (AgentFocus* agent : subAgents) {
 			vec3 end = agent->getEndPoint();
 			glPushMatrix();
 				glTranslated(end.x, end.y, end.z);
@@ -220,7 +220,7 @@ void Crowd::update(vector<Agent*> neighbours)
 	glPopMatrix();
 }
 
-vector<vec3> Crowd::getRelativeAgentCoords()
+vector<vec3> CrowdAgentFocus::getRelativeAgentCoords()
 {
 	vector<vec3> coords;
 	for (unsigned int i=0; i<agents.size(); i++) {
@@ -229,7 +229,7 @@ vector<vec3> Crowd::getRelativeAgentCoords()
 	return coords;
 }
 
-vector<vec3> Crowd::getAbsoluteAgentCoords()
+vector<vec3> CrowdAgentFocus::getAbsoluteAgentCoords()
 {
 	vector<vec3> coords;
 	for (unsigned int i=0; i<agents.size(); i++) {

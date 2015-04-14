@@ -51,6 +51,12 @@
     <ClInclude Include="CrowdModelAgentFocus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CrowdAgentFocus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AgentFocus.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -81,6 +87,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CrowdModelAgentFocus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CrowdAgentFocus.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AgentFocus.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

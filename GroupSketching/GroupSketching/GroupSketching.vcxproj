@@ -80,8 +80,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Agent.h" />
+    <ClInclude Include="AgentFocus.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Crowd.h" />
+    <ClInclude Include="CrowdAgentFocus.h" />
     <ClInclude Include="CrowdModel.h" />
     <ClInclude Include="CrowdModelAgentFocus.h" />
     <ClInclude Include="Formation.h" />
@@ -93,8 +95,10 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Agent.cpp" />
+    <ClCompile Include="AgentFocus.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Crowd.cpp" />
+    <ClCompile Include="CrowdAgentFocus.cpp" />
     <ClCompile Include="CrowdModel.cpp" />
     <ClCompile Include="CrowdModelAgentFocus.cpp" />
     <ClCompile Include="Formation.cpp" />
