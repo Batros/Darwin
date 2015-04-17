@@ -54,7 +54,7 @@ Agent::~Agent(void)
 }
 
 
-void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
+void Agent::update(vector<Agent*> potentialNeighbours, float urgency, vec3 crdVec)
 {
 	if (needsToMove) {
 		//v1 (done): Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
@@ -84,14 +84,20 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 		vec3 newPos = position+((endVec+sepVec)*urgency);
 		float endLen = length(endVec);
 		float vecLen = length(endVec+sepVec);
-		if (positionsStack.size()==9) {
-			//If the latest position is very close to where it was 9 updates ago, assume it is either stuck, jittering or has reached its destination.
-			//So, tell it it no longer needs to move.
+		if (positionsStack.size()==100) {
+			//Check the previous 100 updates - the distance travelled and the length of the vectors.
+			//If the distance travelled is small compared to the lengths, it is likely the agent is stuck jittering back and forth, so set it as "reached destination".
+
 				
 			positionsStack.push_back(newPos);
 			vec3 oldPos = positionsStack.front();
+			double distanceTravelled = length(oldPos-newPos);
+			double totalLength = 0;
+			for (unsigned int i=0; i<positionsStack.size()-1; i++) {
+				totalLength += length(positionsStack[i+1]-positionsStack[i]);
+			}
 			positionsStack.erase(positionsStack.begin());
-			if (length(oldPos-newPos)<0.001) {
+			if (distanceTravelled<(totalLength/90.0)) {
 				needsToMove = false;
 			}
 		} else {
@@ -103,6 +109,11 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 			glColor3f(colour.x, colour.y, colour.z);
 			glTranslated(position.x, 0, position.z);
 			glutSolidSphere(SIZE, 20, 20);
+			GLUquadricObj *quadratic;
+			quadratic = gluNewQuadric();
+			double tn = 180*atan2(modVec.x+crdVec.x, modVec.z+crdVec.z)/M_PI;
+			glRotated(tn, 0.0, 1.0, 0.0);
+			gluCylinder(quadratic, 0.5f, 0, 2.0f, 32, 32);
 			glLineWidth(5.5);/*
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
@@ -138,13 +149,13 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency)
 		//Calculate pushing vector - once an agent is where it needs to be, others do not use them for separation vectors.
 		//Instead, these agents have strong separation to every other agent, but only very close - if an agent is within 1.5 units, move away strongly.
 		//If no agents are that close, go back to your desired spot.
-		vector<vec3> pshNeighbours;
+		/*vector<vec3> pshNeighbours;
 		for (Agent* neighbour : potentialNeighbours) {
 			if (length(neighbour->getPosition()-position)<SIZE) {
 				pshNeighbours.push_back(neighbour->getPosition());
 			}
 		}
-		vec3 pshVec = getPushedBy(pshNeighbours);
+		vec3 pshVec = getPushedBy(pshNeighbours);*/
 		glPushMatrix();
 			glColor3f(1-colour.x, 1-colour.y, 1-colour.z);
 			glTranslated(position.x, 0, position.z);
@@ -192,16 +203,15 @@ vec3 Agent::pathfind(vec3 endPoint)
 	return length(distance)<3 ? distance*(PATHFIND_STRENGTH/3.0f) : normalize(distance)*PATHFIND_STRENGTH;
 }
 
-vec3 Agent::getPushedBy(vector<vec3> neighbours)
+/*vec3 Agent::getPushedBy(vector<vec3> neighbours)
 {
 	vec3 out = vec3(0.0, 0.0, 0.0);
 
 	for (vec3 neighbourVec : neighbours) {
 		//Move so that you are not touching any of them
-		cout << length(neighbourVec-getPosition()) << endl;
 	}
 	return out;
-}
+}*/
 
 bool Agent::isStillMoving() {
 	return needsToMove;

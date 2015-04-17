@@ -7,13 +7,13 @@
 CrowdModel::CrowdModel(void)
 {
 	vector<vec3> prevPoints;
-	for (int i=0; i<700; i++) {
+	for (int i=0; i<100; i++) {
 		//While the current randomly-generated point is found in the list already generated
 		//Prevents agents being spawned on the same spot
 		vec3 point;
 		do {
-			int ranX = rand() % 40;
-			int ranZ = rand() % 40;
+			double ranX = rand() % 15*1.5;
+			double ranZ = rand() % 15*1.5;
 			point = vec3(ranX, 0, ranZ);
 		} while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end());
 
@@ -152,7 +152,8 @@ void CrowdModel::createCrowd(vector<vec3> bound1, vector<vec3> bound2, vector<ve
 	vector<Agent*> agents = package.second.first;
 	vector<Agent*> subAgents = package.second.second;
 	
-	subPath[subPath.size()-1] = f2s->getCentre();
+	path.push_back(f2->getCentre());
+	subPath.push_back(f2s->getCentre());
 
 	//Create the crowd with the given path and sub-path
 	Crowd* newCrowd = new Crowd(f1, f1s, f2, f2s, path, subPath, agents, subAgents);

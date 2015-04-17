@@ -24,7 +24,6 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 	pathLeft = pathLength;
 	for (unsigned int i=0; i<agentCoords.size(); i++) {
 		int rndm = rand() % 3;
-		cout << rndm;
 		glm::vec3 colour;
 		if (rndm==1) {
 			colour = glm::vec3 (30.0/256.0, 60.0/256.0, 200.0/256.0);
@@ -34,8 +33,7 @@ Crowd::Crowd(Formation* f1, Formation* f2, Path path)
 			colour = glm::vec3 (45.0/256.0, 200.0/256.0, 50.0/256.0);
 		}
 		Agent* agent = new Agent(agentCoords[i], endCoords[i], colour);
-		cout << rndm;
-		//cout << agentCoords[i].x << agentCoords[i].y << agentCoords[i].z << endl;
+
 		agents.push_back(agent);
 	}
 }
@@ -80,7 +78,10 @@ Crowd::Crowd(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path 
 {
 	startFormation = f1;
 	endFormation = f2;
+	startSubFormation = f1s;
+	endSubFormation = f2s;
 	this->path = path;
+	this->subPath = subPath;
 	this->agents = agents;
 	this->subAgents = subAgents;
 	rotation = 0;
@@ -97,6 +98,17 @@ Crowd::Crowd(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path 
 	currentDestination = path.front();
 	path.erase(path.begin());
 	
+	currentSubPosition = f1s->getCentre();
+
+	subPathLength = length(subPath[0]-currentSubPosition);
+	for (unsigned int i=0; i<subPath.size()-1; i++) {
+		subPathLength += length(subPath[i+1]-subPath[i]);
+	}
+	subPathLeft = subPathLength;
+
+	currentSubDestination = subPath.front();
+	subPath.erase(subPath.begin());
+
 	//Get the list of end coords from the second formation
 	vector<glm::vec3> coords = f2->getAgentCoords();
 
@@ -114,6 +126,9 @@ Crowd::Crowd(Formation* f1, Formation* f1s, Formation* f2, Formation* f2s, Path 
 
 	//Set the crowd's pathVec to point towards the current destination.
 	pathVec = normalize(currentDestination-currentPosition)*0.1f;
+
+	//Set the subPathVec as well.
+	subPathVec = normalize(currentSubDestination-currentSubPosition)*0.1f;
 }
 
 Crowd::~Crowd(void)
@@ -131,6 +146,9 @@ void Crowd::update(vector<Agent*> neighbours)
 	
 	//Insert the list of agents into the neighbour list (this should later be modified on an agent-by-agent basis)
 	neighbours.insert(neighbours.begin(), agents.begin(), agents.end());
+
+	//Also insert all sub-agents
+	neighbours.insert(neighbours.begin(), subAgents.begin(), subAgents.end());
 
 	//Calculate the crowd vector:
 	//First, check if it is close to the desired point.
@@ -155,6 +173,22 @@ void Crowd::update(vector<Agent*> neighbours)
 		pathLeft -= length(pathVec);
 	}
 
+	//Do this same thing for the sub-path.
+	currentSubPosition += subPathVec;
+	if (length(currentSubDestination-currentSubPosition)<0.1) {
+		if (subPath.size()>0) {
+			subPathLeft -= length(currentSubDestination-currentSubPosition);
+			currentSubDestination = subPath.front();
+			subPath.erase(subPath.begin());
+
+			vec3 subHeading = normalize(currentSubDestination-currentSubPosition)*0.1f;
+			subPathVec = subHeading;
+		} else {
+			subPathVec = vec3(0, 0, 0);
+		}
+	} else {
+		subPathLeft -= length(subPathVec);
+	}
 	//Need to check how far the main and sub-formations are along their paths, and adjust their speeds accordingly.
 
 
@@ -169,12 +203,8 @@ void Crowd::update(vector<Agent*> neighbours)
 	float k = (pathLength*(10.0f/100.0f));
 	float x = (float) pathLeft/pathLength;
 	urgency = (3*exp(-k*x))+0.1f;
+
 	//Append agents to beginning of neighbours
-	//Each iteration in this loop, replace i (or i-1?) with i+1 (or i?)
-	/*
-	?(0, 1) = pi/2
-	?(1, 0) = pi
-	?(0, -1) = 3pi/2*/
 	glPushMatrix();
 		glTranslated(currentPosition.x, 0, currentPosition.z);
 		/*double pathRotation = atan2(pathVec.z, pathVec.x)*180/M_PI;
@@ -190,14 +220,18 @@ void Crowd::update(vector<Agent*> neighbours)
 		glutSolidCone(1.4, 4.4, 20, 20);
 		for (unsigned int i=0; i<agents.size(); i++) {
 			//Give agents the list of their neighbours, as well as the urgency (which is the same for all agents in a single update)
-			agents[i]->update(neighbours, urgency);
+			agents[i]->update(neighbours, urgency, pathVec);
 			if (i<agents.size()-1) {
 				neighbours[i] = agents[i+1];
 			}
 		}
+	glPopMatrix();
+	glPushMatrix();
+		glTranslated(currentSubPosition.x, 0, currentSubPosition.z);
 		//Now update the sub-agents
+		cout << subAgents.size() << ", " << subPathVec.x << ", " << subPathVec.z << ", " << pathVec.x << ", " << pathVec.z << endl;
 		for (unsigned int i=0; i<subAgents.size(); i++) {
-			subAgents[i]->update(neighbours, urgency);
+			subAgents[i]->update(neighbours, urgency, subPathVec);
 		}
 	glPopMatrix();
 	glPushMatrix();
@@ -205,16 +239,16 @@ void Crowd::update(vector<Agent*> neighbours)
 		for (Agent* agent : agents) {
 			vec3 end = agent->getEndPoint();
 			glPushMatrix();
-				glTranslated(end.x, end.y, end.z);
-				glutSolidSphere(0.5, 25, 25);
+				glTranslated(end.x+endFormation->getCentre().x, 0.1, end.z+endFormation->getCentre().z);
+				glutSolidSphere(0.3, 25, 25);
 			glPopMatrix();
 		}
 		glColor3f(0.7f, 0.2f, 0.7f);
 		for (Agent* agent : subAgents) {
 			vec3 end = agent->getEndPoint();
 			glPushMatrix();
-				glTranslated(end.x, end.y, end.z);
-				glutSolidSphere(0.5, 25, 25);
+				glTranslated(end.x+endSubFormation->getCentre().x, 0.1, end.z+endSubFormation->getCentre().z);
+				glutSolidSphere(0.3, 25, 25);
 			glPopMatrix();
 		}
 	glPopMatrix();
