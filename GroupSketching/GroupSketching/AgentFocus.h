@@ -10,8 +10,9 @@ public:
 	vec3 getColour();
 	void setPosition(vec3 newPosition);
 	void setEndPoint(vec3 end);
+	void setPath(vector<vec3> path);
 	void setColour(vec3 colour);
-	void update(vector<AgentFocus*> neighbours, float urgency);
+	void update(vector<AgentFocus*> neighbours, float urgency, vec3 heading);
 	~AgentFocus(void);
 	bool isStillMoving();
 
@@ -31,5 +32,6 @@ private:
 	float PATHFIND_STRENGTH;
 	float SIZE;
 	vector<vec3> positionsStack;
+	vector<vec3> path;
 };
 

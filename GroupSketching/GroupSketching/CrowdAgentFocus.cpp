@@ -94,22 +94,24 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f1s, Formation* f2, F
 	}
 	pathLeft = pathLength;
 
-	currentDestination = path.front();
-	path.erase(path.begin());
+	
 	
 	//Get the list of end coords from the second formation
 	vector<glm::vec3> coords = f2->getAgentCoords();
 
-	//Set each agent's destination point to be this point, but relative to their current position
+	//Set each agent's destination point to be this point
 	for (unsigned int i=0; i<agents.size(); i++) {
-		agents[i]->setEndPoint(coords[i]-f2->getCentre());
+		agents[i]->setEndPoint(coords[i]);
+		agents[i]->setPath(path);
 	}
+
 
 	//Do the same things for the agents in the sub-formation
 	vector<vec3> subCoords = f2s->getAgentCoords();
 
 	for(unsigned int i=0; i<subAgents.size(); i++) {
-		subAgents[i]->setEndPoint(coords[i]-f2s->getCentre());
+		subAgents[i]->setEndPoint(subCoords[i]);
+
 	}
 
 	//Set the crowd's pathVec to point towards the current destination.
@@ -176,7 +178,7 @@ void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 	?(1, 0) = pi
 	?(0, -1) = 3pi/2*/
 	glPushMatrix();
-		glTranslated(currentPosition.x, 0, currentPosition.z);
+		//glTranslated(currentPosition.x, 0, currentPosition.z);
 		/*double pathRotation = atan2(pathVec.z, pathVec.x)*180/M_PI;
 		//If there is less than a degree between the current rotation and pathRotation, set rotation equal to pathRotation
 		if (abs(rotation-pathRotation)<1) {
@@ -190,32 +192,14 @@ void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 		glutSolidCone(1.4, 4.4, 20, 20);
 		for (unsigned int i=0; i<agents.size(); i++) {
 			//Give agents the list of their neighbours, as well as the urgency (which is the same for all agents in a single update)
-			agents[i]->update(neighbours, urgency);
+			agents[i]->update(neighbours, urgency, currentDestination);
 			if (i<agents.size()-1) {
 				neighbours[i] = agents[i+1];
 			}
 		}
 		//Now update the sub-agents
 		for (unsigned int i=0; i<subAgents.size(); i++) {
-			subAgents[i]->update(neighbours, urgency);
-		}
-	glPopMatrix();
-	glPushMatrix();
-		glColor3f(0.7f, 0.7f, 0.2f);
-		for (AgentFocus* agent : agents) {
-			vec3 end = agent->getEndPoint();
-			glPushMatrix();
-				glTranslated(end.x, end.y, end.z);
-				glutSolidSphere(0.5, 25, 25);
-			glPopMatrix();
-		}
-		glColor3f(0.7f, 0.2f, 0.7f);
-		for (AgentFocus* agent : subAgents) {
-			vec3 end = agent->getEndPoint();
-			glPushMatrix();
-				glTranslated(end.x, end.y, end.z);
-				glutSolidSphere(0.5, 25, 25);
-			glPopMatrix();
+			subAgents[i]->update(neighbours, urgency, currentDestination);
 		}
 	glPopMatrix();
 }

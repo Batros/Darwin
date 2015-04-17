@@ -4,6 +4,7 @@
 #include "SketchHandler.h"
 #include "Formation.h"
 #include "CrowdModel.h"
+#include "CrowdModelAgentFocus.h"
 
 using namespace std;
 
@@ -16,6 +17,7 @@ bool running;
 bool debugSquares;
 bool drawFormations;
 bool classicControl;
+bool agentFocus;
 int strokeNumber;
 glm::vec3 sq1 = glm::vec3(20.0, 0.0, 30.0);
 glm::vec3 sq2 = glm::vec3(-20.0, 0.0, -10.0);
@@ -26,6 +28,7 @@ vector<vector<float>> colours;
 Input* input;
 Camera* camera;
 CrowdModel* crowdModel;
+CrowdModelAgentFocus* crowdModelAgentFocus;
 SketchHandler* sketchHandler;
 
 /*
@@ -174,7 +177,12 @@ void processInput() {
 		if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
-			crowdModel->createCrowd(f1, f2, f1Sub, f2Sub, path);
+			if (agentFocus) {
+				crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub, path);
+			}
+			else {
+				crowdModel->createCrowd(f1, f2, f1Sub, f2Sub, path);
+			}
 			running = true;
 		}
 	}
@@ -259,6 +267,9 @@ void onMouseClick(int button, int state, int x, int y) {
 		if (state == GLUT_DOWN) {
 			crowdModel->~CrowdModel();
 			crowdModel = new CrowdModel();
+
+			crowdModelAgentFocus->~CrowdModelAgentFocus();
+			crowdModelAgentFocus = new CrowdModelAgentFocus();
 
 			formations.clear();
 			strokes.clear();
@@ -391,9 +402,25 @@ void display(void) {
 		strokes.clear();
 		strokeNumber = 0;
 	}
+	if (input->isKeyPressed('o')) {
+		agentFocus = false;
+		formations.clear();
+		strokes.clear();
+		strokeNumber = 0;
+	}
+	if (input->isKeyPressed('p')) {
+		agentFocus = true;
+		formations.clear();
+		strokes.clear();
+		strokeNumber = 0;
+	}
 
-	crowdModel->update();
-	//running = !(crowdModel->update());
+	if (agentFocus) {
+		crowdModelAgentFocus->update();
+	}
+	else {
+		crowdModel->update();
+	}
 
 	renderEnvironment();
 	glutSwapBuffers();
@@ -416,8 +443,10 @@ int main(int argc, char **argv) {
 
 	sketchHandler = new SketchHandler();
 	crowdModel = new CrowdModel();
+	crowdModelAgentFocus = new CrowdModelAgentFocus();
 	input = new Input(screenHeight, screenWidth);
 	camera = new Camera();
+	agentFocus = false;
 	drawMode = false;
 	running = false;
 	debugSquares = false;

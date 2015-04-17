@@ -54,7 +54,11 @@ AgentFocus::~AgentFocus(void)
 }
 
 
-void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float urgency)
+void AgentFocus::setPath(vector<vec3> path) {
+	this->path = path;
+}
+
+void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float urgency, glm::vec3 heading)
 {
 	if (needsToMove) {
 		//v1 (done): Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
@@ -76,12 +80,15 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float urgency)
 			}
 		}
 		
+		// Path following
+		vec3 vectorToPath = normalize(heading - position)*0.35f;
+
 		//TODO - make them move faster when they get closer to the end
 		vec3 sepVec = separation(sepNeighbours, strength);
 		//Add a rule - the closer they are to their end point, the closer they are allowed to get to each other)
 		vec3 modVec = (sepVec+endVec)*10.0f;
 		vec3 rndVec = randomVec();
-		vec3 newPos = position+((endVec+sepVec)*urgency);
+		vec3 newPos = position+((endVec+sepVec+vectorToPath));
 		float endLen = length(endVec);
 		float vecLen = length(endVec+sepVec);
 		if (positionsStack.size()==9) {
