@@ -25,13 +25,21 @@ private:
 	vector<Agent*> subAgents;
 	Formation* startFormation;
 	Formation* endFormation;
+	Formation* startSubFormation;
+	Formation* endSubFormation;
 	Path path;
+	Path subPath;
 	glm::vec3 currentPosition;
 	glm::vec3 currentDestination;
 	glm::vec3 pathVec;
-	float urgency;
 	float pathLength;
 	float pathLeft;
+	glm::vec3 currentSubPosition;
+	glm::vec3 currentSubDestination;
+	glm::vec3 subPathVec;
+	float subPathLength;
+	float subPathLeft;
+	float urgency;
 	double rotation;
 };
 

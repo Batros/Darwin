@@ -11,7 +11,7 @@ public:
 	void setPosition(vec3 newPosition);
 	void setEndPoint(vec3 end);
 	void setColour(vec3 colour);
-	void update(vector<Agent*> neighbours, float urgency);
+	void update(vector<Agent*> neighbours, float urgency, vec3 crdVec);
 	~Agent(void);
 	bool isStillMoving();
 
