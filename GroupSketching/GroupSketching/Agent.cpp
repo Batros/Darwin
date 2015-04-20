@@ -84,8 +84,8 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency, vec3 crdVe
 		vec3 newPos = position+((endVec+sepVec)*urgency);
 		float endLen = length(endVec);
 		float vecLen = length(endVec+sepVec);
-		if (positionsStack.size()==100) {
-			//Check the previous 100 updates - the distance travelled and the length of the vectors.
+		if (positionsStack.size()==50) {
+			//Check the previous 50 updates - the distance travelled and the length of the vectors.
 			//If the distance travelled is small compared to the lengths, it is likely the agent is stuck jittering back and forth, so set it as "reached destination".
 
 				
@@ -103,6 +103,10 @@ void Agent::update(vector<Agent*> potentialNeighbours, float urgency, vec3 crdVe
 		} else {
 			//Otherwise just push the new position onto the stack
 			positionsStack.push_back(newPos);
+		}
+		//Also check to see how close it is to its destination. If it is close, and the speed is low, set it as reached.
+		if (vecLen*length(endPoint-position)<0.001) {
+			needsToMove = false;
 		}
 		setPosition(newPos);
 		glPushMatrix();

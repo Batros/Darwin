@@ -204,7 +204,7 @@ void processInput() {
 		if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
-			crowdModel->createCrowd(f1, f2, path);
+			crowdModel->createCrowd(f1, f2, f1Sub, f2Sub, path, subPath);
 			running = true;
 		}
 	}
