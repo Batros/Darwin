@@ -103,6 +103,7 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f1s, Formation* f2, F
 	for (unsigned int i=0; i<agents.size(); i++) {
 		agents[i]->setEndPoint(coords[i]);
 		agents[i]->setPath(path);
+		agents[i]->setColour(vec3(1.0, 0.0, 0.0));
 	}
 
 
@@ -111,7 +112,8 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f1s, Formation* f2, F
 
 	for(unsigned int i=0; i<subAgents.size(); i++) {
 		subAgents[i]->setEndPoint(subCoords[i]);
-
+		subAgents[i]->setPath(subPath);
+		subAgents[i]->setColour(vec3(0.0, 0.0, 1.0));
 	}
 
 	//Set the crowd's pathVec to point towards the current destination.
@@ -134,33 +136,7 @@ void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 	//Insert the list of agents into the neighbour list (this should later be modified on an agent-by-agent basis)
 	neighbours.insert(neighbours.begin(), agents.begin(), agents.end());
 
-	//Calculate the crowd vector:
-	//First, check if it is close to the desired point.
-	currentPosition += pathVec;
-	if (length(currentDestination-currentPosition)<0.1) {
-		//If so, check if any points exist.
-		if (path.size()>0) {
-			//If so, pop the first one and set that as the destination, after reducing the total distance left to travel.
-			pathLeft -= length(currentDestination-currentPosition);
-			currentDestination = path.front();
-			path.erase(path.begin());
-			
-			//Work out the vector to travel in, which is in that direction but a much smaller, static, speed.
-			vec3 heading = normalize(currentDestination-currentPosition)*0.1f;
-			pathVec = heading;
-		} else {
-			//Otherwise, the agents are at their destination, so set the path vector to 0.
-			pathVec = vec3(0, 0, 0);
-		}
-	} else {
-		//If the point is not close enough, the current vector is alright so keep heading in this direction, reducing the distance left to travel.
-		pathLeft -= length(pathVec);
-	}
-
 	//Need to check how far the main and sub-formations are along their paths, and adjust their speeds accordingly.
-
-
-
 
 	//Recalculate the urgency
 	//pathLeft/pathLength varies from 1 to 0, and the urgency from 0.1 to 3.1.
@@ -168,9 +144,6 @@ void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 	//y=3e^(-10x)+0.1, x = 0 to 1, y = 0 to 3.5
 	//If the pathLength = 400, k = 40, so the agents will only begin move with urgency much later along the path.
 
-	float k = (pathLength*(10.0f/100.0f));
-	float x = (float) pathLeft/pathLength;
-	urgency = (3*exp(-k*x))+0.1f;
 	//Append agents to beginning of neighbours
 	//Each iteration in this loop, replace i (or i-1?) with i+1 (or i?)
 	/*
@@ -187,19 +160,16 @@ void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 			//Otherwise, change rotation by one degree towards pathRotation.
 			rotation < pathRotation ? rotation++ : rotation--;
 		}*/
-
-		glRotated(rotation, 0, -1, 0);
-		glutSolidCone(1.4, 4.4, 20, 20);
 		for (unsigned int i=0; i<agents.size(); i++) {
 			//Give agents the list of their neighbours, as well as the urgency (which is the same for all agents in a single update)
-			agents[i]->update(neighbours, urgency, currentDestination);
+			agents[i]->update(neighbours);
 			if (i<agents.size()-1) {
 				neighbours[i] = agents[i+1];
 			}
 		}
 		//Now update the sub-agents
 		for (unsigned int i=0; i<subAgents.size(); i++) {
-			subAgents[i]->update(neighbours, urgency, currentDestination);
+			subAgents[i]->update(neighbours);
 		}
 	glPopMatrix();
 }

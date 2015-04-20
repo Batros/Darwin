@@ -14,6 +14,7 @@ AgentFocus::AgentFocus(vec3 position, vec3 end, vec3 colour) {
 	this->position = position;
 	this->endPoint = end;
 	this->colour = colour;
+	pathFound = false;
 	needsToMove = true;
 	SIZE = 0.5f;
 	SEPARATION_STRENGTH = 1.0f*SIZE;
@@ -55,10 +56,12 @@ AgentFocus::~AgentFocus(void)
 
 
 void AgentFocus::setPath(vector<vec3> path) {
+	this->nextPath = path[0];
+	path.erase(path.begin());
 	this->path = path;
 }
 
-void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float urgency, glm::vec3 heading)
+void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 {
 	if (needsToMove) {
 		//v1 (done): Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
@@ -80,25 +83,60 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float urgency, 
 			}
 		}
 		
-		// Path following
-		vec3 vectorToPath = normalize(heading - position)*0.35f;
+		bool skipPath = false;
+		if (positionsStack.size() > 8) {
+			skipPath =  true;
+			float prevDist = length(positionsStack[0]-nextPath);
+			for (int i=1; i<9; i++) {
+				float distToPath = length(positionsStack[i]-nextPath);
+				if (distToPath < prevDist) {
+					skipPath = false;
+					break;
+				}
+			}
+		}
 
-		//TODO - make them move faster when they get closer to the end
+		// Path following
+		vec3 vectorToPath;
+		if (pathFound) {
+			vectorToPath = vec3(0.0,0.0,0.0);
+		}
+		else {
+			vectorToPath = nextPath - position;
+		}
+		if (skipPath || length(vectorToPath) < 10) {
+			if (path.size() > 0) {
+				nextPath = path[0];
+				positionsStack.clear();
+				path.erase(path.begin());
+				vectorToPath = normalize(nextPath - position)*0.35f;
+			}
+			else {
+				vectorToPath = vec3(0.0,0.0,0.0);
+				pathFound = true;
+			}
+		}
+		else {
+			vectorToPath = normalize(nextPath - position)*0.35f;
+		}
 		vec3 sepVec = separation(sepNeighbours, strength);
-		//Add a rule - the closer they are to their end point, the closer they are allowed to get to each other)
-		vec3 modVec = (sepVec+endVec)*10.0f;
-		vec3 rndVec = randomVec();
-		vec3 newPos = position+((endVec+sepVec+vectorToPath));
-		float endLen = length(endVec);
-		float vecLen = length(endVec+sepVec);
-		if (positionsStack.size()==9) {
-			//If the latest position is very close to where it was 9 updates ago, assume it is either stuck, jittering or has reached its destination.
-			//So, tell it it no longer needs to move.
+		vec3 deltaPos = endVec + sepVec + vectorToPath;
+		vec3 newPos = position+(normalize(deltaPos)*0.07f);
+		vec3 dir = newPos - position;
+		if (positionsStack.size()==50) {
+			//Check the previous 50 updates - the distance travelled and the length of the vectors.
+			//If the distance travelled is small compared to the lengths, it is likely the agent is stuck jittering back and forth, so set it as "reached destination".
+
 				
 			positionsStack.push_back(newPos);
 			vec3 oldPos = positionsStack.front();
+			double distanceTravelled = length(oldPos-newPos);
+			double totalLength = 0;
+			for (unsigned int i=0; i<positionsStack.size()-1; i++) {
+				totalLength += length(positionsStack[i+1]-positionsStack[i]);
+			}
 			positionsStack.erase(positionsStack.begin());
-			if (length(oldPos-newPos)<0.001) {
+			if (distanceTravelled<(totalLength/90.0)) {
 				needsToMove = false;
 			}
 		} else {
@@ -110,34 +148,12 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float urgency, 
 			glColor3f(colour.x, colour.y, colour.z);
 			glTranslated(position.x, 0, position.z);
 			glutSolidSphere(SIZE, 20, 20);
-			glLineWidth(5.5);/*
-			glBegin(GL_LINES);
-			glVertex3f(0,0,0);
-			glVertex3f(modVec.x,0,modVec.z);
-			glEnd();
-
-			glColor3f(1.0, 0.0, 1.0);
-			glBegin(GL_LINES);
-			glVertex3f(0,0,0);
-			glVertex3f(sepVec.x*SIZE*50.0,0,sepVec.z*SIZE*50.0);
-			glEnd();
-
-			glColor3f(colour.x, colour.y, colour.z);
-			glBegin(GL_LINES);
-			glVertex3f(0,0,0);
-			glVertex3f(cohVec.x*SIZE*50.0,0,cohVec.z*SIZE*50.0);
-			glEnd();
+			glLineWidth(5.5);
 
 			glColor3f(1.0, 1.0, 0.0);
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
-			glVertex3f(endVec.x*SIZE*50.0,0,endVec.z*SIZE*50.0);
-			glEnd();
-			*/
-			glColor3f(1.0, 1.0, 0.0);
-			glBegin(GL_LINES);
-			glVertex3f(0,0,0);
-			vec3 direction = normalize(modVec)*SIZE*5.0f;
+			vec3 direction = normalize(dir)*SIZE*5.0f;
 			glVertex3f(direction.x,0,direction.z);
 			glEnd();
 		glPopMatrix();

@@ -150,7 +150,7 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 			} else {
 				agentsInBoundary.push_back(freeAgents[i]->getPosition());
 				//Modify freeAgents[i] so that its position is relative to the formation's centre (the destination will be made relative later)
-				freeAgents[i]->setPosition(freeAgents[i]->getPosition()-f1->getCentre());
+				freeAgents[i]->setPosition(freeAgents[i]->getPosition());
 				agents.push_back(freeAgents[i]);
 				agentsToDelete.push_back(i);
 			}

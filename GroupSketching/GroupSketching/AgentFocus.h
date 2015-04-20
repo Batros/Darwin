@@ -12,7 +12,7 @@ public:
 	void setEndPoint(vec3 end);
 	void setPath(vector<vec3> path);
 	void setColour(vec3 colour);
-	void update(vector<AgentFocus*> neighbours, float urgency, vec3 heading);
+	void update(vector<AgentFocus*> neighbours);
 	~AgentFocus(void);
 	bool isStillMoving();
 
@@ -22,6 +22,7 @@ private:
 	int minSpd;
 	int maxSpd;
 	bool needsToMove;
+	bool pathFound;
 	vec3 colour;
 	vec3 separation(vector<vec3>, vector<float>);
 	vec3 pathfind(vec3);
@@ -33,5 +34,6 @@ private:
 	float SIZE;
 	vector<vec3> positionsStack;
 	vector<vec3> path;
+	vec3 nextPath;
 };
 
