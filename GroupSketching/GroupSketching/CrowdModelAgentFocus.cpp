@@ -171,36 +171,30 @@ bool CrowdModelAgentFocus::update() {
 }
 
 bool CrowdModelAgentFocus::pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary) {
-	bool inBoundary = false;
-	float m_point = 1;
-	float c_point = point.z - (m_point * point.x);
-	for(vector<glm::vec3>::size_type i = 1; i < boundary.size(); i++) {
-		float m_line, c_line;
-		m_line = (boundary[i].z - boundary[i-1].z) / (boundary[i].x - boundary[i-1].x);
-		c_line = (boundary[i].z - (m_line * boundary[i].x));
+	int boundarySides = boundary.size();
+	float boundaryX[1024];
+	float boundaryY[1024];
+	// Convert x-z space to x-y space
+	for (int k = 0; k < boundary.size(); k++) {
+		boundaryX[k] = boundary[k].x;
+		boundaryY[k] = boundary[k].z;
+	}
+	int   i, j = boundarySides - 1;
+	bool  oddNodes = false;
 
-		glm::vec3 intersect = glm::vec3(0, 0, 0);
+	float x = point.x;
+	float y = point.z;
 
-		intersect.x = (c_line - c_point) / (m_point - m_line);
-		intersect.z = ((m_point * c_line) - (m_line * c_point)) / (m_point - m_line);
-		intersect.y = boundary[i].y;
-
-		// Only look one side of the point
-		if (intersect.x > point.x) {
-			// Check if intesect point is on the line segment
-			if (intersect.x <= boundary[i].x) {
-				if (intersect.x >= boundary[i-1].x) {
-					inBoundary = !inBoundary;
-				}
-			}
-			else {
-				if (intersect.x <= boundary[i-1].x) {
-					inBoundary = !inBoundary;
-				}
+	for (i = 0; i<boundarySides; i++) {
+		if (boundaryY[i]<y && boundaryY[j] >= y
+			|| boundaryY[j]<y && boundaryY[i] >= y) {
+			if (boundaryX[i] + (y - boundaryY[i]) / (boundaryY[j] - boundaryY[i])*(boundaryX[j] - boundaryX[i])<x) {
+				oddNodes = !oddNodes;
 			}
 		}
+		j = i;
 	}
-	return inBoundary;
+	return oddNodes;
 }
 
 pair<pair<Formation*, Formation*>, vector<AgentFocus*>>  CrowdModelAgentFocus::populateFormations(vector<glm::vec3> bound1, vector<glm::vec3> bound2) {

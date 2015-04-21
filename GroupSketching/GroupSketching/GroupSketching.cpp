@@ -79,20 +79,23 @@ void processInput() {
 		vector<glm::vec3> classicStroke;
 		classicStroke.push_back(strokes[0][0]);
 		classicStroke.push_back(glm::vec3(strokes[0][0].x, strokes[0][0].y, strokes[0][1].z));
-		classicStroke.push_back(glm::vec3(strokes[0][0].x, strokes[0][0].y, strokes[0][1].z));
 		classicStroke.push_back(glm::vec3(strokes[0][1].x, strokes[0][0].y, strokes[0][1].z));
+		classicStroke.push_back(glm::vec3(strokes[0][1].x, strokes[0][0].y, strokes[0][0].z));
 		classicStroke.push_back(strokes[0][0]);
 		
 		vector<glm::vec3> endStroke;
 		endStroke.push_back(strokes[1][0]);
-		endStroke.push_back(glm::vec3(strokes[1][0].x, strokes[1][0].y, strokes[1][0].z+10));
-		endStroke.push_back(glm::vec3(strokes[1][0].x+10, strokes[1][0].y, strokes[1][0].z+10));
-		endStroke.push_back(glm::vec3(strokes[1][0].x+10, strokes[1][0].y, strokes[1][0].z));
+		endStroke.push_back(glm::vec3(strokes[1][0].x, strokes[1][0].y, strokes[1][0].z+1));
+		endStroke.push_back(glm::vec3(strokes[1][0].x+1, strokes[1][0].y, strokes[1][0].z+1));
+		endStroke.push_back(glm::vec3(strokes[1][0].x+1, strokes[1][0].y, strokes[1][0].z));
 		endStroke.push_back(strokes[1][0]);
 
+		formations.push_back(classicStroke);
+		formations.push_back(endStroke);
 		strokes.clear();
 		strokeNumber = 0;
-		crowdModel->createCrowd(classicStroke, endStroke);
+		crowdModelAgentFocus->createCrowd(classicStroke, endStroke);
+		running = true;
 	}
 	if (strokes.size()==0) {
 		return;
