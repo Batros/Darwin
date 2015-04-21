@@ -113,7 +113,13 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 			vectorToPath = normalize(nextPath - position)*0.35f;
 		}
 		vec3 sepVec = separation(sepNeighbours, strength);
-		vec3 deltaPos = endVec + sepVec + vectorToPath;
+		vec3 deltaPos;
+		if (length(vectorToPath) > 0) {
+			deltaPos = sepVec + vectorToPath;
+		}
+		else {
+			deltaPos = endVec + sepVec;
+		}
 		vec3 newPos = position+(normalize(deltaPos)*0.1f);
 		vec3 dir = newPos - position;
 
