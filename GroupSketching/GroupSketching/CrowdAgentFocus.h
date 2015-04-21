@@ -14,7 +14,7 @@ public:
 	
 	vector<glm::vec3> getRelativeAgentCoords();
 	vector<glm::vec3> getAbsoluteAgentCoords();
-	void update(vector<AgentFocus*> neighbours, vector<AgentFocus*> subNeighbours);
+	void update(vector<AgentFocus*> neighbours);
 	bool isFinished();
 
 private:

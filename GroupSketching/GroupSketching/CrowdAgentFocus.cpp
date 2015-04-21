@@ -84,26 +84,20 @@ CrowdAgentFocus::~CrowdAgentFocus(void)
 {
 }
 
-void CrowdAgentFocus::update(vector<AgentFocus*> neighbours, vector<AgentFocus*> subNeighbours)
+void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 {
 	//Insert the list of agents into the neighbour list (this should later be modified on an agent-by-agent basis)
 	neighbours.insert(neighbours.begin(), agents.begin(), agents.end());
+	neighbours.insert(neighbours.begin(), subAgents.begin(), subAgents.end());
 	for (unsigned int i=0; i<agents.size(); i++) {
 		//Give agents the list of their neighbours, as well as the urgency (which is the same for all agents in a single update)
 		agents[i]->update(neighbours);
-		if (i<agents.size()-1) {
-			neighbours[i] = agents[i+1];
-		}
 	}
 
 	if (subAgents.size() > 0) {
 		//Now update the sub-agents
-		subNeighbours.insert(subNeighbours.begin(), subAgents.begin(), subAgents.end());
 		for (unsigned int i=0; i<subAgents.size(); i++) {
-			subAgents[i]->update(subNeighbours);
-			if (i<subAgents.size()-1) {
-				subNeighbours[i] = subAgents[i+1];
-			}
+			subAgents[i]->update(neighbours);
 		}
 	}
 }

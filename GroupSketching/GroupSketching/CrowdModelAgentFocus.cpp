@@ -165,8 +165,7 @@ bool CrowdModelAgentFocus::update() {
 		//v2 (in-dev): Check all other crowds, see if there are any in the radius. If so, pass these.
 		//v3 (future): Convert neighbouring crowds coordinates into this crowd's coordinate system and pass those
 		vector<AgentFocus*> neighbouringCrowds;
-		vector<AgentFocus*> subNeighbouringCrowds;
-		crowds[i]->update(neighbouringCrowds, subNeighbouringCrowds);
+		crowds[i]->update(neighbouringCrowds);
 	}
 	return false;
 }
