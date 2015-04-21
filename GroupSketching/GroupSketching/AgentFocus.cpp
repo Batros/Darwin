@@ -97,7 +97,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 		else {
 			vectorToPath = nextPath - position;
 		}
-		if (skipPath || length(vectorToPath) < 3) {
+		if (skipPath || length(vectorToPath) < 5) {
 			if (path.size() > 0) {
 				nextPath = path[0];
 				positionsStack.clear();
