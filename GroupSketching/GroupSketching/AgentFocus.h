@@ -8,10 +8,12 @@ public:
 	vec3 getEndPoint();
 	vec3 getPosition();
 	vec3 getColour();
+	float getSize();
 	void setPosition(vec3 newPosition);
 	void setEndPoint(vec3 end);
 	void setPath(vector<vec3> path);
 	void setColour(vec3 colour);
+	void setType(int t);
 	void update(vector<AgentFocus*> neighbours);
 	~AgentFocus(void);
 	bool isStillMoving();
@@ -21,6 +23,8 @@ private:
 	vec3 endPoint;
 	int minSpd;
 	int maxSpd;
+	int type;
+	float speed;
 	bool needsToMove;
 	bool pathFound;
 	vec3 colour;

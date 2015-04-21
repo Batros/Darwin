@@ -19,6 +19,12 @@ AgentFocus::AgentFocus(vec3 position, vec3 end, vec3 colour) {
 	SIZE = 0.5f;
 	SEPARATION_STRENGTH = 1.0f*SIZE;
 	PATHFIND_STRENGTH = 0.25f;
+	speed = 0.1f;
+	type = 1;
+}
+
+float AgentFocus::getSize() {
+	return this->SIZE;
 }
 
 vec3 AgentFocus::getEndPoint()
@@ -120,7 +126,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 		else {
 			deltaPos = endVec + sepVec;
 		}
-		vec3 newPos = position+(normalize(deltaPos)*0.1f);
+		vec3 newPos = position+(normalize(deltaPos)*speed);
 		vec3 dir = newPos - position;
 
 		float distFromEnd = length(position-endPoint);
@@ -239,4 +245,16 @@ vec3 AgentFocus::randomVec() {
 	float ranX = (rand() % 100) / 100.0f;
 	float ranY = (rand() % 100) / 100.0f;
 	return vec3(0.0, 0.0, 0.0);
+}
+
+void AgentFocus::setType(int t) {
+	this->type = t;
+	if (t==1) {
+		speed = 0.1;
+		SIZE = 0.5f;
+	}
+	else if (t==2) {
+		speed = 0.2;
+		SIZE = 0.25f;
+	}
 }

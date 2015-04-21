@@ -5,20 +5,24 @@
 CrowdModelAgentFocus::CrowdModelAgentFocus(void)
 {
 	vector<glm::vec3> prevPoints;
-	for (int i=0; i<100; i++) {
-		float ranX = rand() % 20;
-		float ranZ = rand() % 20;
-		glm::vec3 point = glm::vec3(ranX, 0, ranZ);
+	for (int i=0; i<150; i++) {
+		float ranX = rand() % 30;
+		float ranZ = rand() % 30;
+		glm::vec3 point = glm::vec3(ranX+10, 0, ranZ+10);
 
 		//While the current randomly-generated point is found in the list already generated
 		//Prevents agents being spawned on the same spot
 		while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end()) {
-			float ranX = rand() % 20;
-			float ranZ = rand() % 20;
-			point = glm::vec3(ranX, 0, ranZ);
+			float ranX = rand() % 30;
+			float ranZ = rand() % 30;
+			point = glm::vec3(ranX+10, 0, ranZ+10);
 		}
 		prevPoints.push_back(point);
-		freeAgents.push_back(new AgentFocus(point, point, glm::vec3(0.2, 0.5, 0.9)));
+		AgentFocus* newAgent = new AgentFocus(point, point, glm::vec3(0.2, 0.5, 0.9));
+		if (i>=0) {
+			newAgent->setType(2);
+		}
+		freeAgents.push_back(newAgent);
 	}
 }
 
@@ -156,7 +160,7 @@ bool CrowdModelAgentFocus::update() {
 		glPushMatrix();
 			glColor3f(colour.x, colour.y, colour.z);
 			glTranslated(position.x, position.y, position.z);
-			glutSolidSphere(0.5f, 20, 20);
+			glutSolidSphere(freeAgents[i]->getSize(), 20, 20);
 		glPopMatrix();
 	}
 
