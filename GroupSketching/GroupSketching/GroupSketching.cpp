@@ -22,6 +22,7 @@ int strokeNumber;
 glm::vec3 sq1 = glm::vec3(20.0, 0.0, 30.0);
 glm::vec3 sq2 = glm::vec3(-20.0, 0.0, -10.0);
 vector<vector<glm::vec3>> formations;
+vector<vector<glm::vec3>> paths;
 vector<vector<glm::vec3>> strokes;
 vector<vector<float>> colours;
 
@@ -113,10 +114,14 @@ void processInput() {
 		formations.push_back(f1);
 		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[1]);
 		formations.push_back(f2);
-		Path path;
 		strokes.clear();
 		strokeNumber = 0;
-		crowdModel->createCrowd(f1, f2);
+		if (agentFocus) {
+			crowdModelAgentFocus->createCrowd(f1, f2);
+		}
+		else {
+			crowdModel->createCrowd(f1, f2);
+		}
 		running = true;
 	}
 	else if (strokes.size()==3) {
@@ -126,10 +131,16 @@ void processInput() {
 		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[1]);
 		formations.push_back(f2);
 		Path path = sketchHandler->processPath(strokes[2], f1, f2);
+		paths.push_back(path);
 		strokes.clear();
 		strokeNumber = 0;
 		if (path.size() > 1) {
-			crowdModel->createCrowd(f1, f2, path);
+			if (agentFocus) {
+				crowdModelAgentFocus->createCrowd(f1, f2, path);
+			}
+			else {
+				crowdModel->createCrowd(f1, f2, path);
+			}
 			running = true;
 		}
 		else {
@@ -154,7 +165,12 @@ void processInput() {
 		if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
-			crowdModel->createCrowd(f1, f2, f1Sub, f2Sub);
+			if (agentFocus) {
+				crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub);
+			}
+			else {
+				crowdModel->createCrowd(f1, f2, f1Sub, f2Sub);
+			}
 			running = true;
 		}
 	}
@@ -174,6 +190,7 @@ void processInput() {
 
 
 		Path path = sketchHandler->processPath(strokes[4], f1, f2);
+		paths.push_back(path);
 		if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
@@ -191,20 +208,29 @@ void processInput() {
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
 		vector<glm::vec3> f1Sub = sketchHandler->processFormation(strokes[1]);
+		formations.push_back(f1Sub);
 		bool sub1Inside = sketchHandler->processSubFormation(f1Sub, f1);
 
 		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[2]);
 		formations.push_back(f2);
 		vector<glm::vec3> f2Sub = sketchHandler->processFormation(strokes[3]);
+		formations.push_back(f2Sub);
 		bool sub2Inside = sketchHandler->processSubFormation(f2Sub, f2);
 
 
 		Path path = sketchHandler->processPath(strokes[4], f1, f2);
 		Path subPath = sketchHandler->processPath(strokes[5], f1Sub, f2Sub);
+		paths.push_back(path);
+		paths.push_back(subPath);
 		if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
-			crowdModel->createCrowd(f1, f2, f1Sub, f2Sub, path, subPath);
+			if (agentFocus) {
+				crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub, path, subPath);
+			}
+			else {
+				crowdModel->createCrowd(f1, f2, f1Sub, f2Sub, path, subPath);
+			}
 			running = true;
 		}
 	}
@@ -272,6 +298,7 @@ void onMouseClick(int button, int state, int x, int y) {
 			crowdModelAgentFocus = new CrowdModelAgentFocus();
 
 			formations.clear();
+			paths.clear();
 			strokes.clear();
 			strokeNumber = 0;
 			running = false;
@@ -331,6 +358,14 @@ void renderEnvironment(void) {
 				glVertex3d(formations[i][j].x, formations[i][j].y+0.01, formations[i][j].z);
 			}
 			glVertex3d(formations[i][0].x, formations[i][0].y+0.01, formations[i][0].z);
+			glEnd();
+		}
+
+		for (vector<glm::vec3>::size_type i = 0; i != paths.size(); i++) {
+			glBegin(GL_LINE_STRIP);
+			for(glm::vec3::size_type j = 0; j != paths[i].size(); j++) {
+				glVertex3d(paths[i][j].x, paths[i][j].y+0.01, paths[i][j].z);
+			}
 			glEnd();
 		}
 	}
@@ -393,24 +428,28 @@ void display(void) {
 	if (input->isKeyPressed('c')) {
 		classicControl = true;
 		formations.clear();
+		paths.clear();
 		strokes.clear();
 		strokeNumber = 0;
 	}
 	if (input->isKeyPressed('n')) {
 		classicControl = false;
 		formations.clear();
+		paths.clear();
 		strokes.clear();
 		strokeNumber = 0;
 	}
 	if (input->isKeyPressed('o')) {
 		agentFocus = false;
 		formations.clear();
+		paths.clear();
 		strokes.clear();
 		strokeNumber = 0;
 	}
 	if (input->isKeyPressed('p')) {
 		agentFocus = true;
 		formations.clear();
+		paths.clear();
 		strokes.clear();
 		strokeNumber = 0;
 	}

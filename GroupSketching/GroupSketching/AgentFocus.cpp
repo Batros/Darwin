@@ -64,13 +64,6 @@ void AgentFocus::setPath(vector<vec3> path) {
 void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 {
 	if (needsToMove) {
-		//v1 (done): Do nothing with neighbours, move 1/200th of the way to the end, with minimum and maximum speeds.
-		//v2 (done): Calculate inverse-square separation of neighbours, and cohesion vector towards them.
-		//v3 (in-dev): Work out if the agent needs to move any more, and stop it if not
-		//v4 (future): Take into account different attributes - have an AgentProperties class or something that has colour, speed etc, so heterogeneity can be implemented
-		//v5 (future): Allow for an adjustable weighting to these vectors, and have a pointer to the crowd velocity so agents' velocities can be clamped.
-		//v6 (future): Add some kind of rule that takes into account any other restrictions, e.g. the requirement that the agents walk in line with others.
-		
 		vec3 endVec = pathfind(endPoint);
 
 		vector<vec3> sepNeighbours;
@@ -87,7 +80,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 		if (positionsStack.size() > 8) {
 			skipPath =  true;
 			float prevDist = length(positionsStack[0]-nextPath);
-			for (int i=1; i<9; i++) {
+			for (int i=1; i<5; i++) {
 				float distToPath = length(positionsStack[i]-nextPath);
 				if (distToPath < prevDist) {
 					skipPath = false;
@@ -104,7 +97,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 		else {
 			vectorToPath = nextPath - position;
 		}
-		if (skipPath || length(vectorToPath) < 10) {
+		if (skipPath || length(vectorToPath) < 3) {
 			if (path.size() > 0) {
 				nextPath = path[0];
 				positionsStack.clear();
@@ -121,13 +114,17 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 		}
 		vec3 sepVec = separation(sepNeighbours, strength);
 		vec3 deltaPos = endVec + sepVec + vectorToPath;
-		vec3 newPos = position+(normalize(deltaPos)*0.07f);
+		vec3 newPos = position+(normalize(deltaPos)*0.1f);
 		vec3 dir = newPos - position;
-		if (positionsStack.size()==50) {
+
+		float distFromEnd = length(position-endPoint);
+		if (distFromEnd < 0.01) {
+			needsToMove = false;
+		}
+		else if (positionsStack.size()==50) {
 			//Check the previous 50 updates - the distance travelled and the length of the vectors.
 			//If the distance travelled is small compared to the lengths, it is likely the agent is stuck jittering back and forth, so set it as "reached destination".
 
-				
 			positionsStack.push_back(newPos);
 			vec3 oldPos = positionsStack.front();
 			double distanceTravelled = length(oldPos-newPos);
@@ -136,7 +133,8 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 				totalLength += length(positionsStack[i+1]-positionsStack[i]);
 			}
 			positionsStack.erase(positionsStack.begin());
-			if (distanceTravelled<(totalLength/90.0)) {
+			
+			if ((distanceTravelled<(totalLength/90.0)) && (distFromEnd < 3)) {
 				needsToMove = false;
 			}
 		} else {

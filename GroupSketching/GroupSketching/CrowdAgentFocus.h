@@ -14,7 +14,7 @@ public:
 	
 	vector<glm::vec3> getRelativeAgentCoords();
 	vector<glm::vec3> getAbsoluteAgentCoords();
-	void update(vector<AgentFocus*> neighbours);
+	void update(vector<AgentFocus*> neighbours, vector<AgentFocus*> subNeighbours);
 	bool isFinished();
 
 private:
@@ -25,13 +25,5 @@ private:
 	vector<AgentFocus*> subAgents;
 	Formation* startFormation;
 	Formation* endFormation;
-	Path path;
-	glm::vec3 currentPosition;
-	glm::vec3 currentDestination;
-	glm::vec3 pathVec;
-	float urgency;
-	float pathLength;
-	float pathLeft;
-	double rotation;
 };
 

@@ -113,8 +113,8 @@ bool SketchHandler::processSubFormation(vector<glm::vec3> stroke, vector<glm::ve
 
 bool SketchHandler::pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary) {
 	bool inBoundary = false;
-	float m_point = 1;
-	float c_point = point.z - (m_point * point.x);
+	float m_point = 0;
+	float c_point = point.z;
 	for(vector<glm::vec3>::size_type i = 1; i < boundary.size(); i++) {
 		float m_line, c_line;
 		m_line = (boundary[i].z - boundary[i-1].z) / (boundary[i].x - boundary[i-1].x);
