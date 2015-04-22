@@ -89,16 +89,35 @@ void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 	//Insert the list of agents into the neighbour list (this should later be modified on an agent-by-agent basis)
 	neighbours.insert(neighbours.begin(), agents.begin(), agents.end());
 	neighbours.insert(neighbours.begin(), subAgents.begin(), subAgents.end());
+
+	vector<int> agentsToDelete;
 	for (unsigned int i=0; i<agents.size(); i++) {
 		//Give agents the list of their neighbours, as well as the urgency (which is the same for all agents in a single update)
 		agents[i]->update(neighbours);
+		if (!agents[i]->isStillMoving()) {
+			stoppedAgents.push_back(agents[i]);
+			agentsToDelete.push_back(i);
+		}
 	}
 
+	for (int i=agentsToDelete.size()-1; i>=0; i--) {
+		agents.erase(agents.begin()+agentsToDelete[i]);
+	}
+
+	agentsToDelete.clear();
 	if (subAgents.size() > 0) {
 		//Now update the sub-agents
 		for (unsigned int i=0; i<subAgents.size(); i++) {
 			subAgents[i]->update(neighbours);
+			if (!subAgents[i]->isStillMoving()) {
+				stoppedAgents.push_back(subAgents[i]);
+				agentsToDelete.push_back(i);
+			}
 		}
+	}
+
+	for (int i=agentsToDelete.size()-1; i>=0; i--) {
+		subAgents.erase(subAgents.begin()+agentsToDelete[i]);
 	}
 }
 
@@ -118,4 +137,22 @@ vector<vec3> CrowdAgentFocus::getAbsoluteAgentCoords()
 		coords.push_back(agents[i]->getPosition()+centre);
 	}
 	return coords;
+}
+
+vector<AgentFocus*> CrowdAgentFocus::getAgents() {
+	return agents;
+}
+
+void CrowdAgentFocus::removeAgents(vector<int> agentsToDelete) {
+	for (int i=agentsToDelete.size()-1; i>=0; i--) {
+		agents.erase(agents.begin()+agentsToDelete[i]);
+	}
+}
+
+vector<AgentFocus*> CrowdAgentFocus::getStoppedAgents() {
+	return stoppedAgents;
+}
+
+void CrowdAgentFocus::emptyStoppedAgents() {
+	stoppedAgents.clear();
 }

@@ -59,11 +59,13 @@ void onMouseMove(int x, int y) {
 void onMouseDrag(int x, int y) {
 	if (classicControl) {
 		if (dragging) {
-			if (strokes[0].size() > 1) {
-				strokes[0][1] = input->onMouseClick(x, y);
-			}
-			else {
-				strokes[0].push_back(input->onMouseClick(x, y));
+			if (strokeNumber==0) {
+				if (strokes[0].size() > 1) {
+					strokes[0][1] = input->onMouseClick(x, y);
+				}
+				else {
+					strokes[0].push_back(input->onMouseClick(x, y));
+				}
 			}
 		}
 	}
@@ -76,26 +78,28 @@ void onMouseDrag(int x, int y) {
 
 void processInput() {
 	if (classicControl) {
-		vector<glm::vec3> classicStroke;
-		classicStroke.push_back(strokes[0][0]);
-		classicStroke.push_back(glm::vec3(strokes[0][0].x, strokes[0][0].y, strokes[0][1].z));
-		classicStroke.push_back(glm::vec3(strokes[0][1].x, strokes[0][0].y, strokes[0][1].z));
-		classicStroke.push_back(glm::vec3(strokes[0][1].x, strokes[0][0].y, strokes[0][0].z));
-		classicStroke.push_back(strokes[0][0]);
+		if (strokes[0].size() > 1) {
+			vector<glm::vec3> classicStroke;
+			classicStroke.push_back(strokes[0][0]);
+			classicStroke.push_back(glm::vec3(strokes[0][0].x, strokes[0][0].y, strokes[0][1].z));
+			classicStroke.push_back(glm::vec3(strokes[0][1].x, strokes[0][0].y, strokes[0][1].z));
+			classicStroke.push_back(glm::vec3(strokes[0][1].x, strokes[0][0].y, strokes[0][0].z));
+			classicStroke.push_back(strokes[0][0]);
 		
-		vector<glm::vec3> endStroke;
-		endStroke.push_back(strokes[1][0]);
-		endStroke.push_back(glm::vec3(strokes[1][0].x, strokes[1][0].y, strokes[1][0].z+1));
-		endStroke.push_back(glm::vec3(strokes[1][0].x+1, strokes[1][0].y, strokes[1][0].z+1));
-		endStroke.push_back(glm::vec3(strokes[1][0].x+1, strokes[1][0].y, strokes[1][0].z));
-		endStroke.push_back(strokes[1][0]);
+			vector<glm::vec3> endStroke;
+			endStroke.push_back(strokes[1][0]);
+			endStroke.push_back(glm::vec3(strokes[1][0].x, strokes[1][0].y, strokes[1][0].z+1));
+			endStroke.push_back(glm::vec3(strokes[1][0].x+1, strokes[1][0].y, strokes[1][0].z+1));
+			endStroke.push_back(glm::vec3(strokes[1][0].x+1, strokes[1][0].y, strokes[1][0].z));
+			endStroke.push_back(strokes[1][0]);
 
-		formations.push_back(classicStroke);
-		formations.push_back(endStroke);
+			formations.push_back(classicStroke);
+			formations.push_back(endStroke);
+			crowdModelAgentFocus->createCrowd(classicStroke, endStroke);
+			running = true;
+		}
 		strokes.clear();
 		strokeNumber = 0;
-		crowdModelAgentFocus->createCrowd(classicStroke, endStroke);
-		running = true;
 	}
 	if (strokes.size()==0) {
 		return;
@@ -257,26 +261,21 @@ void onMouseClick(int button, int state, int x, int y) {
 				newStroke.push_back(input->onMouseClick(x, y));
 			}
 			strokes.push_back(newStroke);
-
-			float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-			float g = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-			float b = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-
-			vector<float> newColour;
-			newColour.push_back(r);
-			newColour.push_back(g);
-			newColour.push_back(b);
-
-			colours.push_back(newColour);
-
 			dragging = true;
 		}
 		else if (state == GLUT_UP) {
-			if (classicControl && strokeNumber > 0) {
-				processInput();
+			if (classicControl) {
+				if (strokeNumber > 0) {
+					processInput();
+				}
+				else {
+					strokeNumber += 1;
+				}
+			}
+			else {
+				strokeNumber += 1;
 			}
 			dragging = false;
-			strokeNumber += 1;
 		}
 	}
 

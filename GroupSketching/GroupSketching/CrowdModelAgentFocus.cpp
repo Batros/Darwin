@@ -66,6 +66,19 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 			agentsToDelete.push_back(i);
 		}
 	}
+
+	for (int i=0; i<crowds.size(); i++) {
+		vector<AgentFocus*> crowdAgents = crowds[i]->getAgents();
+		vector<int> crowdAgentsToDelete;
+		for (int j=0; j<crowdAgents.size(); j++) {
+			if (pointInBoundary(crowdAgents[j]->getPosition(), bound1)) {
+				agentsInBoundary.push_back(crowdAgents[j]->getPosition());
+				agents.push_back(crowdAgents[j]);
+				crowdAgentsToDelete.push_back(j);
+			}
+		}
+		crowds[i]->removeAgents(crowdAgentsToDelete);
+	}
 	f1->populate(agentsInBoundary);
 
 	//Second formation - populate it with the number of agents found in the first one
@@ -78,7 +91,9 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
 	}
 
-	path.push_back(f2->getCentre());
+	if (path.size() < 1) {
+		path.push_back(f2->getCentre());
+	}
 
 	//Create the crowd with a path and a default sub-path, both formations and the list of agents
 	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f2, path, agents);
@@ -137,10 +152,14 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 	Formation* f2Sub = new Formation(bound2Sub);
 
 	f2->populate(agentsInBoundary.size());
-	path.push_back(f2->getCentre());
+	if (path.size() < 1) {
+		path.push_back(f2->getCentre());
+	}
 	
 	f2Sub->populate(agentsInSubBoundary.size());
-	subPath.push_back(f2Sub->getCentre());
+	if (subPath.size() < 1) {
+		subPath.push_back(f2Sub->getCentre());
+	}
 
 	//Create the crowd with a path and a default sub-path, both formations and the list of agents
 	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f1Sub, f2, f2Sub, path, subPath, agents, subAgents);
@@ -170,6 +189,12 @@ bool CrowdModelAgentFocus::update() {
 		//v3 (future): Convert neighbouring crowds coordinates into this crowd's coordinate system and pass those
 		vector<AgentFocus*> neighbouringCrowds;
 		crowds[i]->update(neighbouringCrowds);
+
+		vector<AgentFocus*> stoppedAgents = crowds[i]->getStoppedAgents();
+		for (int j=0; j<stoppedAgents.size(); j++) {
+			freeAgents.push_back(stoppedAgents[j]);
+		}
+		crowds[i]->emptyStoppedAgents();
 	}
 	return false;
 }

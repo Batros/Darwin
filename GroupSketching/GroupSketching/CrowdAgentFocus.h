@@ -14,7 +14,11 @@ public:
 	
 	vector<glm::vec3> getRelativeAgentCoords();
 	vector<glm::vec3> getAbsoluteAgentCoords();
+	vector<AgentFocus*> getAgents();
+	vector<AgentFocus*> getStoppedAgents();
+	void emptyStoppedAgents();
 	void update(vector<AgentFocus*> neighbours);
+	void removeAgents(vector<int> agentsToDelete);
 	bool isFinished();
 
 private:
@@ -23,6 +27,7 @@ private:
 	GLdouble boundRadius;
 	vector<AgentFocus*> agents;
 	vector<AgentFocus*> subAgents;
+	vector<AgentFocus*> stoppedAgents;
 	Formation* startFormation;
 	Formation* endFormation;
 };

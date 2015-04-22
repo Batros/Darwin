@@ -44,6 +44,7 @@ vec3 AgentFocus::getColour()
 
 void AgentFocus::setEndPoint(vec3 end) {
 	endPoint = end;
+	needsToMove = true;
 }
 
 void AgentFocus::setPosition(vec3 newPosition)
