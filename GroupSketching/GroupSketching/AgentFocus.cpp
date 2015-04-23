@@ -27,6 +27,14 @@ float AgentFocus::getSize() {
 	return this->SIZE;
 }
 
+float AgentFocus::getSpeed() {
+	return speed;
+}
+
+void AgentFocus::setSpeedLimit(float s) {
+	this->speedLimit = s;
+}
+
 vec3 AgentFocus::getEndPoint()
 {
 	return endPoint;
@@ -127,7 +135,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 		else {
 			deltaPos = endVec + sepVec;
 		}
-		vec3 newPos = position+(normalize(deltaPos)*speed);
+		vec3 newPos = position+(normalize(deltaPos)*speedLimit);
 		vec3 dir = newPos - position;
 
 		float distFromEnd = length(position-endPoint);

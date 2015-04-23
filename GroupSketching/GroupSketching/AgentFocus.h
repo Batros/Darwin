@@ -9,6 +9,8 @@ public:
 	vec3 getPosition();
 	vec3 getColour();
 	float getSize();
+	float getSpeed();
+	void setSpeedLimit(float speed);
 	void setPosition(vec3 newPosition);
 	void setEndPoint(vec3 end);
 	void setPath(vector<vec3> path);
@@ -21,8 +23,7 @@ public:
 private:
 	vec3 position;
 	vec3 endPoint;
-	int minSpd;
-	int maxSpd;
+	float speedLimit;
 	int type;
 	float speed;
 	bool needsToMove;

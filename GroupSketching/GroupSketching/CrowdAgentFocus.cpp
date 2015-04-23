@@ -42,10 +42,19 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f2, Path path, vector
 	vector<glm::vec3> coords = f2->getAgentCoords();
 
 	//Set each agent's destination point to be this point, but relative to their current position
+	float minSpeed = 100.0f;
 	for (unsigned int i=0; i<agents.size(); i++) {
 		agents[i]->setEndPoint(coords[i]);
 		agents[i]->setPath(path);
 		agents[i]->setColour(vec3(1.0, 0.0, 0.0));
+		float speed = agents[i]->getSpeed();
+		if (speed < minSpeed) {
+			minSpeed = speed;
+		}
+	}
+
+	for (unsigned int i=0; i<agents.size(); i++) {
+		agents[i]->setSpeedLimit(minSpeed);
 	}
 }
 
@@ -64,19 +73,37 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f1s, Formation* f2, F
 	vector<glm::vec3> coords = f2->getAgentCoords();
 
 	//Set each agent's destination point to be this point
+	float minSpeed = 100.0f;
 	for (unsigned int i=0; i<agents.size(); i++) {
 		agents[i]->setEndPoint(coords[i]);
 		agents[i]->setPath(path);
 		agents[i]->setColour(vec3(1.0, 0.0, 0.0));
+		float speed = agents[i]->getSpeed();
+		if (speed < minSpeed) {
+			minSpeed = speed;
+		}
+	}
+
+	for (unsigned int i=0; i<agents.size(); i++) {
+		agents[i]->setSpeedLimit(minSpeed);
 	}
 
 	//Do the same things for the agents in the sub-formation
 	vector<vec3> subCoords = f2s->getAgentCoords();
 
+	minSpeed = 100.0f;
 	for(unsigned int i=0; i<subAgents.size(); i++) {
 		subAgents[i]->setEndPoint(subCoords[i]);
 		subAgents[i]->setPath(subPath);
 		subAgents[i]->setColour(vec3(0.0, 0.0, 1.0));
+		float speed = subAgents[i]->getSpeed();
+		if (speed < minSpeed) {
+			minSpeed = speed;
+		}
+	}
+
+	for (unsigned int i=0; i<subAgents.size(); i++) {
+		subAgents[i]->setSpeedLimit(minSpeed);
 	}
 }
 
