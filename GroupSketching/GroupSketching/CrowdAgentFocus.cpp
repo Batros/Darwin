@@ -69,6 +69,16 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f1s, Formation* f2, F
 	this->agents = agents;
 	this->subAgents = subAgents;
 
+	float pathLength = 0.0f;
+	for (int i=1; i<path.size(); i++) {
+		pathLength += length(path[i-1] - path[i]);
+	}
+
+	float subPathLength = 0.0f;
+	for (int i=1; i<subPath.size(); i++) {
+		subPathLength += length(subPath[i-1] - subPath[i]);
+	}
+
 	//Get the list of end coords from the second formation
 	vector<glm::vec3> coords = f2->getAgentCoords();
 
@@ -84,26 +94,35 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f1s, Formation* f2, F
 		}
 	}
 
-	for (unsigned int i=0; i<agents.size(); i++) {
-		agents[i]->setSpeedLimit(minSpeed);
-	}
-
 	//Do the same things for the agents in the sub-formation
 	vector<vec3> subCoords = f2s->getAgentCoords();
 
-	minSpeed = 100.0f;
+	float minSubSpeed = 100.0f;
 	for(unsigned int i=0; i<subAgents.size(); i++) {
 		subAgents[i]->setEndPoint(subCoords[i]);
 		subAgents[i]->setPath(subPath);
 		subAgents[i]->setColour(vec3(0.0, 0.0, 1.0));
 		float speed = subAgents[i]->getSpeed();
-		if (speed < minSpeed) {
-			minSpeed = speed;
+		if (speed < minSubSpeed) {
+			minSubSpeed = speed;
 		}
 	}
 
+	float travelTime = pathLength / minSpeed;
+	float subTravelTime = subPathLength / minSubSpeed;
+	if (travelTime < subTravelTime) {
+		minSubSpeed *= subTravelTime / travelTime;
+	}
+	else {
+		minSpeed *= travelTime / subTravelTime;
+	}
+
+	for (unsigned int i=0; i<agents.size(); i++) {
+		agents[i]->setSpeedLimit(minSpeed);
+	}
+
 	for (unsigned int i=0; i<subAgents.size(); i++) {
-		subAgents[i]->setSpeedLimit(minSpeed);
+		subAgents[i]->setSpeedLimit(minSubSpeed);
 	}
 }
 
