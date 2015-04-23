@@ -361,7 +361,7 @@ void Formation::populate(int n)
 		// Select equidistant coordinates.
 		vector<int> t;
 		int cnt = n;
-		double dist = (double) ((double)(resampledBoundaryCoords.size())/insideN);
+		double dist = (double) ((double)(resampledBoundaryCoords.size())/n);
 		double cur = 0.0;
 		if (resampledBoundaryCoords.size() > 0) {
 			while (cnt > 0) {
@@ -469,7 +469,9 @@ void Formation::populate(Formation* formation)
 
 	// Reorder the agents in formation 2 based on the ordered list of IDs.
 	vector<glm::vec3> orderedAgents;
+	//cout << corrIDs.size() << endl;
 	for (int i = 0; i < corrIDs.size(); i++) {
+		//cout << corrIDs[i] << endl;
 		orderedAgents.push_back(this->agentCoords[corrIDs[i]]);
 	}
 	this->agentCoords = orderedAgents;
