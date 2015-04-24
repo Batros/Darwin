@@ -70,13 +70,23 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f1s, Formation* f2, F
 	this->subAgents = subAgents;
 
 	float pathLength = 0.0f;
-	for (int i=1; i<path.size(); i++) {
-		pathLength += length(path[i-1] - path[i]);
+	if (path.size() > 1) {
+		for (int i=1; i<path.size(); i++) {
+			pathLength += length(path[i-1] - path[i]);
+		}
+	}
+	else {
+		pathLength = length(f1->getCentre() - f2->getCentre());
 	}
 
 	float subPathLength = 0.0f;
-	for (int i=1; i<subPath.size(); i++) {
-		subPathLength += length(subPath[i-1] - subPath[i]);
+	if (subPath.size() > 1) {
+		for (int i=1; i<subPath.size(); i++) {
+			subPathLength += length(subPath[i-1] - subPath[i]);
+		}
+	}
+	else {
+		subPathLength = length(f1s->getCentre() - f2s->getCentre());
 	}
 
 	//Get the list of end coords from the second formation
@@ -111,11 +121,13 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f1s, Formation* f2, F
 	float travelTime = pathLength / minSpeed;
 	float subTravelTime = subPathLength / minSubSpeed;
 	if (travelTime < subTravelTime) {
-		minSubSpeed *= subTravelTime / travelTime;
-	}
-	else {
 		minSpeed *= travelTime / subTravelTime;
 	}
+	else {
+		minSubSpeed *= subTravelTime / travelTime;
+	}
+
+	cout << pathLength << " : " << subPathLength << endl;
 
 	for (unsigned int i=0; i<agents.size(); i++) {
 		agents[i]->setSpeedLimit(minSpeed);
