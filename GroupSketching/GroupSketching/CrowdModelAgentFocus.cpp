@@ -19,7 +19,8 @@ CrowdModelAgentFocus::CrowdModelAgentFocus(void)
 		}
 		prevPoints.push_back(point);
 		AgentFocus* newAgent = new AgentFocus(point, point, glm::vec3(0.2, 0.5, 0.9));
-		if (i>=20) {
+		float ranAgent = rand() % 100;
+		if (ranAgent>=20) {
 			newAgent->setType(2);
 		}
 		freeAgents.push_back(newAgent);

@@ -101,6 +101,18 @@ void processInput() {
 		strokes.clear();
 		strokeNumber = 0;
 	}
+	else {
+		vector<int> blankStrokes;
+		for (int i=0; i<strokes.size(); i++) {
+			if (strokes[i].size()==0) {
+				blankStrokes.push_back(i);
+			}
+		}
+
+		for (int i=blankStrokes.size()-1; i>=0; i--) {
+			strokes.erase(strokes.begin()+blankStrokes[i]);
+		}
+	}
 	if (strokes.size()==0) {
 		return;
 		/*
@@ -117,6 +129,7 @@ void processInput() {
 		running = true;
 	}
 	else if (strokes.size()==2) {
+		formations.clear();
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
 		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[1]);
@@ -132,6 +145,7 @@ void processInput() {
 		running = true;
 	}
 	else if (strokes.size()==3) {
+		formations.clear();
 		// Formation, Formation, Path
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
@@ -155,6 +169,7 @@ void processInput() {
 		}
 	}
 	else if (strokes.size()==4) {
+		formations.clear();
 		// Formation, Sub-formation, Formation, Sub-formation
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
@@ -182,6 +197,7 @@ void processInput() {
 		}
 	}
 	else if (strokes.size()==5) {
+		formations.clear();
 		// Formation, Sub-formation, Formation, Sub-formation, Path
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
@@ -211,6 +227,7 @@ void processInput() {
 		}
 	}
 	else if (strokes.size()==6) {
+		formations.clear();
 		// Formation, Sub-formation, Formation, Sub-formation, Path, Sub-path
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
