@@ -142,7 +142,7 @@ CrowdAgentFocus::~CrowdAgentFocus(void)
 {
 }
 
-void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
+void CrowdAgentFocus::update(vector<AgentFocus*> neighbours, float sepMod)
 {
 	//Insert the list of agents into the neighbour list (this should later be modified on an agent-by-agent basis)
 	neighbours.insert(neighbours.begin(), agents.begin(), agents.end());
@@ -151,7 +151,7 @@ void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 	vector<int> agentsToDelete;
 	for (unsigned int i=0; i<agents.size(); i++) {
 		//Give agents the list of their neighbours, as well as the urgency (which is the same for all agents in a single update)
-		agents[i]->update(neighbours);
+		agents[i]->update(neighbours, sepMod);
 		if (!agents[i]->isStillMoving()) {
 			stoppedAgents.push_back(agents[i]);
 			agentsToDelete.push_back(i);
@@ -166,7 +166,7 @@ void CrowdAgentFocus::update(vector<AgentFocus*> neighbours)
 	if (subAgents.size() > 0) {
 		//Now update the sub-agents
 		for (unsigned int i=0; i<subAgents.size(); i++) {
-			subAgents[i]->update(neighbours);
+			subAgents[i]->update(neighbours, sepMod);
 			if (!subAgents[i]->isStillMoving()) {
 				stoppedAgents.push_back(subAgents[i]);
 				agentsToDelete.push_back(i);

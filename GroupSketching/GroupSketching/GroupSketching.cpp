@@ -3,7 +3,6 @@
 #include "Camera.h"
 #include "SketchHandler.h"
 #include "Formation.h"
-#include "CrowdModel.h"
 #include "CrowdModelAgentFocus.h"
 
 using namespace std;
@@ -13,7 +12,6 @@ int screenHeight;
 
 bool drawMode;
 bool dragging;
-bool running;
 bool debugSquares;
 bool drawFormations;
 bool classicControl;
@@ -28,9 +26,74 @@ vector<vector<float>> colours;
 
 Input* input;
 Camera* camera;
-CrowdModel* crowdModel;
 CrowdModelAgentFocus* crowdModelAgentFocus;
 SketchHandler* sketchHandler;
+
+GLuint texture;
+
+enum {
+	MENU_RESET = 1,
+	MENU_CONTROL_CLASSIC,
+	MENU_CONTROL_NEW,
+	MENU_SHOWSKETCH_ON,
+	MENU_SHOWSKETCH_OFF,
+	MENU_QUIT,
+	MENU_PROC_INPUT,
+	MENU_SEP_LOW,
+	MENU_SEP_MED,
+	MENU_SEP_HIGH
+};
+
+/*
+LoadTexture is a modified version of the LoadTexture function found in
+the swiftless openGL tutorials online, found here:
+http://www.swiftless.com/tutorials/opengl/texture_under_windows.html
+*/
+GLuint LoadTexture(const char * filename, int width, int height ) {
+    GLuint texture;
+    FILE *file;
+
+    //The following code will read in our RAW file
+    errno_t errorCode = fopen_s(&file, filename, "rb");
+    if ( file == NULL ) {
+		return 0;
+	}
+
+	GLuint* data = new GLuint[width * height];
+
+    fread( data, width * height * sizeof(GLuint), 1, file);
+    fclose(file);
+
+    glGenTextures( 1, &texture ); //generate the texture with the loaded data
+    glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ); //set texture environment parameters
+
+    //here we are setting what textures to use and when. The MIN filter is which quality to show
+    //when the texture is near the view, and the MAG filter is which quality to show when the texture
+    //is far from the view.
+
+    //The qualities are (in order from worst to best)
+    //GL_NEAREST
+    //GL_LINEAR
+    //GL_LINEAR_MIPMAP_NEAREST
+    //GL_LINEAR_MIPMAP_LINEAR
+
+    //And if you go and use extensions, you can use Anisotropic filtering textures which are of an
+    //even better quality, but this will do for now.
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+    //Here we are setting the parameter to repeat the texture instead of clamping the texture
+    //to the edge of our shape. 
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+    //Generate the texture
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	//glPixelStorei(GL_UNPACK_ALIGNMENT, 4); 
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	delete data;
+    return texture; //return whether it was successfull
+}
 
 /*
 The keyboard and mouse movement functions just forward on to the input class,
@@ -71,14 +134,20 @@ void onMouseDrag(int x, int y) {
 	}
 	else {
 		if (dragging) {
-			strokes[strokeNumber].push_back(input->onMouseClick(x, y));
+			if (strokeNumber<strokes.size()) {
+				strokes[strokeNumber].push_back(input->onMouseClick(x, y));
+			}
+			else {
+				strokeNumber = strokes.size()-1;
+			}
 		}
 	}
 }
 
 void processInput() {
 	if (classicControl) {
-		if (strokes[0].size() > 1) {
+		if ((strokes.size() > 1) && (strokes[0].size() > 1)) {
+			formations.clear();
 			vector<glm::vec3> classicStroke;
 			classicStroke.push_back(strokes[0][0]);
 			classicStroke.push_back(glm::vec3(strokes[0][0].x, strokes[0][0].y, strokes[0][1].z));
@@ -96,7 +165,6 @@ void processInput() {
 			formations.push_back(classicStroke);
 			formations.push_back(endStroke);
 			crowdModelAgentFocus->createCrowd(classicStroke, endStroke);
-			running = true;
 		}
 		strokes.clear();
 		strokeNumber = 0;
@@ -113,22 +181,7 @@ void processInput() {
 			strokes.erase(strokes.begin()+blankStrokes[i]);
 		}
 	}
-	if (strokes.size()==0) {
-		return;
-		/*
-		Formation* f1 = sketchHandler->processFormation(strokes[0]);
-		Formation* f2 = sketchHandler->processFormation(strokes[1]);
-		Path path = sketchHandler->processPath(strokes[2]);
-		*/
-		debugSquares = true;
-
-		Formation* f1 = new Formation(sq1);
-		Formation* f2 = new Formation(sq2);
-		Path path;
-		crowdModel->createCrowd(f1, f2, path);
-		running = true;
-	}
-	else if (strokes.size()==2) {
+	if (strokes.size()==2) {
 		formations.clear();
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
@@ -136,13 +189,7 @@ void processInput() {
 		formations.push_back(f2);
 		strokes.clear();
 		strokeNumber = 0;
-		if (agentFocus) {
-			crowdModelAgentFocus->createCrowd(f1, f2);
-		}
-		else {
-			crowdModel->createCrowd(f1, f2);
-		}
-		running = true;
+		crowdModelAgentFocus->createCrowd(f1, f2);
 	}
 	else if (strokes.size()==3) {
 		formations.clear();
@@ -156,13 +203,7 @@ void processInput() {
 		strokes.clear();
 		strokeNumber = 0;
 		if (path.size() > 1) {
-			if (agentFocus) {
-				crowdModelAgentFocus->createCrowd(f1, f2, path);
-			}
-			else {
-				crowdModel->createCrowd(f1, f2, path);
-			}
-			running = true;
+			crowdModelAgentFocus->createCrowd(f1, f2, path);
 		}
 		else {
 			// Path incorrect
@@ -187,13 +228,7 @@ void processInput() {
 		if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
-			if (agentFocus) {
-				crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub);
-			}
-			else {
-				crowdModel->createCrowd(f1, f2, f1Sub, f2Sub);
-			}
-			running = true;
+			crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub);
 		}
 	}
 	else if (strokes.size()==5) {
@@ -217,13 +252,7 @@ void processInput() {
 		if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
-			if (agentFocus) {
-				crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub, path);
-			}
-			else {
-				crowdModel->createCrowd(f1, f2, f1Sub, f2Sub, path);
-			}
-			running = true;
+			crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub, path);
 		}
 	}
 	else if (strokes.size()==6) {
@@ -249,22 +278,10 @@ void processInput() {
 		if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
-			if (agentFocus) {
-				crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub, path, subPath);
-			}
-			else {
-				crowdModel->createCrowd(f1, f2, f1Sub, f2Sub, path, subPath);
-			}
-			running = true;
+			crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub, path, subPath);
 		}
 	}
 	else {
-		for(vector<glm::vec3>::size_type i = 0; i != strokes.size(); i++) {
-			if (strokes[i].size() > 0) {
-				vector<glm::vec3> f = sketchHandler->processFormation(strokes[i]);
-				formations.push_back(f);
-			}
-		}
 		strokes.clear();
 		strokeNumber = 0;
 	}
@@ -296,7 +313,7 @@ void onMouseClick(int button, int state, int x, int y) {
 		}
 	}
 
-	if(button == GLUT_RIGHT_BUTTON && state == GLUT_DOWN) {
+	if(button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN) {
 		if (drawMode) {
 			glutSetCursor(GLUT_CURSOR_NONE);
 			dragging = false;
@@ -307,42 +324,41 @@ void onMouseClick(int button, int state, int x, int y) {
 			drawMode = true;
 		}
 	}
+}
 
-	if (button == GLUT_MIDDLE_BUTTON) {
-		if (state == GLUT_DOWN) {
-			crowdModel->~CrowdModel();
-			crowdModel = new CrowdModel();
+void reset(void) {
+	crowdModelAgentFocus->~CrowdModelAgentFocus();
+	crowdModelAgentFocus = new CrowdModelAgentFocus();
 
-			crowdModelAgentFocus->~CrowdModelAgentFocus();
-			crowdModelAgentFocus = new CrowdModelAgentFocus();
-
-			formations.clear();
-			paths.clear();
-			strokes.clear();
-			strokeNumber = 0;
-			running = false;
-		}
-	}
+	formations.clear();
+	paths.clear();
+	strokes.clear();
+	strokeNumber = 0;
 }
 
 void drawFloor(float size, int polys) {
+	glEnable(GL_TEXTURE_2D);
+	texture = LoadTexture("earth.bmp", 500, 373);
 	for (float x=0.0f; x<polys; x++) {
 		glBegin(GL_TRIANGLE_STRIP);
-		glColor3f(0.1f, 0.4f, 0.1f);
+		glBindTexture(GL_TEXTURE_2D, texture);
+		glColor3f(1.0f, 1.0f, 1.0f);
 		for (float z=0.0f; z<=polys; z++) {
 			for (float xAdd=0.0f; xAdd<=1.0f; xAdd++) {
 				float xCur = 2*((size*(x/polys))+(size*(xAdd/polys))) - size;
 				float zCur = 2*(size*(z/polys)) - size;
 				glNormal3f(0.0f, 1.0f, 0.0f);
+				glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
 				glVertex3f(xCur, 0.0f, zCur);
 			}
 		}
 		glEnd();
 	}
+	glDisable(GL_TEXTURE_2D);
 }
 
 void renderEnvironment(void) {
-	drawFloor(40.0f, 300);
+	drawFloor(100.0f, 300);
 	if (classicControl) {
 		glColor3f(1.0, 1.0, 1.0);
 		glLineWidth(5.0f);
@@ -410,6 +426,98 @@ void renderEnvironment(void) {
 	}
 }
 
+void drawOverlay(void) {
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glBegin(GL_QUADS);
+		glVertex2i(0, screenHeight-50);
+		glVertex2i(0, screenHeight);
+		glVertex2i(screenWidth, screenHeight);
+		glVertex2i(screenWidth, screenHeight - 50);
+	glEnd();
+}
+
+void chooseFromMenu(int opt) {
+	switch (opt) {
+	case MENU_RESET: 
+		reset();
+		break;
+		
+	case MENU_CONTROL_CLASSIC: 
+		classicControl = true;
+		formations.clear();
+		paths.clear();
+		strokes.clear();
+		strokeNumber = 0;
+		dragging = false;
+		break;
+
+	case MENU_CONTROL_NEW:
+		classicControl = false;
+		formations.clear();
+		paths.clear();
+		strokes.clear();
+		strokeNumber = 0;
+		dragging = false;
+		break;
+
+	case MENU_SHOWSKETCH_ON: 
+		drawFormations = true;
+		break;
+		
+	case MENU_SHOWSKETCH_OFF: 
+		drawFormations = false;
+		break;
+
+	case MENU_QUIT: 
+		exit(EXIT_SUCCESS);
+		break;
+
+	case MENU_PROC_INPUT:
+		processInput();
+		break;
+
+	case MENU_SEP_LOW:
+		crowdModelAgentFocus->setSepMod(0.40);
+		break;
+		
+	case MENU_SEP_MED:
+		crowdModelAgentFocus->setSepMod(1.0);
+		break;
+
+	case MENU_SEP_HIGH:
+		crowdModelAgentFocus->setSepMod(1.6);
+		break;
+	}
+
+	glutPostRedisplay();
+}
+
+void setupMenu(void) {
+	int controlStyleMenu = glutCreateMenu(chooseFromMenu);
+	glutAddMenuEntry("Classic", MENU_CONTROL_CLASSIC);
+	glutAddMenuEntry("New", MENU_CONTROL_NEW);
+
+	int showSketchesMenu = glutCreateMenu(chooseFromMenu);
+	glutAddMenuEntry("On", MENU_SHOWSKETCH_ON);
+	glutAddMenuEntry("Off", MENU_SHOWSKETCH_OFF);
+
+	int separationMenu = glutCreateMenu(chooseFromMenu);
+	glutAddMenuEntry("Low", MENU_SEP_LOW);
+	glutAddMenuEntry("Medium", MENU_SEP_MED);
+	glutAddMenuEntry("High", MENU_SEP_HIGH);
+
+	int menu = glutCreateMenu(chooseFromMenu);
+	glutAddMenuEntry("Process input", MENU_PROC_INPUT);
+	glutAddMenuEntry("Reset", MENU_RESET);
+	glutAddSubMenu("Control style", controlStyleMenu);
+	glutAddSubMenu("Show sketches", showSketchesMenu);
+	glutAddSubMenu("Agent separation", separationMenu);
+	glutAddMenuEntry("Quit program", MENU_QUIT);
+
+
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
+}
+
 void display(void) {
 	glEnable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
@@ -421,7 +529,7 @@ void display(void) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glPolygonMode(GL_FRONT, GL_FILL);
 	glLoadIdentity();
-
+	
 	if (!drawMode) {
 		camera->updateCamera(input);
 	}
@@ -473,14 +581,10 @@ void display(void) {
 		strokeNumber = 0;
 	}
 
-	if (agentFocus) {
-		crowdModelAgentFocus->update();
-	}
-	else {
-		crowdModel->update();
-	}
+	crowdModelAgentFocus->update();
 
 	renderEnvironment();
+
 	glutSwapBuffers();
 }
 
@@ -500,19 +604,16 @@ int main(int argc, char **argv) {
 	screenHeight = 768;
 
 	sketchHandler = new SketchHandler();
-	crowdModel = new CrowdModel();
 	crowdModelAgentFocus = new CrowdModelAgentFocus();
 	input = new Input(screenHeight, screenWidth);
 	camera = new Camera();
-	agentFocus = false;
 	drawMode = false;
-	running = false;
 	debugSquares = false;
 	drawFormations = true;
 	classicControl = false;
 	strokeNumber = 0;
 	srand (static_cast <unsigned> (time(0)));
-
+	
 	glutInitDisplayMode (GLUT_DOUBLE | GLUT_RGBA);
 	glutInitWindowSize (screenWidth, screenHeight);
 	glutInitWindowPosition (0, 0);
@@ -529,6 +630,8 @@ int main(int argc, char **argv) {
 	glutMouseFunc(onMouseClick);
 	glutSetCursor(GLUT_CURSOR_NONE);
 	//glutFullScreen();
+
+	setupMenu();
 
 	input->init();
 	glutMainLoop();

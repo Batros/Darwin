@@ -16,7 +16,7 @@ public:
 	void setPath(vector<vec3> path);
 	void setColour(vec3 colour);
 	void setType(int t);
-	void update(vector<AgentFocus*> neighbours);
+	void update(vector<AgentFocus*> neighbours, float sepMod);
 	~AgentFocus(void);
 	bool isStillMoving();
 
@@ -24,11 +24,15 @@ private:
 	vec3 position;
 	vec3 endPoint;
 	float speedLimit;
+	float facing;
 	int type;
 	float speed;
 	bool needsToMove;
 	bool pathFound;
 	vec3 colour;
+	void drawBase();
+	void drawTop();
+	void drawGun();
 	vec3 separation(vector<vec3>, vector<float>);
 	vec3 pathfind(vec3);
 	vec3 randomVec();

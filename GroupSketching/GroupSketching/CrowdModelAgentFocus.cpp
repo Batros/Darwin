@@ -2,8 +2,8 @@
 #include "CrowdModelAgentFocus.h"
 
 
-CrowdModelAgentFocus::CrowdModelAgentFocus(void)
-{
+CrowdModelAgentFocus::CrowdModelAgentFocus(void) {
+	this->sepMod = 1.0;
 	vector<glm::vec3> prevPoints;
 	for (int i=0; i<150; i++) {
 		float ranX = rand() % 30;
@@ -168,6 +168,10 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 	crowds.push_back(newCrowd);
 }
 
+void CrowdModelAgentFocus::setSepMod(float newSepMod) {
+	this->sepMod = newSepMod;
+}
+
 bool CrowdModelAgentFocus::update() {
 	//v1 (done): Take a list of crowds at their current state, update them all
 	//v2 (in-dev): Calculate radius around each crowd, if any of these overlap there is the potential for collisions so check with that crowd.
@@ -184,12 +188,17 @@ bool CrowdModelAgentFocus::update() {
 		glPopMatrix();
 	}
 
+	vector<AgentFocus*> allAgents = freeAgents;
+	for (int i=0; i<crowds.size(); i++) {
+		vector<AgentFocus*> agents = crowds[i]->getAgents();
+		allAgents.insert(allAgents.begin(), agents.begin(), agents.end());
+	}
+
 	for (int i=0; i<crowds.size(); i++) {
 		//v1 (done): No neighbouring crowds.
 		//v2 (in-dev): Check all other crowds, see if there are any in the radius. If so, pass these.
 		//v3 (future): Convert neighbouring crowds coordinates into this crowd's coordinate system and pass those
-		vector<AgentFocus*> neighbouringCrowds;
-		crowds[i]->update(neighbouringCrowds);
+		crowds[i]->update(allAgents, sepMod);
 
 		vector<AgentFocus*> stoppedAgents = crowds[i]->getStoppedAgents();
 		for (int j=0; j<stoppedAgents.size(); j++) {

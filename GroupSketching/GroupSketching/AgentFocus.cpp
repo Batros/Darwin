@@ -15,6 +15,7 @@ AgentFocus::AgentFocus(vec3 position, vec3 end, vec3 colour) {
 	this->endPoint = end;
 	this->colour = colour;
 	pathFound = false;
+	facing = 0.0f;
 	needsToMove = true;
 	SIZE = 0.5f;
 	SEPARATION_STRENGTH = 1.0f*SIZE;
@@ -76,7 +77,19 @@ void AgentFocus::setPath(vector<vec3> path) {
 	this->path = path;
 }
 
-void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
+void AgentFocus::drawBase() {
+
+}
+
+void AgentFocus::drawTop() {
+
+}
+
+void AgentFocus::drawGun() {
+
+}
+
+void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 {
 	if (needsToMove) {
 		vec3 endVec = pathfind(endPoint);
@@ -112,7 +125,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 		else {
 			vectorToPath = nextPath - position;
 		}
-		if (skipPath || length(vectorToPath) < 5) {
+		if (skipPath || length(vectorToPath) < 2) {
 			if (path.size() > 0) {
 				nextPath = path[0];
 				positionsStack.clear();
@@ -127,7 +140,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 		else {
 			vectorToPath = normalize(nextPath - position)*0.35f;
 		}
-		vec3 sepVec = separation(sepNeighbours, strength);
+		vec3 sepVec = separation(sepNeighbours, strength)*sepMod;
 		vec3 deltaPos;
 		if (length(vectorToPath) > 0) {
 			deltaPos = sepVec + vectorToPath;
@@ -135,7 +148,53 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 		else {
 			deltaPos = endVec + sepVec;
 		}
-		vec3 newPos = position+(normalize(deltaPos)*speedLimit);
+		deltaPos = normalize(deltaPos);
+
+		vec3 newPos = position;
+		float desiredFace = atan2f(deltaPos.x, deltaPos.z)*(180/M_PI);
+		
+
+		if (desiredFace > 360) {
+			desiredFace -= 360;
+		}
+		else if (desiredFace < 0) {
+			desiredFace += 360;
+		}
+
+		if (facing > 360) {
+			facing -= 360;
+		}
+		else if (facing < 0) {
+			facing += 360;
+		}
+
+		float angVel = 10.0f;
+		if (abs(desiredFace-facing) > angVel) {
+			if (abs(desiredFace - facing) < 180) {
+				// normal
+				if (desiredFace > facing) {
+					facing += angVel;
+				}
+				else {
+					facing -= angVel;
+				}
+			}
+			else {
+				if (desiredFace < facing) {
+					facing += angVel;
+				}
+				else {
+					facing -= angVel;
+				}
+			}
+		}
+		else {
+			facing = desiredFace;
+		}
+
+		newPos = position+(deltaPos*speedLimit);
+
+
 		vec3 dir = newPos - position;
 
 		float distFromEnd = length(position-endPoint);
@@ -163,18 +222,26 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours)
 			positionsStack.push_back(newPos);
 		}
 		setPosition(newPos);
+
 		glPushMatrix();
 			glColor3f(colour.x, colour.y, colour.z);
 			glTranslated(position.x, 0, position.z);
-			glutSolidSphere(SIZE, 20, 20);
+			glPushMatrix();
+			glRotated(facing, 0.0, 1.0, 0.0);
+			glTranslated(0.0, 0.0, -1.0);
+			GLUquadricObj *quadratic = gluNewQuadric();
+			gluCylinder(quadratic, 0.5f, 0, 2.0f, 32, 32);
+			glPopMatrix();
+			/*
 			glLineWidth(5.5);
 
 			glColor3f(1.0, 1.0, 0.0);
 			glBegin(GL_LINES);
 			glVertex3f(0,0,0);
-			vec3 direction = normalize(dir)*SIZE*5.0f;
+			
 			glVertex3f(direction.x,0,direction.z);
 			glEnd();
+			*/
 		glPopMatrix();
 	} else {
 		//Calculate pushing vector - once an agent is where it needs to be, others do not use them for separation vectors.

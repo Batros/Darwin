@@ -17,7 +17,7 @@ public:
 	vector<AgentFocus*> getAgents();
 	vector<AgentFocus*> getStoppedAgents();
 	void emptyStoppedAgents();
-	void update(vector<AgentFocus*> neighbours);
+	void update(vector<AgentFocus*> neighbours, float sepMod);
 	void removeAgents(vector<int> agentsToDelete);
 	bool isFinished();
 
