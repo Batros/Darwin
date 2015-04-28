@@ -53,7 +53,7 @@ void keySpecialUp(int key, int x, int y) {
 }
 
 void onMouseMove(int x, int y) {
-	input->onMouseMove(x, y);
+	input->onMouseMove(x, y, !drawMode);
 }
 
 void onMouseDrag(int x, int y) {

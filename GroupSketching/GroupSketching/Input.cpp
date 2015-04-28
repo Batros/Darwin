@@ -82,10 +82,10 @@ void Input::keySpecialUp(int key, int x, int y) {
 	keySpecialStates[key] = false; // Set the state of the current key to not pressed
 }
 
-void Input::onMouseMove(int x, int y) {
+void Input::onMouseMove(int x, int y, bool warp) {
 	
 	// If the mouse is near the edge of the screen
-	if ((x > (screenWidth - 20)) || (x < 20) || (y > (screenHeight - 20)) || (y < 20)) {
+	if (warp && ((x > (screenWidth - 30)) || (x < 30) || (y > (screenHeight - 30)) || (y < 30))) {
 		// Calculate the middle of the screen
 		int screenWMiddle = screenWidth>>1;
 		int screenHMiddle = screenHeight>>1;

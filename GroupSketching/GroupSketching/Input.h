@@ -35,7 +35,7 @@ public:
 	void keySpecialUp(int key, int x, int y);
 
 	// This function is called each time the mouse is moved on the screen
-	void onMouseMove(int x, int y);
+	void onMouseMove(int x, int y, bool warp);
 
 	glm::vec3 onMouseClick(int x, int y);
 
