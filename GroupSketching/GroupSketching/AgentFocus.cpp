@@ -78,7 +78,28 @@ void AgentFocus::setPath(vector<vec3> path) {
 }
 
 void AgentFocus::drawBase() {
+	//glEnable(GL_TEXTURE_2D);
+	//texture = LoadTexture("earth.bmp", 500, 373);
+	glBegin(GL_TRIANGLE_STRIP);
+	//glBindTexture(GL_TEXTURE_2D, texture);
 
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(-SIZE, 0.01f, -SIZE/2);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(-SIZE, 0.01f, SIZE/2);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(SIZE, 0.0f, -SIZE/2);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(SIZE, 0.0f, SIZE/2);
+	glEnd();
+	//glDisable(GL_TEXTURE_2D);
 }
 
 void AgentFocus::drawTop() {
