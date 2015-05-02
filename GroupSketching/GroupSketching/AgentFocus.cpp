@@ -7,7 +7,15 @@ using namespace glm;
 
 AgentFocus::AgentFocus(vec3 position) {
 	this->position = position;
+	this->colour = vec3(1.0, 0.0, 0.0);
+	pathFound = false;
+	facing = 0.0f;
 	needsToMove = false;
+	SIZE = 0.5f;
+	SEPARATION_STRENGTH = 1.0f*SIZE;
+	PATHFIND_STRENGTH = 0.25f;
+	speed = 0.1f;
+	type = 1;
 }
 
 AgentFocus::AgentFocus(vec3 position, vec3 end, vec3 colour) {
@@ -83,21 +91,94 @@ void AgentFocus::drawBase() {
 	glBegin(GL_TRIANGLE_STRIP);
 	//glBindTexture(GL_TEXTURE_2D, texture);
 
-	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
-	glVertex3f(-SIZE, 0.01f, -SIZE/2);
+	float xPos = SIZE/2;
+	float xNeg = -SIZE/2;
+	float zPos = SIZE;
+	float zNeg = -SIZE;
+	float zPosEx = SIZE*1.5;
+	float zNegEx = -SIZE*1.5;
+
+	float height = SIZE/2;
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
 	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
-	glVertex3f(-SIZE, 0.01f, SIZE/2);
+	glVertex3f(xNeg, 0.0f, zNeg);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
 	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
-	glVertex3f(SIZE, 0.0f, -SIZE/2);
+	glVertex3f(xPos, 0.0f, zNeg);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
 	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
-	glVertex3f(SIZE, 0.0f, SIZE/2);
+	glVertex3f(xNeg, 0.0f, zPos);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, 0.0f, zPos);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, height, zPosEx);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, height, zPosEx);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, height, zNegEx);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, height, zNegEx);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, 0.0f, zNeg);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, 0.0f, zNeg);
+	glEnd();
+
+	glBegin(GL_TRIANGLE_STRIP);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, height, zNegEx);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, 0.0f, zNeg);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, height, zPosEx);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, 0.0f, zPos);
+
+	glEnd();
+
+	glBegin(GL_TRIANGLE_STRIP);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, height, zNegEx);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, 0.0f, zNeg);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, height, zPosEx);
+
+	glNormal3f(0.0f, -1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, 0.0f, zPos);
+
 	glEnd();
 	//glDisable(GL_TEXTURE_2D);
 }
@@ -249,9 +330,10 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 			glTranslated(position.x, 0, position.z);
 			glPushMatrix();
 			glRotated(facing, 0.0, 1.0, 0.0);
-			glTranslated(0.0, 0.0, -1.0);
-			GLUquadricObj *quadratic = gluNewQuadric();
-			gluCylinder(quadratic, 0.5f, 0, 2.0f, 32, 32);
+			//glTranslated(0.0, 0.0, -1.0);
+			//GLUquadricObj *quadratic = gluNewQuadric();
+			//gluCylinder(quadratic, 0.5f, 0, 2.0f, 32, 32);
+			drawBase();
 			glPopMatrix();
 			/*
 			glLineWidth(5.5);
@@ -276,9 +358,10 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 		}
 		vec3 pshVec = getPushedBy(pshNeighbours);
 		glPushMatrix();
-			glColor3f(1-colour.x, 1-colour.y, 1-colour.z);
+			glColor3f(colour.x, colour.y, colour.z);
 			glTranslated(position.x, 0, position.z);
-			glutSolidSphere(SIZE, 20, 20);
+			//glutSolidSphere(SIZE, 20, 20);
+			drawBase();
 		glPopMatrix();
 	}
 }

@@ -18,7 +18,7 @@ CrowdModelAgentFocus::CrowdModelAgentFocus(void) {
 			point = glm::vec3(ranX+10, 0, ranZ+10);
 		}
 		prevPoints.push_back(point);
-		AgentFocus* newAgent = new AgentFocus(point, point, glm::vec3(0.2, 0.5, 0.9));
+		AgentFocus* newAgent = new AgentFocus(point);
 		float ranAgent = rand() % 100;
 		if (ranAgent>=20) {
 			newAgent->setType(2);
@@ -178,7 +178,10 @@ bool CrowdModelAgentFocus::update() {
 	//So, send other crowd for possible separation calculation.
 	//Extended: Continue updating until they don't need to move any more, stop at that point.
 	
+	vector<AgentFocus*> allAgents;
 	for (int i=0; i<freeAgents.size(); i++) {
+		freeAgents[i]->update(allAgents, sepMod);
+		/*
 		glm::vec3 colour = freeAgents[i]->getColour();
 		glm::vec3 position = freeAgents[i]->getPosition();
 		glPushMatrix();
@@ -186,9 +189,10 @@ bool CrowdModelAgentFocus::update() {
 			glTranslated(position.x, position.y, position.z);
 			glutSolidSphere(freeAgents[i]->getSize(), 20, 20);
 		glPopMatrix();
+		*/
 	}
 
-	vector<AgentFocus*> allAgents = freeAgents;
+	allAgents = freeAgents;
 	for (int i=0; i<crowds.size(); i++) {
 		vector<AgentFocus*> agents = crowds[i]->getAgents();
 		allAgents.insert(allAgents.begin(), agents.begin(), agents.end());

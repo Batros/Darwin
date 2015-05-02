@@ -338,7 +338,7 @@ void reset(void) {
 
 void drawFloor(float size, int polys) {
 	glEnable(GL_TEXTURE_2D);
-	texture = LoadTexture("earth.bmp", 500, 373);
+	texture = LoadTexture("grass.bmp", 600, 600);
 	for (float x=0.0f; x<polys; x++) {
 		glBegin(GL_TRIANGLE_STRIP);
 		glBindTexture(GL_TEXTURE_2D, texture);
