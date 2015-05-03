@@ -20,6 +20,7 @@ class Camera {
 
 	// updatePositions updates the position of the camera in the world
 	void updatePositions(Input* input);
+	void updatePositionsFixed(Input* input);
 
 	public:
 		// Default constructor
@@ -34,6 +35,7 @@ class Camera {
 		// updateCamera calls the other update methods and draws the changes to the screen
 		void updateCamera(Input* input);
 		void positionCamera(Input* input);
+		void updateFixedCamera(Input* input);
 };
 
 #endif // __CAMERA_H_INCLUDED__

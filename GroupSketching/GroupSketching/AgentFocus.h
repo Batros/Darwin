@@ -30,6 +30,8 @@ private:
 	bool needsToMove;
 	bool pathFound;
 	vec3 colour;
+	GLuint texture;
+	void draw();
 	void drawBase();
 	void drawTop();
 	void drawGun();

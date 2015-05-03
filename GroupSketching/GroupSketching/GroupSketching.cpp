@@ -16,6 +16,7 @@ bool debugSquares;
 bool drawFormations;
 bool classicControl;
 bool agentFocus;
+bool freeCamera;
 int strokeNumber;
 glm::vec3 sq1 = glm::vec3(20.0, 0.0, 30.0);
 glm::vec3 sq2 = glm::vec3(-20.0, 0.0, -10.0);
@@ -116,7 +117,12 @@ void keySpecialUp(int key, int x, int y) {
 }
 
 void onMouseMove(int x, int y) {
-	input->onMouseMove(x, y, !drawMode);
+	if (freeCamera) {
+		input->onMouseMove(x, y, !drawMode);
+	}
+	else {
+		input->onMouseMove(x, y, false);
+	}
 }
 
 void onMouseDrag(int x, int y) {
@@ -314,14 +320,16 @@ void onMouseClick(int button, int state, int x, int y) {
 	}
 
 	if(button == GLUT_MIDDLE_BUTTON && state == GLUT_DOWN) {
-		if (drawMode) {
-			glutSetCursor(GLUT_CURSOR_NONE);
-			dragging = false;
-			drawMode = false;
-		}
-		else {
-			glutSetCursor(GLUT_CURSOR_CROSSHAIR);
-			drawMode = true;
+		if (freeCamera) {
+			if (drawMode) {
+				glutSetCursor(GLUT_CURSOR_NONE);
+				dragging = false;
+				drawMode = false;
+			}
+			else {
+				glutSetCursor(GLUT_CURSOR_CROSSHAIR);
+				drawMode = true;
+			}
 		}
 	}
 }
@@ -530,11 +538,16 @@ void display(void) {
 	glPolygonMode(GL_FRONT, GL_FILL);
 	glLoadIdentity();
 	
-	if (!drawMode) {
-		camera->updateCamera(input);
+	if (freeCamera) {
+		if (!drawMode) {
+			camera->updateCamera(input);
+		}
+		else {
+			camera->positionCamera(input);
+		}
 	}
 	else {
-		camera->positionCamera(input);
+		camera->updateFixedCamera(input);
 	}
 
 	if (input->isKeyPressed(VK_RETURN)) {
@@ -600,8 +613,8 @@ int main(int argc, char **argv) {
 	glutInit(&argc, argv);
 	//screenWidth = glutGet(GLUT_SCREEN_WIDTH);
 	//screenHeight = glutGet(GLUT_SCREEN_HEIGHT);
-	screenWidth = 1024;
-	screenHeight = 768;
+	screenWidth = 1280;
+	screenHeight = 1024;
 
 	sketchHandler = new SketchHandler();
 	crowdModelAgentFocus = new CrowdModelAgentFocus();
@@ -609,8 +622,9 @@ int main(int argc, char **argv) {
 	camera = new Camera();
 	drawMode = false;
 	debugSquares = false;
-	drawFormations = true;
+	drawFormations = false;
 	classicControl = false;
+	freeCamera = false;
 	strokeNumber = 0;
 	srand (static_cast <unsigned> (time(0)));
 	
@@ -628,7 +642,7 @@ int main(int argc, char **argv) {
 	glutPassiveMotionFunc(onMouseMove);
 	glutMotionFunc(onMouseDrag);
 	glutMouseFunc(onMouseClick);
-	glutSetCursor(GLUT_CURSOR_NONE);
+	glutSetCursor(GLUT_CURSOR_CROSSHAIR);
 	//glutFullScreen();
 
 	setupMenu();

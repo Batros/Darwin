@@ -78,7 +78,6 @@ AgentFocus::~AgentFocus(void)
 {
 }
 
-
 void AgentFocus::setPath(vector<vec3> path) {
 	this->nextPath = path[0];
 	path.erase(path.begin());
@@ -86,10 +85,9 @@ void AgentFocus::setPath(vector<vec3> path) {
 }
 
 void AgentFocus::drawBase() {
-	//glEnable(GL_TEXTURE_2D);
-	//texture = LoadTexture("earth.bmp", 500, 373);
+	glEnable(GL_TEXTURE_2D);
 	glBegin(GL_TRIANGLE_STRIP);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	float xPos = SIZE/2;
 	float xNeg = -SIZE/2;
@@ -101,43 +99,43 @@ void AgentFocus::drawBase() {
 	float height = SIZE/2;
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xNeg, 0.0f, zNeg);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xPos, 0.0f, zNeg);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 1.0);
 	glVertex3f(xNeg, 0.0f, zPos);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 1.0);
 	glVertex3f(xPos, 0.0f, zPos);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xNeg, height, zPosEx);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xPos, height, zPosEx);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 1.0);
 	glVertex3f(xNeg, height, zNegEx);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 1.0);
 	glVertex3f(xPos, height, zNegEx);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xNeg, 0.0f, zNeg);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xPos, 0.0f, zNeg);
 	glEnd();
 
@@ -180,15 +178,170 @@ void AgentFocus::drawBase() {
 	glVertex3f(xNeg, 0.0f, zPos);
 
 	glEnd();
-	//glDisable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_2D);
 }
 
 void AgentFocus::drawTop() {
+	//glEnable(GL_TEXTURE_2D);
+	//texture = LoadTexture("earth.bmp", 500, 373);
+	
 
+	float xPos = SIZE*0.25;
+	float xNeg = -SIZE*0.25;
+	float zPos = SIZE*0.75;
+	float zNeg = -SIZE*0.75;
+
+	float height = SIZE/2;
+	float topHeight = SIZE*0.75;
+
+
+	////
+	// BACK
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, height, zNeg);
+
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, topHeight, zNeg);
+
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, height, zNeg);
+
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, topHeight, zNeg);
+
+	glEnd();
+
+	////
+	// LEFT
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, height, zNeg);
+
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, topHeight, zNeg);
+
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, height, zPos);
+
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, topHeight, zPos);
+
+	glEnd();
+
+	////
+	// RIGHT
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, height, zNeg);
+
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, topHeight, zNeg);
+
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, height, zPos);
+
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, topHeight, zPos);
+
+	glEnd();
+
+	////
+	// FRONT
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, height, zPos);
+
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, topHeight, zPos);
+
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, height, zPos);
+
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, topHeight, zPos);
+
+	glEnd();
+
+	////
+	// TOP
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	//glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, topHeight, zNeg);
+
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, topHeight, zNeg);
+
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xNeg, topHeight, zPos);
+
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glVertex3f(xPos, topHeight, zPos);
+
+	glEnd();
 }
 
 void AgentFocus::drawGun() {
+	GLUquadricObj *quadratic;
+	quadratic = gluNewQuadric();
+	gluCylinder(quadratic, SIZE*0.1, SIZE*0.1, SIZE*0.75, 32, 32);
+}
 
+void AgentFocus::draw() {
+	glPushMatrix();
+		glColor3f(1.0, 1.0, 1.0);
+		glTranslated(position.x, 0, position.z);
+		glRotated(facing, 0.0, 1.0, 0.0);
+		drawBase();
+
+		glColor3f(0.0f, 0.0f, 0.0f);
+		drawTop();
+		glPushMatrix();
+			glColor3f(0.0f, 0.0f, 1.0f);
+			glTranslated(0.0, SIZE*0.625, SIZE*0.75); 
+			drawGun();
+		glPopMatrix();
+	glPopMatrix();
 }
 
 void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
@@ -296,14 +449,11 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 
 		newPos = position+(deltaPos*speedLimit);
 
-
-		vec3 dir = newPos - position;
-
 		float distFromEnd = length(position-endPoint);
-		if (distFromEnd < 0.01) {
+		if (distFromEnd < 0.1) {
 			needsToMove = false;
 		}
-		else if (positionsStack.size()==50) {
+		else if (positionsStack.size()==20) {
 			//Check the previous 50 updates - the distance travelled and the length of the vectors.
 			//If the distance travelled is small compared to the lengths, it is likely the agent is stuck jittering back and forth, so set it as "reached destination".
 
@@ -325,44 +475,81 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 		}
 		setPosition(newPos);
 
-		glPushMatrix();
-			glColor3f(colour.x, colour.y, colour.z);
-			glTranslated(position.x, 0, position.z);
-			glPushMatrix();
-			glRotated(facing, 0.0, 1.0, 0.0);
-			//glTranslated(0.0, 0.0, -1.0);
-			//GLUquadricObj *quadratic = gluNewQuadric();
-			//gluCylinder(quadratic, 0.5f, 0, 2.0f, 32, 32);
-			drawBase();
-			glPopMatrix();
-			/*
-			glLineWidth(5.5);
-
-			glColor3f(1.0, 1.0, 0.0);
-			glBegin(GL_LINES);
-			glVertex3f(0,0,0);
-			
-			glVertex3f(direction.x,0,direction.z);
-			glEnd();
-			*/
-		glPopMatrix();
+		draw();
 	} else {
+		/* OLD CODE
 		//Calculate pushing vector - once an agent is where it needs to be, others do not use them for separation vectors.
 		//Instead, these agents have strong separation to every other agent, but only very close - if an agent is within 1.5 units, move away strongly.
 		//If no agents are that close, go back to your desired spot.
 		vector<vec3> pshNeighbours;
 		for (AgentFocus* neighbour : potentialNeighbours) {
-			if (length(neighbour->getPosition()-position)<SIZE) {
+			if (length(neighbour->getPosition()-position)<(3*SIZE)) {
 				pshNeighbours.push_back(neighbour->getPosition());
 			}
 		}
 		vec3 pshVec = getPushedBy(pshNeighbours);
-		glPushMatrix();
-			glColor3f(colour.x, colour.y, colour.z);
-			glTranslated(position.x, 0, position.z);
-			//glutSolidSphere(SIZE, 20, 20);
-			drawBase();
-		glPopMatrix();
+		*/
+		if (potentialNeighbours.size() > 0) {
+			vector<vec3> sepNeighbours;
+			vector<float> strength;
+			for (AgentFocus* neighbour : potentialNeighbours) {
+				if (length(neighbour->getPosition()-position)<(2*SIZE)) {
+					sepNeighbours.push_back(neighbour->getPosition());
+					strength.push_back(1);
+				}
+			}
+			if (sepNeighbours.size() > 0) {
+				vec3 sepVec = separation(sepNeighbours, strength)*sepMod;
+				vec3 deltaPos = normalize(sepVec);
+
+				vec3 newPos = position;
+				float desiredFace = atan2f(deltaPos.x, deltaPos.z)*(180/M_PI);
+		
+
+				if (desiredFace > 360) {
+					desiredFace -= 360;
+				}
+				else if (desiredFace < 0) {
+					desiredFace += 360;
+				}
+
+				if (facing > 360) {
+					facing -= 360;
+				}
+				else if (facing < 0) {
+					facing += 360;
+				}
+
+				float angVel = 10.0f;
+				if (abs(desiredFace-facing) > angVel) {
+					if (abs(desiredFace - facing) < 180) {
+						// normal
+						if (desiredFace > facing) {
+							facing += angVel;
+						}
+						else {
+							facing -= angVel;
+						}
+					}
+					else {
+						if (desiredFace < facing) {
+							facing += angVel;
+						}
+						else {
+							facing -= angVel;
+						}
+					}
+				}
+				else {
+					facing = desiredFace;
+				}
+
+				newPos = position+(deltaPos*speed);
+
+				setPosition(newPos);
+			}
+		}
+		draw();
 	}
 }
 
@@ -375,13 +562,13 @@ vec3 AgentFocus::separation(vector<vec3> neighbours, vector<float> strength)
 	for (unsigned int i=0; i<neighbours.size(); i++) {
 		vec3 neighbour = neighbours[i];
 		vec3 separation = vec3(position.x-neighbour.x, 0, position.z-neighbour.z);
-		//Possible optimization - precalculate length(separation) so it doesn't have to be calced 2 or 3 times
-		if (0<length(separation) && length(separation)<5) {
+		float x = length(separation);
+		if (x > 0) {
 			//TODO - fix flickering of this vector. If the length to the other one is 4.99, the separation should be tiny. If it is 1, it should basically be trying as hard as it can to get to a distance of 1.
 
 			//We want the vector to be gigantic if they are touching, so it should be an exponential decay curve.
 			//Set the length to be Ne^(-Lambda*x-SIZE) and add it to the current vector
-			float x = length(separation);
+			
 			out += normalize(separation)*(10*exp(-4*(x-(SIZE*2))))*strength[i];
 		}
 	}

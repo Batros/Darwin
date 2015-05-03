@@ -33,6 +33,57 @@ CrowdModelAgentFocus::~CrowdModelAgentFocus(void)
 }
 
 
+/*
+LoadTexture is a modified version of the LoadTexture function found in
+the swiftless openGL tutorials online, found here:
+http://www.swiftless.com/tutorials/opengl/texture_under_windows.html
+*/
+GLuint CrowdModelAgentFocus::LoadTexture(const char * filename, int width, int height ) {
+    GLuint texture;
+    FILE *file;
+
+    //The following code will read in our RAW file
+    errno_t errorCode = fopen_s(&file, filename, "rb");
+    if ( file == NULL ) {
+		return 0;
+	}
+
+	GLuint* data = new GLuint[width * height];
+
+    fread( data, width * height * sizeof(GLuint), 1, file);
+    fclose(file);
+
+    glGenTextures( 1, &texture ); //generate the texture with the loaded data
+    glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE ); //set texture environment parameters
+
+    //here we are setting what textures to use and when. The MIN filter is which quality to show
+    //when the texture is near the view, and the MAG filter is which quality to show when the texture
+    //is far from the view.
+
+    //The qualities are (in order from worst to best)
+    //GL_NEAREST
+    //GL_LINEAR
+    //GL_LINEAR_MIPMAP_NEAREST
+    //GL_LINEAR_MIPMAP_LINEAR
+
+    //And if you go and use extensions, you can use Anisotropic filtering textures which are of an
+    //even better quality, but this will do for now.
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+    //Here we are setting the parameter to repeat the texture instead of clamping the texture
+    //to the edge of our shape. 
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+    //Generate the texture
+    //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	//glPixelStorei(GL_UNPACK_ALIGNMENT, 4); 
+    glTexImage2D(GL_TEXTURE_2D, 0, 3, width, height, 0, GL_BGR, GL_UNSIGNED_BYTE, data);
+	delete data;
+    return texture; //return whether it was successfull
+}
+
 void CrowdModelAgentFocus::createCrowd(Formation* f1, Formation* f2, Path path) {
 	vector<AgentFocus*> agents;
 	//v1 (done): Use 50 agents
@@ -173,36 +224,21 @@ void CrowdModelAgentFocus::setSepMod(float newSepMod) {
 }
 
 bool CrowdModelAgentFocus::update() {
-	//v1 (done): Take a list of crowds at their current state, update them all
-	//v2 (in-dev): Calculate radius around each crowd, if any of these overlap there is the potential for collisions so check with that crowd.
-	//So, send other crowd for possible separation calculation.
-	//Extended: Continue updating until they don't need to move any more, stop at that point.
-	
-	vector<AgentFocus*> allAgents;
-	for (int i=0; i<freeAgents.size(); i++) {
-		freeAgents[i]->update(allAgents, sepMod);
-		/*
-		glm::vec3 colour = freeAgents[i]->getColour();
-		glm::vec3 position = freeAgents[i]->getPosition();
-		glPushMatrix();
-			glColor3f(colour.x, colour.y, colour.z);
-			glTranslated(position.x, position.y, position.z);
-			glutSolidSphere(freeAgents[i]->getSize(), 20, 20);
-		glPopMatrix();
-		*/
-	}
+	GLuint texture = LoadTexture("plate.bmp", 512, 512);
 
-	allAgents = freeAgents;
+	vector<AgentFocus*> crowdAgents;
+
 	for (int i=0; i<crowds.size(); i++) {
 		vector<AgentFocus*> agents = crowds[i]->getAgents();
-		allAgents.insert(allAgents.begin(), agents.begin(), agents.end());
+		crowdAgents.insert(crowdAgents.begin(), agents.begin(), agents.end());
+	}
+
+	for (int i=0; i<freeAgents.size(); i++) {
+		freeAgents[i]->update(crowdAgents, sepMod);
 	}
 
 	for (int i=0; i<crowds.size(); i++) {
-		//v1 (done): No neighbouring crowds.
-		//v2 (in-dev): Check all other crowds, see if there are any in the radius. If so, pass these.
-		//v3 (future): Convert neighbouring crowds coordinates into this crowd's coordinate system and pass those
-		crowds[i]->update(allAgents, sepMod);
+		crowds[i]->update(crowdAgents, sepMod);
 
 		vector<AgentFocus*> stoppedAgents = crowds[i]->getStoppedAgents();
 		for (int j=0; j<stoppedAgents.size(); j++) {
@@ -210,6 +246,10 @@ bool CrowdModelAgentFocus::update() {
 		}
 		crowds[i]->emptyStoppedAgents();
 	}
+
+
+	//crowdAgents.insert(crowdAgents.begin(), freeAgents.begin(), freeAgents.end());
+	
 	return false;
 }
 

@@ -23,6 +23,7 @@ private:
 	float sepMod;
 	bool pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary);
 	vector<AgentFocus*> freeAgents;
+	GLuint LoadTexture(const char * filename, int width, int height);
 	pair<pair<Formation*, Formation*>, vector<AgentFocus*>> CrowdModelAgentFocus::populateFormations(vector<glm::vec3> bound1, vector<glm::vec3> bound2);
 	pair<pair<Formation*, Formation*>, vector<AgentFocus*>> CrowdModelAgentFocus::populateFormationsWithSubformations(vector<glm::vec3> bound1, vector<glm::vec3> bound2, vector<glm::vec3> bound1Sub, vector<glm::vec3> bound2Sub);
 };
