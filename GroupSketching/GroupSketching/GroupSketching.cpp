@@ -154,6 +154,7 @@ void processInput() {
 	if (classicControl) {
 		if ((strokes.size() > 1) && (strokes[0].size() > 1)) {
 			formations.clear();
+			paths.clear();
 			vector<glm::vec3> classicStroke;
 			classicStroke.push_back(strokes[0][0]);
 			classicStroke.push_back(glm::vec3(strokes[0][0].x, strokes[0][0].y, strokes[0][1].z));
@@ -189,6 +190,7 @@ void processInput() {
 	}
 	if (strokes.size()==2) {
 		formations.clear();
+		paths.clear();
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
 		vector<glm::vec3> f2 = sketchHandler->processFormation(strokes[1]);
@@ -199,6 +201,7 @@ void processInput() {
 	}
 	else if (strokes.size()==3) {
 		formations.clear();
+		paths.clear();
 		// Formation, Formation, Path
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
@@ -217,6 +220,7 @@ void processInput() {
 	}
 	else if (strokes.size()==4) {
 		formations.clear();
+		paths.clear();
 		// Formation, Sub-formation, Formation, Sub-formation
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
@@ -239,6 +243,7 @@ void processInput() {
 	}
 	else if (strokes.size()==5) {
 		formations.clear();
+		paths.clear();
 		// Formation, Sub-formation, Formation, Sub-formation, Path
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
@@ -263,6 +268,7 @@ void processInput() {
 	}
 	else if (strokes.size()==6) {
 		formations.clear();
+		paths.clear();
 		// Formation, Sub-formation, Formation, Sub-formation, Path, Sub-path
 		vector<glm::vec3> f1 = sketchHandler->processFormation(strokes[0]);
 		formations.push_back(f1);
@@ -351,12 +357,29 @@ void drawFloor(float size, int polys) {
 		glBegin(GL_TRIANGLE_STRIP);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glColor3f(1.0f, 1.0f, 1.0f);
+		int texCount = -1;
 		for (float z=0.0f; z<=polys; z++) {
 			for (float xAdd=0.0f; xAdd<=1.0f; xAdd++) {
 				float xCur = 2*((size*(x/polys))+(size*(xAdd/polys))) - size;
 				float zCur = 2*(size*(z/polys)) - size;
 				glNormal3f(0.0f, 1.0f, 0.0f);
 				glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+				/*
+				texCount++;
+				if (texCount==0) {
+					glTexCoord2d(0.0, 0.0);
+				}
+				else if (texCount==1) {
+					glTexCoord2d(1.0, 0.0);
+				}
+				else if (texCount==2) {
+					glTexCoord2d(0.0, 1.0);
+				}
+				else if (texCount==3) {
+					glTexCoord2d(1.0, 1.0);
+					texCount = -1;
+				}
+				*/
 				glVertex3f(xCur, 0.0f, zCur);
 			}
 		}

@@ -5,17 +5,17 @@
 CrowdModelAgentFocus::CrowdModelAgentFocus(void) {
 	this->sepMod = 1.0;
 	vector<glm::vec3> prevPoints;
-	for (int i=0; i<150; i++) {
-		float ranX = rand() % 30;
-		float ranZ = rand() % 30;
-		glm::vec3 point = glm::vec3(ranX+10, 0, ranZ+10);
+	for (int i=0; i<100; i++) {
+		float ranX = rand() % 10;
+		float ranZ = rand() % 10;
+		glm::vec3 point = glm::vec3(ranX, 0, ranZ);
 
 		//While the current randomly-generated point is found in the list already generated
 		//Prevents agents being spawned on the same spot
 		while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end()) {
-			float ranX = rand() % 30;
-			float ranZ = rand() % 30;
-			point = glm::vec3(ranX+10, 0, ranZ+10);
+			float ranX = rand() % 10;
+			float ranZ = rand() % 10;
+			point = glm::vec3(ranX, 0, ranZ);
 		}
 		prevPoints.push_back(point);
 		AgentFocus* newAgent = new AgentFocus(point);
@@ -143,9 +143,11 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
 	}
 
+	/*
 	if (path.size() < 1) {
 		path.push_back(f2->getCentre());
 	}
+	*/
 
 	//Create the crowd with a path and a default sub-path, both formations and the list of agents
 	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f2, path, agents);

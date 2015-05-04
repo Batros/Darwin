@@ -79,9 +79,14 @@ AgentFocus::~AgentFocus(void)
 }
 
 void AgentFocus::setPath(vector<vec3> path) {
-	this->nextPath = path[0];
-	path.erase(path.begin());
-	this->path = path;
+	if (path.size() > 0) {
+		this->nextPath = path[0];
+		path.erase(path.begin());
+		this->path = path;
+	}
+	else {
+		pathFound = true;
+	}
 }
 
 void AgentFocus::drawBase() {
@@ -142,19 +147,19 @@ void AgentFocus::drawBase() {
 	glBegin(GL_TRIANGLE_STRIP);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xPos, height, zNegEx);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 1.0);
 	glVertex3f(xPos, 0.0f, zNeg);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xPos, height, zPosEx);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 1.0);
 	glVertex3f(xPos, 0.0f, zPos);
 
 	glEnd();
@@ -162,19 +167,19 @@ void AgentFocus::drawBase() {
 	glBegin(GL_TRIANGLE_STRIP);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xNeg, height, zNegEx);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 1.0);
 	glVertex3f(xNeg, 0.0f, zNeg);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xNeg, height, zPosEx);
 
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 1.0);
 	glVertex3f(xNeg, 0.0f, zPos);
 
 	glEnd();
@@ -379,25 +384,25 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 		}
 		else {
 			vectorToPath = nextPath - position;
-		}
-		if (skipPath || length(vectorToPath) < 2) {
-			if (path.size() > 0) {
-				nextPath = path[0];
-				positionsStack.clear();
-				path.erase(path.begin());
-				vectorToPath = normalize(nextPath - position)*0.35f;
+			if (skipPath || length(vectorToPath) < 2) {
+				if (path.size() > 0) {
+					nextPath = path[0];
+					positionsStack.clear();
+					path.erase(path.begin());
+					vectorToPath = normalize(nextPath - position)*0.35f;
+				}
+				else {
+					vectorToPath = vec3(0.0,0.0,0.0);
+					pathFound = true;
+				}
 			}
 			else {
-				vectorToPath = vec3(0.0,0.0,0.0);
-				pathFound = true;
+				vectorToPath = normalize(nextPath - position)*0.35f;
 			}
-		}
-		else {
-			vectorToPath = normalize(nextPath - position)*0.35f;
 		}
 		vec3 sepVec = separation(sepNeighbours, strength)*sepMod;
 		vec3 deltaPos;
-		if (length(vectorToPath) > 0) {
+		if (!pathFound) {
 			deltaPos = sepVec + vectorToPath;
 		}
 		else {

@@ -7,8 +7,7 @@ CrowdAgentFocus::CrowdAgentFocus(void)
 {
 }
 
-CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f2, Path path) 
-{
+CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f2, Path path) {
 	startFormation = f1;
 	endFormation = f2;
 	//Get agents from agent coordinates
@@ -41,7 +40,6 @@ CrowdAgentFocus::CrowdAgentFocus(Formation* f1, Formation* f2, Path path, vector
 	//Get the list of end coords from the second formation
 	vector<glm::vec3> coords = f2->getAgentCoords();
 
-	//Set each agent's destination point to be this point, but relative to their current position
 	float minSpeed = 100.0f;
 	for (unsigned int i=0; i<agents.size(); i++) {
 		agents[i]->setEndPoint(coords[i]);
