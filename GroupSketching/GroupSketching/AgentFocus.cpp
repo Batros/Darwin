@@ -458,7 +458,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 		if (distFromEnd < 0.1) {
 			needsToMove = false;
 		}
-		else if (positionsStack.size()==20) {
+		else if (positionsStack.size()==10) {
 			//Check the previous 50 updates - the distance travelled and the length of the vectors.
 			//If the distance travelled is small compared to the lengths, it is likely the agent is stuck jittering back and forth, so set it as "reached destination".
 
@@ -471,7 +471,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 			}
 			positionsStack.erase(positionsStack.begin());
 			
-			if ((distanceTravelled<(totalLength/90.0)) && (distFromEnd < 3)) {
+			if ((distanceTravelled<(totalLength/90.0)) && (distFromEnd < 10)) {
 				needsToMove = false;
 			}
 		} else {
@@ -493,7 +493,9 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 			}
 		}
 		vec3 pshVec = getPushedBy(pshNeighbours);
-		*/
+		
+
+
 		if (potentialNeighbours.size() > 0) {
 			vector<vec3> sepNeighbours;
 			vector<float> strength;
@@ -554,6 +556,7 @@ void AgentFocus::update(vector<AgentFocus*> potentialNeighbours, float sepMod)
 				setPosition(newPos);
 			}
 		}
+		*/
 		draw();
 	}
 }

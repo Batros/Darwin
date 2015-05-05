@@ -42,7 +42,11 @@ enum {
 	MENU_PROC_INPUT,
 	MENU_SEP_LOW,
 	MENU_SEP_MED,
-	MENU_SEP_HIGH
+	MENU_SEP_HIGH,
+	MENU_TEST_1,
+	MENU_TEST_2,
+	MENU_TEST_3,
+	MENU_TEST_4
 };
 
 /*
@@ -518,12 +522,19 @@ void chooseFromMenu(int opt) {
 	case MENU_SEP_HIGH:
 		crowdModelAgentFocus->setSepMod(1.6);
 		break;
+
+	case MENU_TEST_1:
+		crowdModelAgentFocus->startTest(1);
+		break;
 	}
 
 	glutPostRedisplay();
 }
 
 void setupMenu(void) {
+	int testMenu = glutCreateMenu(chooseFromMenu);
+	glutAddMenuEntry("1", MENU_TEST_1);
+
 	int controlStyleMenu = glutCreateMenu(chooseFromMenu);
 	glutAddMenuEntry("Classic", MENU_CONTROL_CLASSIC);
 	glutAddMenuEntry("New", MENU_CONTROL_NEW);
@@ -543,6 +554,7 @@ void setupMenu(void) {
 	glutAddSubMenu("Control style", controlStyleMenu);
 	glutAddSubMenu("Show sketches", showSketchesMenu);
 	glutAddSubMenu("Agent separation", separationMenu);
+	glutAddSubMenu("Test cases", testMenu);
 	glutAddMenuEntry("Quit program", MENU_QUIT);
 
 

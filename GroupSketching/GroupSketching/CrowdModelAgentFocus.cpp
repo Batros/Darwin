@@ -6,15 +6,15 @@ CrowdModelAgentFocus::CrowdModelAgentFocus(void) {
 	this->sepMod = 1.0;
 	vector<glm::vec3> prevPoints;
 	for (int i=0; i<100; i++) {
-		float ranX = rand() % 10;
-		float ranZ = rand() % 10;
+		float ranX = rand() % 20;
+		float ranZ = rand() % 20;
 		glm::vec3 point = glm::vec3(ranX, 0, ranZ);
 
 		//While the current randomly-generated point is found in the list already generated
 		//Prevents agents being spawned on the same spot
 		while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end()) {
-			float ranX = rand() % 10;
-			float ranZ = rand() % 10;
+			float ranX = rand() % 20;
+			float ranZ = rand() % 20;
 			point = glm::vec3(ranX, 0, ranZ);
 		}
 		prevPoints.push_back(point);
@@ -230,13 +230,14 @@ bool CrowdModelAgentFocus::update() {
 
 	vector<AgentFocus*> crowdAgents;
 
+	for (int i=0; i<freeAgents.size(); i++) {
+		freeAgents[i]->update(crowdAgents, sepMod);
+	}
+
+	//crowdAgents = freeAgents;
 	for (int i=0; i<crowds.size(); i++) {
 		vector<AgentFocus*> agents = crowds[i]->getAgents();
 		crowdAgents.insert(crowdAgents.begin(), agents.begin(), agents.end());
-	}
-
-	for (int i=0; i<freeAgents.size(); i++) {
-		freeAgents[i]->update(crowdAgents, sepMod);
 	}
 
 	for (int i=0; i<crowds.size(); i++) {
@@ -320,4 +321,59 @@ pair<pair<Formation*, Formation*>, vector<AgentFocus*>>  CrowdModelAgentFocus::p
 	pair<pair<Formation*, Formation*>, vector<AgentFocus*>> returnVal(formations, agents);
 
 	return returnVal;
+}
+
+void CrowdModelAgentFocus::startTest(int t) {
+	freeAgents.clear();
+	crowds.clear();
+	srand (0);
+	vector<glm::vec3> prevPoints;
+	switch (t) {
+	// VIPs inside bodyguards
+	case 1:
+		for (int i=0; i<10; i++) {
+			float ranX = rand() % 10;
+			float ranZ = rand() % 10;
+			glm::vec3 point = glm::vec3(ranX, 0, ranZ);
+
+			//While the current randomly-generated point is found in the list already generated
+			//Prevents agents being spawned on the same spot
+			while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end()) {
+				float ranX = rand() % 10;
+				float ranZ = rand() % 10;
+				point = glm::vec3(ranX, 0, ranZ);
+			}
+			prevPoints.push_back(point);
+			AgentFocus* newAgent = new AgentFocus(point);
+			freeAgents.push_back(newAgent);
+		}
+
+		prevPoints.clear();
+
+		for (int i=0; i<30; i++) {
+			float ranX = rand() % 20;
+			float ranZ = rand() % 20;
+			glm::vec3 point = glm::vec3(ranX-5, 0, ranZ+10);
+
+			//While the current randomly-generated point is found in the list already generated
+			//Prevents agents being spawned on the same spot
+			while (find(prevPoints.begin(), prevPoints.end(), point)!=prevPoints.end()) {
+				float ranX = rand() % 20;
+				float ranZ = rand() % 20;
+				point = glm::vec3(ranX-5, 0, ranZ+10);
+			}
+			prevPoints.push_back(point);
+			AgentFocus* newAgent = new AgentFocus(point);
+			newAgent->setType(2);
+			freeAgents.push_back(newAgent);
+		}
+
+		break;
+	case 2:
+		break;
+	case 3:
+		break;
+	case 4:
+		break;
+	}
 }
