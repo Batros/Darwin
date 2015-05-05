@@ -180,21 +180,28 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 
 	//Then populate it with these agents
 	for (int i=0; i<freeAgents.size(); i++) {
-		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
-			if (pointInBoundary(freeAgents[i]->getPosition(), bound1Sub)) {
-				//Add it to a sub-group
-				agentsInSubBoundary.push_back(freeAgents[i]->getPosition());
-				subAgents.push_back(freeAgents[i]);
-				agentsToDelete.push_back(i);
-			} else {
-				agentsInBoundary.push_back(freeAgents[i]->getPosition());
-				agents.push_back(freeAgents[i]);
-				agentsToDelete.push_back(i);
-			}
+		if (pointInBoundary(freeAgents[i]->getPosition(), bound1Sub)) {
+			//Add it to a sub-group
+			agentsInSubBoundary.push_back(freeAgents[i]->getPosition());
+			subAgents.push_back(freeAgents[i]);
+			agentsToDelete.push_back(i);
 		}
 	}
 
 	//Remove all necessary agents from freeAgents
+	for (int i=agentsToDelete.size()-1; i>=0; i--) {
+		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
+	}
+
+	agentsToDelete.clear();
+	for (int i=0; i<freeAgents.size(); i++) {
+		if (pointInBoundary(freeAgents[i]->getPosition(), bound1)) {
+			agentsInBoundary.push_back(freeAgents[i]->getPosition());
+			agents.push_back(freeAgents[i]);
+			agentsToDelete.push_back(i);
+		}
+	}
+
 	for (int i=agentsToDelete.size()-1; i>=0; i--) {
 		freeAgents.erase(freeAgents.begin()+agentsToDelete[i]);
 	}
@@ -207,19 +214,11 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 
 	f2->populate(agentsInBoundary.size());
 
-	/*
-	if (path.size() < 1) {
-		path.push_back(f2->getCentre());
-	}
-	*/
-
 	f2Sub->populate(agentsInSubBoundary.size());
 
-	/*
-	if (subPath.size() < 1) {
-		subPath.push_back(f2Sub->getCentre());
+	if (subPath.size()==0) {
+		subPath = path;
 	}
-	*/
 
 	//Create the crowd with a path and a default sub-path, both formations and the list of agents
 	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f1Sub, f2, f2Sub, path, subPath, agents, subAgents);
