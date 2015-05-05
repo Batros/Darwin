@@ -218,9 +218,6 @@ void processInput() {
 		if (path.size() > 1) {
 			crowdModelAgentFocus->createCrowd(f1, f2, path);
 		}
-		else {
-			// Path incorrect
-		}
 	}
 	else if (strokes.size()==4) {
 		formations.clear();
@@ -239,11 +236,11 @@ void processInput() {
 		bool sub2Inside = sketchHandler->processSubFormation(f2Sub, f2);
 
 		Path path;
-		if (sub1Inside && sub2Inside) {
+		//if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
 			crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub);
-		}
+		//}
 	}
 	else if (strokes.size()==5) {
 		formations.clear();
@@ -264,11 +261,11 @@ void processInput() {
 
 		Path path = sketchHandler->processPath(strokes[4], f1, f2);
 		paths.push_back(path);
-		if (sub1Inside && sub2Inside) {
+		//if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
 			crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub, path);
-		}
+		//}
 	}
 	else if (strokes.size()==6) {
 		formations.clear();
@@ -291,11 +288,11 @@ void processInput() {
 		Path subPath = sketchHandler->processPath(strokes[5], f1Sub, f2Sub);
 		paths.push_back(path);
 		paths.push_back(subPath);
-		if (sub1Inside && sub2Inside) {
+		//if (sub1Inside && sub2Inside) {
 			strokes.clear();
 			strokeNumber = 0;
 			crowdModelAgentFocus->createCrowd(f1, f2, f1Sub, f2Sub, path, subPath);
-		}
+		//}
 	}
 	else {
 		strokes.clear();
@@ -522,9 +519,21 @@ void chooseFromMenu(int opt) {
 	case MENU_SEP_HIGH:
 		crowdModelAgentFocus->setSepMod(1.6);
 		break;
-
+		
 	case MENU_TEST_1:
 		crowdModelAgentFocus->startTest(1);
+		break;
+
+	case MENU_TEST_2:
+		crowdModelAgentFocus->startTest(2);
+		break;
+
+	case MENU_TEST_3:
+		crowdModelAgentFocus->startTest(3);
+		break;
+
+	case MENU_TEST_4:
+		crowdModelAgentFocus->startTest(4);
 		break;
 	}
 
@@ -534,6 +543,9 @@ void chooseFromMenu(int opt) {
 void setupMenu(void) {
 	int testMenu = glutCreateMenu(chooseFromMenu);
 	glutAddMenuEntry("1", MENU_TEST_1);
+	glutAddMenuEntry("2", MENU_TEST_2);
+	glutAddMenuEntry("3", MENU_TEST_3);
+	glutAddMenuEntry("4", MENU_TEST_4);
 
 	int controlStyleMenu = glutCreateMenu(chooseFromMenu);
 	glutAddMenuEntry("Classic", MENU_CONTROL_CLASSIC);
