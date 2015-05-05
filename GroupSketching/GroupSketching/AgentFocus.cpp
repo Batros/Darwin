@@ -187,10 +187,8 @@ void AgentFocus::drawBase() {
 }
 
 void AgentFocus::drawTop() {
-	//glEnable(GL_TEXTURE_2D);
-	//texture = LoadTexture("earth.bmp", 500, 373);
+	glEnable(GL_TEXTURE_2D);
 	
-
 	float xPos = SIZE*0.25;
 	float xNeg = -SIZE*0.25;
 	float zPos = SIZE*0.75;
@@ -205,22 +203,22 @@ void AgentFocus::drawTop() {
 	////
 
 	glBegin(GL_TRIANGLE_STRIP);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glNormal3f(0.0f, 0.0f, -1.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xNeg, height, zNeg);
 
 	glNormal3f(0.0f, 0.0f, -1.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 1.0);
 	glVertex3f(xNeg, topHeight, zNeg);
 
 	glNormal3f(0.0f, 0.0f, -1.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xPos, height, zNeg);
 
 	glNormal3f(0.0f, 0.0f, -1.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 1.0);
 	glVertex3f(xPos, topHeight, zNeg);
 
 	glEnd();
@@ -230,22 +228,22 @@ void AgentFocus::drawTop() {
 	////
 
 	glBegin(GL_TRIANGLE_STRIP);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glNormal3f(-1.0f, 0.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xNeg, height, zNeg);
 
 	glNormal3f(-1.0f, 0.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 1.0);
 	glVertex3f(xNeg, topHeight, zNeg);
 
 	glNormal3f(-1.0f, 0.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xNeg, height, zPos);
 
 	glNormal3f(-1.0f, 0.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 1.0);
 	glVertex3f(xNeg, topHeight, zPos);
 
 	glEnd();
@@ -255,22 +253,22 @@ void AgentFocus::drawTop() {
 	////
 
 	glBegin(GL_TRIANGLE_STRIP);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glNormal3f(1.0f, 0.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xPos, height, zNeg);
 
 	glNormal3f(1.0f, 0.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 1.0);
 	glVertex3f(xPos, topHeight, zNeg);
 
 	glNormal3f(1.0f, 0.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xPos, height, zPos);
 
 	glNormal3f(1.0f, 0.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 1.0);
 	glVertex3f(xPos, topHeight, zPos);
 
 	glEnd();
@@ -280,22 +278,22 @@ void AgentFocus::drawTop() {
 	////
 
 	glBegin(GL_TRIANGLE_STRIP);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glNormal3f(0.0f, 0.0f, 1.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xNeg, height, zPos);
 
 	glNormal3f(0.0f, 0.0f, 1.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 1.0);
 	glVertex3f(xNeg, topHeight, zPos);
 
 	glNormal3f(0.0f, 0.0f, 1.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xPos, height, zPos);
 
 	glNormal3f(0.0f, 0.0f, 1.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 1.0);
 	glVertex3f(xPos, topHeight, zPos);
 
 	glEnd();
@@ -305,31 +303,167 @@ void AgentFocus::drawTop() {
 	////
 
 	glBegin(GL_TRIANGLE_STRIP);
-	//glBindTexture(GL_TEXTURE_2D, texture);
+	glBindTexture(GL_TEXTURE_2D, texture);
 
 	glNormal3f(0.0f, 1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 0.0);
 	glVertex3f(xNeg, topHeight, zNeg);
 
 	glNormal3f(0.0f, 1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(0.0, 1.0);
 	glVertex3f(xPos, topHeight, zNeg);
 
 	glNormal3f(0.0f, 1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 0.0);
 	glVertex3f(xNeg, topHeight, zPos);
 
 	glNormal3f(0.0f, 1.0f, 0.0f);
-	//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+	glTexCoord2d(1.0, 1.0);
 	glVertex3f(xPos, topHeight, zPos);
 
 	glEnd();
 }
 
 void AgentFocus::drawGun() {
-	GLUquadricObj *quadratic;
-	quadratic = gluNewQuadric();
-	gluCylinder(quadratic, SIZE*0.1, SIZE*0.1, SIZE*0.75, 32, 32);
+	//GLUquadricObj *quadratic;
+	//quadratic = gluNewQuadric();
+	//gluCylinder(quadratic, SIZE*0.1, SIZE*0.1, SIZE*0.75, 32, 32);
+
+	glEnable(GL_TEXTURE_2D);
+	
+	float xPos = SIZE*0.1;
+	float xNeg = -SIZE*0.1;
+	float zPos = SIZE*1.35;
+	float zNeg = SIZE*0.75;
+
+	float height = SIZE/2;
+	float topHeight = SIZE*0.75;
+
+
+	////
+	// BACK
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2d(0.0, 0.0);
+	glVertex3f(xNeg, height, zNeg);
+
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2d(0.0, 1.0);
+	glVertex3f(xNeg, topHeight, zNeg);
+
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2d(1.0, 0.0);
+	glVertex3f(xPos, height, zNeg);
+
+	glNormal3f(0.0f, 0.0f, -1.0f);
+	glTexCoord2d(1.0, 1.0);
+	glVertex3f(xPos, topHeight, zNeg);
+
+	glEnd();
+
+	////
+	// LEFT
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glTexCoord2d(0.0, 0.0);
+	glVertex3f(xNeg, height, zNeg);
+
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glTexCoord2d(0.0, 1.0);
+	glVertex3f(xNeg, topHeight, zNeg);
+
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glTexCoord2d(1.0, 0.0);
+	glVertex3f(xNeg, height, zPos);
+
+	glNormal3f(-1.0f, 0.0f, 0.0f);
+	glTexCoord2d(1.0, 1.0);
+	glVertex3f(xNeg, topHeight, zPos);
+
+	glEnd();
+
+	////
+	// RIGHT
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glTexCoord2d(0.0, 0.0);
+	glVertex3f(xPos, height, zNeg);
+
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glTexCoord2d(0.0, 1.0);
+	glVertex3f(xPos, topHeight, zNeg);
+
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glTexCoord2d(1.0, 0.0);
+	glVertex3f(xPos, height, zPos);
+
+	glNormal3f(1.0f, 0.0f, 0.0f);
+	glTexCoord2d(1.0, 1.0);
+	glVertex3f(xPos, topHeight, zPos);
+
+	glEnd();
+
+	////
+	// FRONT
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glTexCoord2d(0.0, 0.0);
+	glVertex3f(xNeg, height, zPos);
+
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glTexCoord2d(0.0, 1.0);
+	glVertex3f(xNeg, topHeight, zPos);
+
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glTexCoord2d(1.0, 0.0);
+	glVertex3f(xPos, height, zPos);
+
+	glNormal3f(0.0f, 0.0f, 1.0f);
+	glTexCoord2d(1.0, 1.0);
+	glVertex3f(xPos, topHeight, zPos);
+
+	glEnd();
+
+	////
+	// TOP
+	////
+
+	glBegin(GL_TRIANGLE_STRIP);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	glTexCoord2d(0.0, 0.0);
+	glVertex3f(xNeg, topHeight, zNeg);
+
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	glTexCoord2d(0.0, 1.0);
+	glVertex3f(xPos, topHeight, zNeg);
+
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	glTexCoord2d(1.0, 0.0);
+	glVertex3f(xNeg, topHeight, zPos);
+
+	glNormal3f(0.0f, 1.0f, 0.0f);
+	glTexCoord2d(1.0, 1.0);
+	glVertex3f(xPos, topHeight, zPos);
+
+	glEnd();
 }
 
 void AgentFocus::draw() {
@@ -339,13 +473,11 @@ void AgentFocus::draw() {
 		glRotated(facing, 0.0, 1.0, 0.0);
 		drawBase();
 
-		glColor3f(0.0f, 0.0f, 0.0f);
+		glColor3f(0.35f, 0.35f, 0.35f);
 		drawTop();
-		glPushMatrix();
-			glColor3f(0.0f, 0.0f, 1.0f);
-			glTranslated(0.0, SIZE*0.625, SIZE*0.75); 
-			drawGun();
-		glPopMatrix();
+
+		glColor3f(0.5f, 0.5f, 0.5f); 
+		drawGun();
 	glPopMatrix();
 }
 

@@ -364,8 +364,8 @@ void drawFloor(float size, int polys) {
 				float xCur = 2*((size*(x/polys))+(size*(xAdd/polys))) - size;
 				float zCur = 2*(size*(z/polys)) - size;
 				glNormal3f(0.0f, 1.0f, 0.0f);
-				glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
-				/*
+				//glTexCoord2d(((xCur+size)/(2*size)),((zCur+size)/(2*size)));
+				
 				texCount++;
 				if (texCount==0) {
 					glTexCoord2d(0.0, 0.0);
@@ -380,7 +380,7 @@ void drawFloor(float size, int polys) {
 					glTexCoord2d(1.0, 1.0);
 					texCount = -1;
 				}
-				*/
+				
 				glVertex3f(xCur, 0.0f, zCur);
 			}
 		}
@@ -390,7 +390,7 @@ void drawFloor(float size, int polys) {
 }
 
 void renderEnvironment(void) {
-	drawFloor(50.0f, 300);
+	drawFloor(50.0f, 10);
 	if (classicControl) {
 		glColor3f(1.0, 1.0, 1.0);
 		glLineWidth(5.0f);

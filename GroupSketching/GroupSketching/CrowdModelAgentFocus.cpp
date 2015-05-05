@@ -206,14 +206,20 @@ void CrowdModelAgentFocus::createCrowd(vector<glm::vec3> bound1, vector<glm::vec
 	Formation* f2Sub = new Formation(bound2Sub);
 
 	f2->populate(agentsInBoundary.size());
+
+	/*
 	if (path.size() < 1) {
 		path.push_back(f2->getCentre());
 	}
-	
+	*/
+
 	f2Sub->populate(agentsInSubBoundary.size());
+
+	/*
 	if (subPath.size() < 1) {
 		subPath.push_back(f2Sub->getCentre());
 	}
+	*/
 
 	//Create the crowd with a path and a default sub-path, both formations and the list of agents
 	CrowdAgentFocus* newCrowd = new CrowdAgentFocus(f1, f1Sub, f2, f2Sub, path, subPath, agents, subAgents);
