@@ -229,7 +229,7 @@ void Crowd::update(vector<Agent*> neighbours)
 	glPushMatrix();
 		glTranslated(currentSubPosition.x, 0, currentSubPosition.z);
 		//Now update the sub-agents
-		cout << subAgents.size() << ", " << subPathVec.x << ", " << subPathVec.z << ", " << pathVec.x << ", " << pathVec.z << endl;
+		//cout << subAgents.size() << ", " << subPathVec.x << ", " << subPathVec.z << ", " << pathVec.x << ", " << pathVec.z << endl;
 		for (unsigned int i=0; i<subAgents.size(); i++) {
 			subAgents[i]->update(neighbours, urgency, subPathVec);
 		}
