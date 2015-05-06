@@ -126,6 +126,9 @@ vector<glm::vec3> Formation::populateBoundary(double stepSize) {
 			if (!pointInBoundary(bPoint, this->exclusiveBoundaryCoords)) {
 				resampledBoundaryCoords.push_back(bPoint);
 			}
+			else {
+				missingAgents++;
+			}
 		}
 	}
 
@@ -267,9 +270,13 @@ void Formation::populate(int n)
 	// Using the values calculated with a small step the optimal values for boundary agents and step size can be found.
 
 	// Calculate the boundary perimeter.
+	// Boundary perimeter ignores boundary coordinates located inside the exclusive boundary (if one is supplied).
+	// Done to ensure the optimal step size for population is caluculated based only on the shape to be populated.
 	double boundaryPerimeter = 0.0;
 	for (int i = 0; i < this->boundaryCoords.size() - 1; i++) {
-		boundaryPerimeter += sqrt((this->boundaryCoords[i].x - this->boundaryCoords[i+1].x)*(this->boundaryCoords[i].x - this->boundaryCoords[i+1].x) + (this->boundaryCoords[i].z - this->boundaryCoords[i+1].z)*(this->boundaryCoords[i].z - this->boundaryCoords[i+1].z));
+		if (!pointInBoundary(this->boundaryCoords[i], this->exclusiveBoundaryCoords)) {
+			boundaryPerimeter += sqrt((this->boundaryCoords[i].x - this->boundaryCoords[i+1].x)*(this->boundaryCoords[i].x - this->boundaryCoords[i+1].x) + (this->boundaryCoords[i].z - this->boundaryCoords[i+1].z)*(this->boundaryCoords[i].z - this->boundaryCoords[i+1].z));
+		}
 	}
 
 	// Populate the boundary (resample)
@@ -279,6 +286,7 @@ void Formation::populate(int n)
 	if (stepSize < 0.0000001)
 		stepSize = 0.0000001;
 
+	missingAgents = 0;
 	// Resample the boundary coords to boundaryAgents number of equidistant agents.
 	vector<glm::vec3> resampledBoundaryCoords = this->populateBoundary(stepSize);
 	// Add the starting point of the boundary to the resampled boundary coordinates.
@@ -307,6 +315,7 @@ void Formation::populate(int n)
 	double percentControl = 0.8;
 	stepSize = (boundaryPerimeter*percentControl) / optimalBoundaryAgents;
 
+	missingAgents = 0;
 	// Repeat populate with the now optimal step size.
 	// Resample the boundary coords to boundaryAgents number of equidistant agents.
 	resampledBoundaryCoords.clear();

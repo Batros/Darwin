@@ -6,6 +6,7 @@ class Formation
 	vector<glm::vec3> exclusiveBoundaryCoords;
 	vector<glm::vec3> agentCoords;
 	glm::vec3 centre;
+	int missingAgents;
 
 public:
 	
