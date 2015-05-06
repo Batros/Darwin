@@ -153,7 +153,7 @@ vector<glm::vec3> Formation::boundingRect(double stepSize) {
 	for (double y = rectMinY; y < rectMaxY; y += stepSize) {
 		for (double x = rectMinX; x < rectMaxX; x += stepSize) {
 			glm::vec3 point = glm::vec3(x,0.0,y);
-			if (pointInBoundary(point)) {
+			if (pointInBoundary(point, this->boundaryCoords) && !pointInBoundary(point, this->exclusiveBoundaryCoords)) {
 				fPoints.push_back(point);
 			}
 		}
@@ -183,7 +183,7 @@ vector<glm::vec3> Formation::floodFill(double stepSize, vector<glm::vec3>q) {
 		glm::vec3 left = glm::vec3(checkPoint.x, checkPoint.y, checkPoint.z);
 		glm::vec3 right = glm::vec3(checkPoint.x + sampleX, checkPoint.y, checkPoint.z);
 		// Move along the points to the left.
-		while (pointInBoundary(left) && (std::find(c.begin(), c.end(), left) == c.end())) {
+		while (pointInBoundary(left, this->boundaryCoords) && !pointInBoundary(left, this->exclusiveBoundaryCoords) && (std::find(c.begin(), c.end(), left) == c.end())) {
 			// Add left to fPoints.
 			fPoints.push_back(left);
 			//c.push_back(left);
@@ -191,12 +191,12 @@ vector<glm::vec3> Formation::floodFill(double stepSize, vector<glm::vec3>q) {
 			glm::vec3 top = glm::vec3(left.x, left.y, left.z + sampleZ);
 			glm::vec3 bottom = glm::vec3(left.x, left.y, left.z - sampleZ);
 			// If top/bottom are in the bounds and have not been checked, add them to the queue and fPoints.
-			if (pointInBoundary(top) && (std::find(c.begin(), c.end(), top) == c.end())) {
+			if (pointInBoundary(top, this->boundaryCoords) && !pointInBoundary(top, this->exclusiveBoundaryCoords) && (std::find(c.begin(), c.end(), top) == c.end())) {
 				//fPoints.push_back(top);
 				q.push_back(top);
 				//c.push_back(top);
 			}
-			if (pointInBoundary(bottom) && (std::find(c.begin(), c.end(), bottom) == c.end())) {
+			if (pointInBoundary(bottom, this->boundaryCoords) && !pointInBoundary(bottom, this->exclusiveBoundaryCoords) && (std::find(c.begin(), c.end(), bottom) == c.end())) {
 				//fPoints.push_back(bottom);
 				q.push_back(bottom);
 				//c.push_back(bottom);
@@ -205,7 +205,7 @@ vector<glm::vec3> Formation::floodFill(double stepSize, vector<glm::vec3>q) {
 			left = glm::vec3(left.x - sampleX, left.y, left.z);
 		}
 		// Repeat for right.
-		while (pointInBoundary(right) && (std::find(c.begin(), c.end(), right) == c.end())) {
+		while (pointInBoundary(right, this->boundaryCoords) && !pointInBoundary(right, this->exclusiveBoundaryCoords) && (std::find(c.begin(), c.end(), right) == c.end())) {
 			// Add left to fPoints.
 			fPoints.push_back(right);
 			//c.push_back(right);
@@ -213,12 +213,12 @@ vector<glm::vec3> Formation::floodFill(double stepSize, vector<glm::vec3>q) {
 			glm::vec3 top = glm::vec3(right.x, right.y, right.z + sampleZ);
 			glm::vec3 bottom = glm::vec3(right.x, right.y, right.z - sampleZ);
 			// If top/bottom are in the bounds and have not been checked, add them to the queue and fPoints.
-			if (pointInBoundary(top) && (std::find(c.begin(), c.end(), top) == c.end())) {
+			if (pointInBoundary(top, this->boundaryCoords) && !pointInBoundary(top, this->exclusiveBoundaryCoords) && (std::find(c.begin(), c.end(), top) == c.end())) {
 				//fPoints.push_back(top);
 				q.push_back(top);
 				//c.push_back(top);
 			}
-			if (pointInBoundary(bottom) && (std::find(c.begin(), c.end(), bottom) == c.end())) {
+			if (pointInBoundary(bottom, this->boundaryCoords) && !pointInBoundary(bottom, this->exclusiveBoundaryCoords) && (std::find(c.begin(), c.end(), bottom) == c.end())) {
 				//fPoints.push_back(bottom);
 				q.push_back(bottom);
 				//c.push_back(bottom);
@@ -498,50 +498,26 @@ void Formation::populate(vector<glm::vec3> coords)
 
 
 // Check if a point is in the bounds. Using Ray casting algorithm.
-bool Formation::pointInBoundary(glm::vec3 point)
+bool Formation::pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary)
 {
 	// Ray casting algorithm
 	// Count how many times a constant ray from the point intercepts the polygon.
 	// If the number is odd, then the point is inside. Outside otherwise.
 	// NB: This algorithm only works for 2-D coordinates. Need angle sum algorithm for 3-D.
 	
-	// If an exclusive boundary is present, check that point is not inside it.
-	if (this->exclusiveBoundaryCoords.size() > 0) {
-		int boundarySides = this->exclusiveBoundaryCoords.size();
-		float boundaryX[1024];
-		float boundaryY[1024];
-		// Convert x-z space to x-y space
-		for (int k = 0; k < this->exclusiveBoundaryCoords.size(); k++) {
-			boundaryX[k] = this->exclusiveBoundaryCoords[k].x;
-			boundaryY[k] = this->exclusiveBoundaryCoords[k].z;
-		}
-		int   i, j = boundarySides - 1;
-		bool  oddNodes = false;
-
-		float x = point.x;
-		float y = point.z;
-
-		for (i = 0; i<boundarySides; i++) {
-			if (boundaryY[i]<y && boundaryY[j] >= y
-				|| boundaryY[j]<y && boundaryY[i] >= y) {
-				if (boundaryX[i] + (y - boundaryY[i]) / (boundaryY[j] - boundaryY[i])*(boundaryX[j] - boundaryX[i])<x) {
-					oddNodes = !oddNodes;
-				}
-			}
-			j = i;
-		}
-		if (oddNodes)
-			return false;
+	// If the boundary is empty, return false.
+	if (boundary.size() == 0) {
+		return false;
 	}
 
-	// If the point is not inside the exclusive boundary (or such a boundary is not present), proceed as normal.
-	int boundarySides = this->boundaryCoords.size();
+	// If b boundary is present, check if point is inside.
+	int boundarySides = boundary.size();
 	float boundaryX[1024];
 	float boundaryY[1024];
 	// Convert x-z space to x-y space
-	for (int k = 0; k < this->boundaryCoords.size(); k++) {
-		boundaryX[k] = this->boundaryCoords[k].x;
-		boundaryY[k] = this->boundaryCoords[k].z;
+	for (int k = 0; k < boundary.size(); k++) {
+		boundaryX[k] = boundary[k].x;
+		boundaryY[k] = boundary[k].z;
 	}
 	int   i, j = boundarySides - 1;
 	bool  oddNodes = false;

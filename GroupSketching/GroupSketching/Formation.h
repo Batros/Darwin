@@ -32,6 +32,6 @@ public:
 	glm::vec3 getCentre();
 	void setCentre(glm::vec3);
 private:
-	bool pointInBoundary(glm::vec3);
+	bool pointInBoundary(glm::vec3 point, vector<glm::vec3> boundary);
 };
 
