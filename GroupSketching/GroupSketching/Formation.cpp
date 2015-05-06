@@ -123,7 +123,9 @@ vector<glm::vec3> Formation::populateBoundary(double stepSize) {
 			glm::vec3 bPoint = glm::vec3(endX, 0.0, endZ);
 			startX = endX;
 			startZ = endZ;
-			resampledBoundaryCoords.push_back(bPoint);
+			if (!pointInBoundary(bPoint, this->exclusiveBoundaryCoords)) {
+				resampledBoundaryCoords.push_back(bPoint);
+			}
 		}
 	}
 
