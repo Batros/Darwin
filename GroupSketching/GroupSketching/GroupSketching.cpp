@@ -390,7 +390,7 @@ void drawFloor(float size, int polys) {
 }
 
 void renderEnvironment(void) {
-	drawFloor(50.0f, 10);
+	drawFloor(75.0f, 10);
 	if (classicControl) {
 		glColor3f(1.0, 1.0, 1.0);
 		glLineWidth(5.0f);

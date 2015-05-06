@@ -11,7 +11,7 @@ AgentFocus::AgentFocus(vec3 position) {
 	pathFound = false;
 	facing = 0.0f;
 	needsToMove = false;
-	SIZE = 0.5f;
+	SIZE = 0.35f;
 	SEPARATION_STRENGTH = 1.0f*SIZE;
 	PATHFIND_STRENGTH = 0.25f;
 	speed = 0.1f;
@@ -25,7 +25,7 @@ AgentFocus::AgentFocus(vec3 position, vec3 end, vec3 colour) {
 	pathFound = false;
 	facing = 0.0f;
 	needsToMove = true;
-	SIZE = 0.5f;
+	SIZE = 0.35f;
 	SEPARATION_STRENGTH = 1.0f*SIZE;
 	PATHFIND_STRENGTH = 0.25f;
 	speed = 0.1f;
@@ -468,7 +468,12 @@ void AgentFocus::drawGun() {
 
 void AgentFocus::draw() {
 	glPushMatrix();
-		glColor3f(1.0, 1.0, 1.0);
+		if (type==2) {
+			glColor3f(1.0, 0.5, 0.5);
+		}
+		else {
+			glColor3f(1.0, 1.0, 1.0);
+		}
 		glTranslated(position.x, 0, position.z);
 		glRotated(facing, 0.0, 1.0, 0.0);
 		drawBase();
@@ -758,7 +763,7 @@ void AgentFocus::setType(int t) {
 	this->type = t;
 	if (t==1) {
 		speed = 0.1;
-		SIZE = 0.5f;
+		SIZE = 0.35f;
 	}
 	else if (t==2) {
 		speed = 0.2;

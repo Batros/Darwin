@@ -60,13 +60,22 @@ void Camera::updatePositionsFixed(Input* input) {
 	if (input->isKeyPressed('a')) {
 		posVector -= stepSize * glm::vec4(-1.0, 0.0, 0.0, 0.0);
 	}
+
+	// Spacebar raises the camera
+	if (input->isKeyPressed(' ')) {
+		posVector += stepSize * glm::vec4(0.0, 1.0, 0.0, 0.0);
+	}
+	// Control lowers the camera
+	if (input->isSpecialKeyPressed(114)) {
+		posVector -= stepSize * glm::vec4(0.0, 1.0, 0.0, 0.0);
+	}
 }
 
 Camera::Camera(void) {
 	sens = 0.1;
 	stepSize = 0.25;
 
-	posVector = glm::vec4(0.0, 10.0, 0.0, 1.0);
+	posVector = glm::vec4(0.0, 15.0, 0.0, 1.0);
 	//lookVector = glm::vec4(0.0, -1.0, 0.0, 0.0);
 	lookVector = glm::vec4(0.0, -0.75, 0.6, 0.0);
 	rightVector = glm::vec4(-1.0, 0.0, 0.0, 0.0);
