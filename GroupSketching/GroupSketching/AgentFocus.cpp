@@ -80,6 +80,7 @@ AgentFocus::~AgentFocus(void)
 
 void AgentFocus::setPath(vector<vec3> path) {
 	if (path.size() > 0) {
+		pathFound = false;
 		this->nextPath = path[0];
 		path.erase(path.begin());
 		this->path = path;
